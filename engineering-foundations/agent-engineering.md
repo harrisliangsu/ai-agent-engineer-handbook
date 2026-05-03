@@ -1365,6 +1365,52 @@ jobs:
 - 2025 年初推出，Chrome 扩展形态，专注网页操作
 - 已被 Codex Background Computer Use 一定程度上替代
 
+#### Computer Use 工作机制（统一架构）
+
+无论 Anthropic Computer Use / Operator / OpenAI CUA / Manus，都是一套**感知 - 决策 - 动作**循环：
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  ① 截图（screenshot tool）                              │
+│     resolution: 1280x800（Anthropic 推荐）              │
+│     格式: PNG → base64 → vision LLM input                │
+└─────────────────────────────┬───────────────────────────┘
+                              ▼
+┌─────────────────────────────────────────────────────────┐
+│  ② VLM 推理（Vision LLM）                                │
+│     - 解析当前界面（按钮 / 输入框 / 文本 / 图标）        │
+│     - 决定下一步动作（"点击右上角的『下一步』按钮"）     │
+│     - 输出结构化 action：{type, x, y, text, key}         │
+└─────────────────────────────┬───────────────────────────┘
+                              ▼
+┌─────────────────────────────────────────────────────────┐
+│  ③ 执行（在 sandbox VM / 远程桌面 / Chrome extension）   │
+│     - mouse_move(x, y) / click / drag                    │
+│     - type_text("...") / key_press("ctrl+c")             │
+│     - 100-500ms 后截下一张图                             │
+└─────────────────────────────┬───────────────────────────┘
+                              │  循环
+                              └──────────────────────────▶
+```
+
+**关键工程难点**：
+
+| 难点 | 现象 | 业界解法 |
+|---|---|---|
+| **像素坐标定位不准** | LLM 说"点 (450, 320)"实际目标在 (445, 318)，差 5px 但点错按钮 | Anthropic：训练时强化 grounding loss；运行时给定容差 + 二次截图验证 |
+| **动态 / 异步 UI** | 点完按钮页面正在加载，下一张截图是中间态 | 引入 `wait_for_idle` + DOM/可访问性树辅助（不只看像素） |
+| **CAPTCHA / 反爬** | 几乎所有 captcha 都阻断 agent | 业界放弃，要么 HITL 让用户解，要么换 API 路径 |
+| **多窗口 / 焦点漂移** | 弹出通知、切换 app 后 agent 失去 context | 截全屏 + 维护 window_id；OpenAI Operator 用专用浏览器隔离 |
+| **PII 与隐私泄露** | 截图把屏幕上的密码、邮件、消息全发给 LLM | 客户端 mask 敏感区域；本地 OCR 过滤；专用 Computer Use VM |
+| **延迟 + 成本** | 每步 1-3 秒，每张截图 1-2K vision tokens，跑 10 分钟轻松 $5+ | 间隔截图、压分辨率、cache UI 元素 detection、用 DOM 替代 vision |
+
+**主流可靠性数据（2026-04 OSWorld benchmark）**：
+- **Claude Sonnet 4.6 + Computer Use**：~38% 任务完成率
+- **OpenAI CUA**：~32%
+- **人类基线**：72%
+
+也就是说，2026 年底 Computer Use 仍是**研究 / 辅助**而非生产替代品 —— 把它放在产品关键路径前一定要有 HITL fallback。
+
 ### 8.4 开源选项
 
 **Aider**
@@ -1388,12 +1434,57 @@ jobs:
 - 一个 Claude Code sub-agent 消耗 **27 M token**，跑了 **4.6 小时** 在无限循环里
 - 一份记录显示无限重试循环可在数分钟内消耗 **$40 API 费**
 
-**对策**：
+#### Loop of Death 的 5 种典型形态（按触发频率排序）
+
+| 形态 | 触发方式 | 例子 | 致命点 |
+|---|---|---|---|
+| **Tool Retry Loop** | 工具一直返回同一错误，agent 一直试同一参数 | `read_file('config.yaml')` → `FileNotFoundError`，agent 重试 50 次 | LLM 没有"前面试过"的强信号；error message 无诊断 |
+| **Test-Fail-Fix-Break** | 改 A 处让 B 测试通过，新改让 C 测试挂，循环 | `npm test` 红 → 改 → 红了别的 → 再改 → ... | 没有总览所有 test 状态的 dashboard；每步只看局部 |
+| **Hallucinated Tool / API Loop** | agent 调一个不存在的工具或 API，每次失败后微调名字再试 | `search_web` → 不存在 → `web_search` → `do_search` → ... | 工具列表没有强制 schema，错误消息不返回"可用工具列表" |
+| **Plan-Replan Spiral** | 每次失败后重新写整个 plan，旧失败信息丢失 | "重新规划" 触发 LLM 重新设计同样的失败步骤 | 没有 episodic memory 记录"已经试过 X 不行" |
+| **Approval Wait Deadlock** | agent 等待 HITL 批准，但 UI 没人看 | 触发了 `request_human_approval`，无人响应，agent 卡住数小时 | 没有 approval timeout + escalation |
+
+#### 单次 step 内的 anatomy（"Anthropic 90% 案例"）
+
+> 一份 Anthropic 内部分析指出：**约 90% 的 Loop of Death 都是"thinking → tool call → 同一个 error → 同样的 thinking → 同一个 tool call"** 的死循环 —— LLM 没有"我刚试过这个"的明确记忆，自然会一直推荐相同动作。
+
+防御 4 件套（缺一不可）：
+
+```python
+# 1. 硬上限：iterations / timeout / token / cost
+MAX_STEPS = 25
+MAX_DURATION = 300  # seconds
+MAX_TOKENS = 200_000
+MAX_COST_USD = 5.0
+
+# 2. 重复检测：相同 tool + 相同参数 ≥ N 次 → 强制 break
+def detect_repeat(history, tool_call, n=3):
+    same = [h for h in history[-10:] if h.tool == tool_call.tool
+            and h.args == tool_call.args and h.error == tool_call.error]
+    return len(same) >= n
+
+# 3. 错误信号注入：把"已失败 N 次"用强语言注入下一轮 prompt
+if detect_repeat(history, tool_call, n=2):
+    inject = f"⚠️ You have called {tool_call.tool}({tool_call.args}) "
+             f"and got the same error '{tool_call.error}' {n} times. "
+             f"Do NOT repeat. Choose a different approach OR stop and report."
+    next_messages.append({"role": "system", "content": inject})
+
+# 4. Escape hatch：明确给 agent "放弃 / 报告" 工具
+tools.append({
+    "name": "give_up_and_report",
+    "description": "Use when stuck. Reports what you tried and asks user.",
+    "parameters": {"reason": "string", "attempted": "list"}
+})
+```
+
+**对策（汇总）**：
 - **Max iterations 硬上限**（典型值 15-25 步）
 - **Execution timeout**（典型值 60 秒 / 单 step，5 分钟 / 整链）
 - **重复检测**：检测连续 N 步相同 tool call 强行中断
 - **预算 cap**：单次 task token / cost 上限，触发即停
 - **分层 compute**：简单决策用便宜模型，复杂决策才升级 → 实战可降 70% token 成本
+- **Escape hatch**：永远给 agent 一个体面退出的工具 (`give_up_and_report`)，避免它"为了不放弃而无限循环"
 
 ### 9.2 Hallucination Cascade（幻觉级联）
 
@@ -1438,6 +1529,23 @@ agent 错误调用了高破坏性工具。
 - 实时 token / cost 告警（5 分钟超阈值即告警）
 - 可视化的 trace 追溯哪一步烧了多少
 - 周期性 audit："上周谁的 agent 烧得最多"
+
+### 9.6 Anthropic 总结的 4 类失败模式与配套修复
+
+Anthropic *Building Effective AI Agents* + 后续工程博客把生产 agent 的失败收敛成 4 大类（与上面 §9.1-9.5 部分重叠，但视角不同 —— 按"修复手段"组织）：
+
+| 失败模式 | 表现 | 根因 | 配套修复 |
+|---|---|---|---|
+| **① Tool Misuse** | 调错工具 / 调对工具但参数非法 / 调高破坏性工具 | 工具描述模糊、参数 schema 不严、缺乏前置校验 | (1) 严格 JSON schema + 服务端二次校验；(2) 高破坏性工具加 `requires_confirmation: true`；(3) PreToolUse hook 在执行前拦；(4) 工具描述写明"何时**不**该用" |
+| **② Hallucinated Tool / Hallucinated API** | 调用根本不存在的 tool 或编造 API | 模型对工具列表"猜"而非"读"；错误消息没引导回正确工具 | (1) 错误返回时附带 `available_tools` 列表；(2) 用 constrained decoding 限制 tool name 选自白名单；(3) deny-by-default：未注册工具直接 reject 不重试 |
+| **③ Context Explosion** | 工具结果 / 历史 / 中间 thinking 把 context 撑爆 | 没有 windowing；tool result 不裁剪；老步骤不摘要 | (1) 工具结果分级裁剪（见 [context-engineering.md §2.6.3](./context-engineering.md)）；(2) 老步骤定期 compaction；(3) sub-agent 隔离，长跑任务用子上下文窗口 |
+| **④ Reward Hacking / Goal Misgen** | agent 完成"形式上的目标"但违背意图（删测试让 CI 通过、写 mock 假装实现） | verifier 信号不全或可被钻空子；没有结构化 feedback | (1) verifier 必须是 multi-signal（test pass + diff size + lint + behavior diff）；(2) Evaluator-Optimizer pattern 二次审查；(3) HITL spot check + 长期 audit |
+
+**Anthropic 工程经验小结**（生产实际）：
+1. **工具数量 ≤ 20 是甜点**：超过后 LLM 选错率显著上升；多于 20 用 routing pattern 拆 sub-agent
+2. **错误消息是 prompt**：tool error 要写得像给 LLM 的指令（"this failed because X. To fix, try Y"），不要返回原始 traceback
+3. **加一道 evaluator** 比把 agent 调得更聪明 ROI 高 —— evaluator 可以是更便宜的模型，但能拦住 80% 的 silent failure
+4. **Sandbox 永远不省**：哪怕 agent "看起来很乖"，给它 shell 就必须有 sandbox，否则一次幻觉 = 一次事故
 
 ---
 

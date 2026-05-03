@@ -640,6 +640,59 @@ ColBERT-v2，每个 token 单独 embedding，检索时按 token 级 max-similari
 </ul>
 <p>混合策略：用 RRF（Reciprocal Rank
 Fusion）合并稀疏与稠密的结果列表。简单且无需调参。</p>
+<p><strong>RRF 公式</strong>：</p>
+<p><span class="math display">\[
+\text{RRF}(d) = \sum_{r \in R} \frac{1}{k + r(d)}
+\]</span></p>
+<p>其中 <code>R</code> 是各路检索器，<code>r(d)</code> 是文档 <code>d</code> 在该路检索器里的排名（1, 2, 3...），<code>k</code> 是平滑常数（默认 60，Cormack 等 2009）。直觉：排名越靠前贡献越大，但因为是倒数，差距收敛快，避免某一路霸榜。</p>
+<p><strong>RRF 调权</strong>（生产实践）：默认 RRF 把所有检索器等权对待。如果想给稠密 / 稀疏不同权重：</p>
+<pre><code>def weighted_rrf(results_dict, weights, k=60):
+    # results_dict = {"dense": [doc1, doc2, ...], "sparse": [docA, docB, ...]}
+    # weights = {"dense": 0.7, "sparse": 0.3}
+    scores = defaultdict(float)
+    for retriever, docs in results_dict.items():
+        w = weights[retriever]
+        for rank, doc in enumerate(docs, start=1):
+            scores[doc.id] += w / (k + rank)
+    return sorted(scores.items(), key=lambda x: -x[1])
+</code></pre>
+<p><strong>RRF vs 其他融合</strong>：</p>
+<table>
+<thead>
+<tr class="header">
+<th>方法</th>
+<th>是否需调参</th>
+<th>跨检索器分数对齐</th>
+<th>何时用</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>RRF</strong></td>
+<td>否（k=60 几乎万能）</td>
+<td>用 rank 不用 score，天然对齐</td>
+<td>默认首选</td>
+</tr>
+<tr class="even">
+<td><strong>CombSUM / Linear</strong></td>
+<td>是（要归一化分数）</td>
+<td>难（BM25 vs cosine 量纲不同）</td>
+<td>不推荐，除非已有校准</td>
+</tr>
+<tr class="odd">
+<td><strong>WAND（Weighted AND）</strong></td>
+<td>中</td>
+<td>在 sparse 内部用，不跨融合</td>
+<td>Lucene / Elasticsearch 加速倒排</td>
+</tr>
+<tr class="even">
+<td><strong>Convex Combination + ML</strong></td>
+<td>高（要 learning-to-rank）</td>
+<td>训练对齐</td>
+<td>大规模、有点击数据时最优</td>
+</tr>
+</tbody>
+</table>
 <p>实证：<strong>hybrid search + reranker 比 semantic-only 提升 +9.3
 个百分点 MRR</strong>，配合 Cohere Rerank 准确率可以到 90%+。</p>
 <h3 id="重排reranker">2.4.6 重排（Reranker）</h3>
@@ -712,16 +765,59 @@ conditions”语义相同但词汇不重叠。Query rewriting 在检索前先对
 <li><strong>HyDE（Hypothetical Document Embeddings）</strong>：先让 LLM
 假想”如果有一篇答案文档会写什么”，用这段假想文本去检索（不是用原
 query）</li>
-<li><strong>Multi-Query</strong>：让 LLM 把原 query 改写成 3-5
+<li><strong>Query2Doc</strong>（Microsoft 2023）：HyDE 的变体，让 LLM 直接生成”包含答案的伪文档段落”作为查询扩展</li>
+<li><strong>Multi-Query / Query Expansion</strong>：让 LLM 把原 query 改写成 3-5
 个不同表达，分别检索后合并</li>
-<li><strong>Step-Back Prompting</strong>：先把 query
-抽象成更宏观的问题，用抽象问题的检索结果做铺垫</li>
+<li><strong>Step-Back Prompting</strong>（Zheng 等 2024）：先把 query 抽象成更宏观的问题（“Python 3.12 的 GIL 改了什么” → “GIL 是什么、它如何工作”），用抽象问题的检索结果做铺垫</li>
 <li><strong>Sub-Query
 Decomposition</strong>：把复合问题拆成多个子问题分别检索（“对比 A 和 B”
 → [“A 的特点”、“B 的特点”]）</li>
 <li><strong>HyDE + Multi-Query 组合</strong> 在 BEIR
 等检索基准上是当前最强 baseline 之一</li>
 </ul>
+<p><strong>怎么选</strong>（按 query 形态决策）：</p>
+<table>
+<thead>
+<tr class="header">
+<th>query 形态</th>
+<th>推荐方法</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>短查询 / 关键词缺失</td>
+<td>HyDE / Query2Doc</td>
+<td>短 query 与文档 chunk 长度不匹配，扩成假文档可拉近 embedding 距离</td>
+</tr>
+<tr class="even">
+<td>多义词 / 同义词问题</td>
+<td>Multi-Query</td>
+<td>改写覆盖不同措辞，提升召回</td>
+</tr>
+<tr class="odd">
+<td>涉及背景知识的窄问题</td>
+<td>Step-Back</td>
+<td>先检索宏观知识再聚焦细节</td>
+</tr>
+<tr class="even">
+<td>复合 / 比较 / 多跳</td>
+<td>Sub-Query Decomposition</td>
+<td>单次检索无法覆盖多个子主题</td>
+</tr>
+<tr class="odd">
+<td>通用对话 + 代码 / 数字</td>
+<td>不要重写</td>
+<td>LLM 重写可能改变关键术语 / 数字，反而召回掉</td>
+</tr>
+</tbody>
+</table>
+<p><strong>陷阱</strong>：</p>
+<ol>
+<li>Query rewriting 增加 1 次额外 LLM 调用（latency +500-1500 ms），高 QPS 场景需评估</li>
+<li>如果原 query 已经精确（“OpenAI 2025 年 Q3 收入”），重写可能引入噪声，建议加一个 “is_specific” 分类先判断</li>
+<li>HyDE 在 <strong>冷门 / 长尾 / 专业领域</strong> 反而效果差 —— LLM 假想的伪文档与真实文档措辞偏差大</li>
+</ol>
 <h3 id="graphrag">2.4.8 GraphRAG</h3>
 <p>Microsoft GraphRAG（2024 开源）和 LightRAG / Nano-GraphRAG
 等社区变体把检索从”向量相似”扩展到”知识图遍历”：</p>
@@ -748,8 +844,63 @@ RAG</h3>
 agent 在”想 → 检索 → 评判 → 重写 query → 重新检索 →
 综合”里循环直到自信为止。LangGraph 是实现 Agentic RAG 的主流框架</li>
 </ul>
+<p><strong>三者横向对比</strong>：</p>
+<table>
+<thead>
+<tr class="header">
+<th>维度</th>
+<th>Self-RAG</th>
+<th>CRAG</th>
+<th>Agentic RAG</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>决定何时检索</strong></td>
+<td>模型自己（特殊 token <code>[Retrieve]</code>）</td>
+<td>始终检索</td>
+<td>Agent 控制器决定</td>
+</tr>
+<tr class="even">
+<td><strong>检索结果评判</strong></td>
+<td>模型自己（<code>[IsRel]</code> 反思 token）</td>
+<td>独立 retrieval evaluator（小模型，分高/中/低）</td>
+<td>LLM judge 或工具</td>
+</tr>
+<tr class="odd">
+<td><strong>失败兜底</strong></td>
+<td>不再检索 + 提示不确定</td>
+<td>触发 web search 重检索</td>
+<td>改写 query / 换数据源 / 多轮迭代</td>
+</tr>
+<tr class="even">
+<td><strong>训练成本</strong></td>
+<td>高（需对反思 token 做 SFT）</td>
+<td>低（plug-and-play）</td>
+<td>0（运行时编排）</td>
+</tr>
+<tr class="odd">
+<td><strong>延迟</strong></td>
+<td>中（一次推理多输出 token）</td>
+<td>高（始终检索 + 评估 + 可能 web）</td>
+<td>最高（可能多轮 loop）</td>
+</tr>
+<tr class="even">
+<td><strong>适用</strong></td>
+<td>自带知识充足的通用问答</td>
+<td>知识库时新性差、需要 web 兜底</td>
+<td>多跳推理、研究型问答、Deep Research</td>
+</tr>
+<tr class="odd">
+<td><strong>2026 主流落地</strong></td>
+<td>OpenAI gpt-4o web search 模式</td>
+<td>Perplexity / You.com 内部架构</td>
+<td>Claude / Cursor / Devin 的研究 agent</td>
+</tr>
+</tbody>
+</table>
 <p>实证：Self-RAG 在生产部署中能减少 25-40%
-的”不必要检索”——因为模型学会了对自己已有知识的事情不去检索。</p>
+的”不必要检索”——因为模型学会了对自己已有知识的事情不去检索。Agentic RAG 在多跳问答（HotpotQA / MuSiQue）准确率比 vanilla RAG +15-25 个点，但 token 成本翻 3-10 倍。</p>
 <p>详见 <a href="./agent-engineering.md">agent-engineering.md</a> §2
 范式演进、§5 框架对比。</p>
 <h3 id="多模态-rag">2.4.10 多模态 RAG</h3>
@@ -761,7 +912,54 @@ embed，检索时分别检索后合并</li>
 embedding，把图文嵌入同一空间</li>
 <li><strong>VLM-as-extractor</strong>：用 GPT-4o / Claude 3.5 Sonnet
 把图片转成详细描述，再走文本 RAG（成本最高但召回最稳）</li>
+<li><strong>ColPali / ColQwen2</strong>（2024）：直接对<strong>整页 PDF 截图</strong>做 late-interaction embedding，跳过 OCR / 解析，在表格 / 图表 / 多栏排版的文档检索准确率比传统 OCR + 文本 RAG +20-40%</li>
 </ul>
+<p><strong>Layout-aware chunking</strong>（关键工程点，被低估）：</p>
+<p>传统 RecursiveCharacterTextSplitter 对 PDF / Word 这类有版式的文档效果差 —— 表格被劈成两半、figure caption 与图分离、目录与正文混合。生产级方案：</p>
+<table>
+<thead>
+<tr class="header">
+<th>工具</th>
+<th>路线</th>
+<th>强项</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Unstructured.io</strong></td>
+<td>规则 + ML 元素分类</td>
+<td>通用，HTML/PDF/PPT/Email 全覆盖</td>
+</tr>
+<tr class="even">
+<td><strong>LlamaParse</strong></td>
+<td>LlamaIndex 自家 LLM 解析</td>
+<td>Markdown 输出，表格保真度高</td>
+</tr>
+<tr class="odd">
+<td><strong>PyMuPDF + pdfplumber</strong></td>
+<td>底层 PDF SDK</td>
+<td>自定义 layout 规则，保留 bbox 坐标</td>
+</tr>
+<tr class="even">
+<td><strong>Docling</strong>（IBM 2024）</td>
+<td>开源结构化文档解析</td>
+<td>表格 / 公式 / 图像 caption 关联</td>
+</tr>
+<tr class="odd">
+<td><strong>MinerU</strong>（OpenDataLab 2024）</td>
+<td>中文 PDF 友好</td>
+<td>中文学术论文 / 教材效果好</td>
+</tr>
+</tbody>
+</table>
+<p><strong>多模态 RAG 选型决策</strong>：</p>
+<ul>
+<li>文档以 <strong>图表 / 截图 / 扫描件</strong> 为主 → ColPali / ColQwen2，跳过 OCR</li>
+<li>文档以 <strong>表格密集型 PDF</strong>（财报 / 规范）为主 → Docling / LlamaParse + Markdown chunking</li>
+<li>文档以 <strong>混排 PPT / 营销材料</strong> 为主 → VLM-as-extractor（让 Claude / GPT-4o 描述每页）</li>
+<li>输入是 <strong>用户上传图 + 文本提问</strong> → Gemini Embedding 2 / Cohere Embed v4 多模态原生</li>
+</ul>
+<p><strong>陷阱</strong>：多模态 embedding 在跨模态检索（用文字找图）效果远好于跨模态对齐（图与文字到底说的是不是一件事），生成阶段仍需 VLM 二次确认相关性。</p>
 <h3 id="完整-rag-pipeline-代码骨架">2.4.11 完整 RAG pipeline
 代码骨架</h3>
 <p>把上面 10 个子节串起来，一个生产级 RAG pipeline
@@ -1854,6 +2052,55 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a h
 
 # 当前对话
 用户：我想退订单 #12345</code></pre>
+<h3 id="progress-file长跑-agent-的-git-memory">2.5.10.5 Progress File：长跑 Agent 的”git memory”</h3>
+<p>vector memory / KV memory 解决”事实”，但<strong>长跑 coding agent / research agent</strong> 还需要一种结构化、人类可读、可 diff 的”工作进度”记忆 —— 这就是 <strong>progress file</strong>（Augment Code、Claude Code、Devin 都在用的事实标准）。</p>
+<p><strong>典型 schema</strong>（Markdown，常见命名 <code>PROGRESS.md</code> / <code>CONTEXT.md</code> / <code>.agent/state.md</code>）：</p>
+<pre><code>---
+task_id: refactor-auth-2026-05-03
+started: 2026-05-03T09:12Z
+last_update: 2026-05-03T11:48Z
+status: in_progress
+parent_branch: main
+worktree: /Users/x/dev/repo/.worktrees/refactor-auth
+---
+
+## Goal
+迁移 session-based auth 到 JWT，保持向前兼容 30 天
+
+## Decisions made
+- [2026-05-03 09:30] 采用 RS256 而非 HS256（多服务部署需要公钥分发）— 见 ADR-007
+- [2026-05-03 10:15] 旧 session cookie 保留 30 天，双写策略
+
+## Files touched
+- `src/auth/jwt.ts` (new)
+- `src/auth/middleware.ts` (modified, +120/-45)
+- `src/auth/session.ts` (deprecated, kept for 30d)
+
+## Open questions
+- [ ] refresh token 是否需要黑名单？需问 @security-team
+- [ ] mobile 客户端最低支持版本是否覆盖 JWT 解析？
+
+## Next steps
+1. 写 jwt.test.ts 单元测试覆盖签 / 验 / 过期 / tampering
+2. 在 staging 跑 24h 双写，看 metric
+3. 文档 docs/auth-migration.md
+</code></pre>
+<p><strong>为什么这种格式而不是 vector memory</strong>：</p>
+<ul>
+<li><strong>可被人 review</strong>：PR 里直接 diff，不需要打开 vector DB</li>
+<li><strong>可被 git 管理</strong>：每次 agent 决策落 commit，回滚天然支持</li>
+<li><strong>可被 LLM 直接读 + 改</strong>：不需要 embedding / retrieval 中间层，避免召回失败</li>
+<li><strong>跨 session 重启友好</strong>：agent 拉 git → 读 <code>PROGRESS.md</code> → 立刻知道上次到哪</li>
+</ul>
+<p><strong>关键工程点</strong>：</p>
+<ol>
+<li><strong>写入时机</strong>：每个”决策点”或”工具调用结果”后追加，不要等到 session 结束（断电会丢）</li>
+<li><strong>Merge 冲突</strong>：多 agent 并发写要用 append-only sections + 时间戳；或拆成 per-agent 子文件</li>
+<li><strong>OOM / token 爆炸</strong>：定期 compaction —— 把超过 N 天的 decision 折叠成摘要保留在文件头</li>
+<li><strong>与 vector memory 协作</strong>：progress file 当 source of truth，vector memory 只索引指向 progress file 的 chunk</li>
+<li><strong>失败恢复 protocol</strong>：agent 启动时先 <code>git status + git log -5 + cat PROGRESS.md</code>，三件套是恢复”我是谁、上次到哪、下一步”的最低成本方式</li>
+</ol>
+<p>参考：Anthropic <em>Memory Tool</em>、Augment Code 工程博客、Claude Code 的 <code>.claude/</code> 目录、Cursor 的 <code>.cursorrules</code>、Codename Goose 的 <code>goose hints</code>。</p>
 <h3 id="失败模式与对策">2.5.11 失败模式与对策</h3>
 <table>
 <colgroup>
@@ -1909,8 +2156,59 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a h
 <td>LLM 看不到关键事实</td>
 <td>加 BM25 + entity match（§2.5.6 multi-signal）</td>
 </tr>
+<tr class="odd">
+<td><strong>记忆腐坏（memory corruption）</strong></td>
+<td>见下面专栏</td>
+<td>定期一致性检查 + ground truth 校准 + ttl</td>
+</tr>
 </tbody>
 </table>
+<h4 id="memory-corruption-深度剖析">Memory Corruption 深度剖析</h4>
+<p>”记忆腐坏”是 stateful agent 部署超过几周后<strong>必然出现</strong>的失败模式，但很少被早期工程团队预防。Anthropic / Letta / Mem0 团队公开过的 4 类典型 corruption：</p>
+<table>
+<thead>
+<tr class="header">
+<th>腐坏类型</th>
+<th>例子</th>
+<th>根因</th>
+<th>防御</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>过期事实（Stale fact）</strong></td>
+<td>“用户在杭州” → 三个月后已搬到上海，但旧记忆仍在 top-K</td>
+<td>没有 TTL、没有”事实新鲜度”的写入时检测</td>
+<td>Zep 风格 valid_from / valid_to；写入时检测同实体的旧事实并标 invalid</td>
+</tr>
+<tr class="even">
+<td><strong>矛盾事实（Contradiction）</strong></td>
+<td>一条说”用户素食”，另一条说”用户喜欢牛排”</td>
+<td>多 session 抽取没有跨 session 一致性检查</td>
+<td>写入前跑”该用户已有事实 + 新事实”的矛盾检测 LLM；或定期 reconciliation job</td>
+</tr>
+<tr class="odd">
+<td><strong>幻觉事实（Hallucinated fact）</strong></td>
+<td>LLM 抽取时从对话里”推理”出用户没明说的偏好</td>
+<td>抽取 prompt 没限定”只抽显式陈述”</td>
+<td>抽取时返回 evidence span（原对话引用）；无 evidence 不落库</td>
+</tr>
+<tr class="even">
+<td><strong>人格漂移（Persona drift）</strong></td>
+<td>长期 self-update memory 导致 agent 自我描述与初始 system prompt 严重不一致</td>
+<td>agent 自管 memory + 没有 freeze section</td>
+<td>core memory 区分 immutable / mutable 段；mutable 段定期 reset 到 baseline</td>
+</tr>
+</tbody>
+</table>
+<p><strong>防御工程实践</strong>（按 ROI 排序）：</p>
+<ol>
+<li><strong>TTL + 时序字段</strong>：每条记忆带 <code>created_at</code> / <code>valid_from</code> / <code>valid_to</code>，检索时按当前时间过滤</li>
+<li><strong>写入时矛盾检测</strong>：新事实 vs 同实体已有 top-3 事实，跑一次 LLM”是否矛盾”判断，矛盾时人工或时间戳决胜</li>
+<li><strong>Evidence-required 抽取</strong>：抽取 prompt 强制返回 <code>(fact, evidence_quote, confidence)</code>，confidence &lt; 0.7 不落库</li>
+<li><strong>每周 reconciliation job</strong>：随机抽样 1% 记忆跑 LLM 对比真实对话，发现腐坏率超阈值就触发清理</li>
+<li><strong>可解释 + 可审计</strong>：用户可以看到”agent 关于我的记忆”原文 + 来源，并一键删错</li>
+</ol>
 <h3 id="github-实战资源记忆系统专题">2.5.12 GitHub
 实战资源（记忆系统专题）</h3>
 <table>
@@ -2263,6 +2561,62 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb23-1"><a h
 </tr>
 </tbody>
 </table>
+<h4 id="何时触发-compaction决策信号">何时触发 compaction（决策信号）</h4>
+<p>Compaction 不是”context 满了再压”，否则 LLM 已经被噪声污染。生产实践用多信号触发：</p>
+<table>
+<thead>
+<tr class="header">
+<th>触发信号</th>
+<th>阈值（参考）</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Token 占用率</strong></td>
+<td>&gt; 70% max_tokens（如 180K / 256K = 70%）</td>
+<td>通用兜底，最常用</td>
+</tr>
+<tr class="even">
+<td><strong>历史轮次</strong></td>
+<td>&gt; 50 轮对话</td>
+<td>长对话客服 / 陪伴产品</td>
+</tr>
+<tr class="odd">
+<td><strong>工具结果累积</strong></td>
+<td>单步 tool result &gt; 4000 tokens 或累积 &gt; 30K</td>
+<td>coding agent / data agent</td>
+</tr>
+<tr class="even">
+<td><strong>质量信号下滑</strong></td>
+<td>最近 5 轮 user 满意度 / verifier 通过率下降</td>
+<td>有 reward signal 的产品</td>
+</tr>
+<tr class="odd">
+<td><strong>任务边界</strong></td>
+<td>一个子任务完成（agent 自己 declare）</td>
+<td>长跑 multi-step agent</td>
+</tr>
+<tr class="even">
+<td><strong>时间衰减</strong></td>
+<td>历史消息 &gt; 30 分钟无引用</td>
+<td>多任务并行 agent</td>
+</tr>
+<tr class="odd">
+<td><strong>Anthropic Auto-Compact 信号</strong></td>
+<td>Claude API <code>usage.context_window_remaining</code> &lt; 20%</td>
+<td>用 Claude 的产品直接读官方信号</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键原则（Anthropic <em>Effective Context Engineering</em> 2026）</strong>：</p>
+<ol>
+<li>Compaction 是<strong>有损</strong>的，能避免就避免（先做 §2.6.3 的动作 1-5）</li>
+<li>永远保留 <strong>最后 N 轮原始对话</strong>（N=3-5），LLM 需要近端 raw 信号判断”刚刚发生了什么”</li>
+<li>摘要要保留 <strong>decision、open question、未完成子任务、代码 / 文件路径</strong> 这些”指针”，而不是讲故事</li>
+<li>摘要后立刻 evaluator 跑一遍，确认关键事实没丢；丢了就回滚到 raw + 升级到更强压缩策略</li>
+<li><strong>Compaction 本身要被 trace</strong> —— 哪些被丢、压缩前后的 token diff、是否触发回滚，都进 observability</li>
+</ol>
 <h3 id="实战配方完整-context-manager-类">2.6.5 实战配方：完整 Context
 Manager 类</h3>
 <div class="sourceCode" id="cb24"><pre
