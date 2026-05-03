@@ -2215,13 +2215,26 @@ tools.append({
     "parameters": {"reason": "string", "attempted": "list"}
 })
 </code></pre>
-<p><strong>对策（汇总）</strong>： - <strong>Max iterations
-硬上限</strong>（典型值 15-25 步） - <strong>Execution
-timeout</strong>（典型值 60 秒 / 单 step，5 分钟 / 整链） -
-<strong>重复检测</strong>：检测连续 N 步相同 tool call 强行中断 -
-<strong>预算 cap</strong>：单次 task token / cost 上限，触发即停 -
-<strong>分层 compute</strong>：简单决策用便宜模型，复杂决策才升级 →
-实战可降 70% token 成本 - <strong>Escape hatch</strong>：永远给 agent 一个体面退出的工具 (<code>give_up_and_report</code>)，避免它”为了不放弃而无限循环”</p>
+<p><strong>工程权衡</strong>：</p>
+<ul>
+<li><strong>硬上限要按任务类别分档，不是全局常量</strong>：长
+refactor 与一次性问答的合理上限差一个数量级，全局取统一值要么过早掐断、要么形同虚设。生产里通常按
+task type / tool risk
+各配一套阈值，并把”接近上限”作为告警事件而非静默截断。</li>
+<li><strong>重复检测窗口 N 不能贪小</strong>：N=2
+在合法的轮询、分页、反复 <code>read_file</code> 场景下误报极高；实战中需要把”相同
+error”也纳入指纹，并对只读类工具放宽阈值，否则 escape hatch
+会被误触发，反而让 agent 提前放弃可完成的任务。</li>
+<li><strong>分层 compute 是这套防御里 ROI
+最高的一条</strong>：把规划 / 反思留给强模型，把工具参数填充、格式化、retry
+决策下放给便宜模型，社区与厂商 cookbook 普遍报告 token 成本
+<strong>降 ~70%</strong>——同时也意味着循环烧掉的钱更少，硬上限的”血条”更长。</li>
+<li><strong>这套防御不能挡住 specification
+层面的死循环</strong>：当目标本身就是不可达的（编译不通过的代码、被对方
+API 拒绝的请求），agent
+即使每步都换不同方法也会在”语义同构”的尝试间打转。此时只能靠上层
+verifier / HITL gate 兜底，参见 §9.4 与第 10 节。</li>
+</ul>
 <h3 id="hallucination-cascade幻觉级联">9.2 Hallucination
 Cascade（幻觉级联）</h3>
 <p>agent 一个虚构事实触发下游一连串错误调用。</p>
