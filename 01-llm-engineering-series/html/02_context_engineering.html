@@ -1,0 +1,3111 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>02 上下文工程</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header class="site-nav" role="banner">
+  <div class="site-nav-inner">
+    <a href="README.html" class="site-nav-brand">LLM 应用工程演进</a>
+    <nav class="site-nav-links" aria-label="章节导航">
+      <a href="01_prompt_engineering.html"><span class="ch-no">01</span><span class="ch-name">提示词</span></a>
+      <a href="02_context_engineering.html"><span class="ch-no">02</span><span class="ch-name">上下文</span></a>
+      <a href="03_agent_engineering.html"><span class="ch-no">03</span><span class="ch-name">Agent</span></a>
+      <a href="04_harness_engineering.html"><span class="ch-no">04</span><span class="ch-name">驾驭</span></a>
+      <a href="article.html" class="site-nav-extra">综述</a>
+    </nav>
+  </div>
+</header>
+<script>
+(function(){
+  var here = (location.pathname.split('/').pop() || 'README.html').toLowerCase();
+  document.querySelectorAll('.site-nav a').forEach(function(a){
+    if ((a.getAttribute('href') || '').toLowerCase() === here) {
+      a.setAttribute('aria-current', 'page');
+    }
+  });
+})();
+</script>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#上下文工程含记忆系统与-rag-全栈选型"
+id="toc-上下文工程含记忆系统与-rag-全栈选型">上下文工程：含记忆系统与
+RAG 全栈选型</a>
+<ul>
+<li><a href="#executive-summary" id="toc-executive-summary">Executive
+Summary</a></li>
+<li><a href="#定义与起源" id="toc-定义与起源">2.1 定义与起源</a></li>
+<li><a href="#长上下文的物理学" id="toc-长上下文的物理学">2.2
+长上下文的物理学</a>
+<ul>
+<li><a href="#on²-成本" id="toc-on²-成本">2.2.1 O(N²) 成本</a></li>
+<li><a href="#kv-cache-显存" id="toc-kv-cache-显存">2.2.2 KV Cache
+显存</a></li>
+<li><a href="#lost-in-the-middle" id="toc-lost-in-the-middle">2.2.3
+Lost-in-the-Middle</a></li>
+</ul></li>
+<li><a href="#ruler-与-1m-上下文的真实能力"
+id="toc-ruler-与-1m-上下文的真实能力">2.3 RULER 与 1M
+上下文的真实能力</a>
+<ul>
+<li><a href="#长上下文-vs-rag-决策框架"
+id="toc-长上下文-vs-rag-决策框架">长上下文 vs RAG 决策框架</a></li>
+</ul></li>
+<li><a href="#rag-全栈选型" id="toc-rag-全栈选型">2.4 RAG 全栈选型</a>
+<ul>
+<li><a href="#文档解析parsing-layout"
+id="toc-文档解析parsing-layout">2.4.1 文档解析（Parsing &amp;
+Layout）</a></li>
+<li><a href="#切分策略chunking" id="toc-切分策略chunking">2.4.2
+切分策略（Chunking）</a></li>
+<li><a href="#嵌入模型embedding-models"
+id="toc-嵌入模型embedding-models">2.4.3 嵌入模型（Embedding
+Models）</a></li>
+<li><a href="#向量数据库vector-database"
+id="toc-向量数据库vector-database">2.4.4 向量数据库（Vector
+Database）</a></li>
+<li><a href="#检索稀疏-稠密-后期交互"
+id="toc-检索稀疏-稠密-后期交互">2.4.5 检索：稀疏 + 稠密 +
+后期交互</a></li>
+<li><a href="#重排reranker" id="toc-重排reranker">2.4.6
+重排（Reranker）</a></li>
+<li><a href="#查询改写query-rewriting-expansion"
+id="toc-查询改写query-rewriting-expansion">2.4.7 查询改写（Query
+Rewriting / Expansion）</a></li>
+<li><a href="#graphrag" id="toc-graphrag">2.4.8 GraphRAG</a></li>
+<li><a href="#self-rag-crag-agentic-rag"
+id="toc-self-rag-crag-agentic-rag">2.4.9 Self-RAG / CRAG / Agentic
+RAG</a></li>
+<li><a href="#多模态-rag" id="toc-多模态-rag">2.4.10 多模态 RAG</a></li>
+<li><a href="#完整-rag-pipeline-代码骨架"
+id="toc-完整-rag-pipeline-代码骨架">2.4.11 完整 RAG pipeline
+代码骨架</a></li>
+<li><a href="#github-系统化学习资源rag-专题"
+id="toc-github-系统化学习资源rag-专题">2.4.12 GitHub 系统化学习资源（RAG
+专题）</a></li>
+</ul></li>
+<li><a href="#记忆系统完整工程指南" id="toc-记忆系统完整工程指南">2.5
+记忆系统：完整工程指南</a>
+<ul>
+<li><a href="#为什么仅靠-context-window-不够"
+id="toc-为什么仅靠-context-window-不够">2.5.1 为什么仅靠 context window
+不够</a></li>
+<li><a href="#记忆类型的工程映射" id="toc-记忆类型的工程映射">2.5.2
+记忆类型的工程映射</a></li>
+<li><a href="#记忆系统的核心架构组件"
+id="toc-记忆系统的核心架构组件">2.5.3 记忆系统的核心架构组件</a></li>
+<li><a href="#存储后端选型" id="toc-存储后端选型">2.5.4
+存储后端选型</a></li>
+<li><a href="#写入流程抽取-去重-关联"
+id="toc-写入流程抽取-去重-关联">2.5.5 写入流程：抽取 + 去重 +
+关联</a></li>
+<li><a href="#检索流程多信号融合" id="toc-检索流程多信号融合">2.5.6
+检索流程：多信号融合</a></li>
+<li><a href="#淘汰策略6-种-forgetting-policies"
+id="toc-淘汰策略6-种-forgetting-policies">2.5.7 淘汰策略：6 种
+Forgetting Policies</a></li>
+<li><a href="#四大主流系统深度剖析" id="toc-四大主流系统深度剖析">2.5.8
+四大主流系统深度剖析</a></li>
+<li><a href="#多租户隔离生产必修课" id="toc-多租户隔离生产必修课">2.5.9
+多租户隔离：生产必修课</a></li>
+<li><a href="#记忆-vs-rag边界与协同"
+id="toc-记忆-vs-rag边界与协同">2.5.10 记忆 vs RAG：边界与协同</a></li>
+<li><a href="#失败模式与对策" id="toc-失败模式与对策">2.5.11
+失败模式与对策</a></li>
+<li><a href="#github-实战资源记忆系统专题"
+id="toc-github-实战资源记忆系统专题">2.5.12 GitHub
+实战资源（记忆系统专题）</a></li>
+</ul></li>
+<li><a href="#上下文管理策略把-context-window-当作稀缺资源"
+id="toc-上下文管理策略把-context-window-当作稀缺资源">2.6
+上下文管理策略：把 context window 当作稀缺资源</a>
+<ul>
+<li><a href="#为什么需要管理" id="toc-为什么需要管理">2.6.1
+为什么需要”管理”</a></li>
+<li><a href="#context-的分区模型" id="toc-context-的分区模型">2.6.2
+Context 的”分区”模型</a></li>
+<li><a href="#上下文管理的-5-类常见动作综合-anthropic-langchain-实践"
+id="toc-上下文管理的-5-类常见动作综合-anthropic-langchain-实践">2.6.3
+上下文管理的 5 类常见动作（综合 Anthropic / LangChain 实践）</a></li>
+<li><a href="#三种压缩路径对比" id="toc-三种压缩路径对比">2.6.4
+三种”压缩”路径对比</a></li>
+<li><a href="#实战配方完整-context-manager-类"
+id="toc-实战配方完整-context-manager-类">2.6.5 实战配方：完整 Context
+Manager 类</a></li>
+<li><a href="#prompt-context-caching2026-年最大-cost-杠杆"
+id="toc-prompt-context-caching2026-年最大-cost-杠杆">2.6.6 Prompt /
+Context Caching：2026 年最大 cost 杠杆</a></li>
+</ul></li>
+<li><a href="#mcp-a2a-协议生态" id="toc-mcp-a2a-协议生态">2.7 MCP / A2A
+协议生态</a>
+<ul>
+<li><a href="#为什么需要-mcp解决mn-集成噩梦"
+id="toc-为什么需要-mcp解决mn-集成噩梦">2.7.1 为什么需要 MCP：解决”M×N
+集成噩梦”</a></li>
+<li><a href="#mcp-协议规格" id="toc-mcp-协议规格">2.7.2 MCP
+协议规格</a></li>
+<li><a href="#完整-mcp-server-实现示例"
+id="toc-完整-mcp-server-实现示例">2.7.3 完整 MCP Server
+实现示例</a></li>
+<li><a href="#mcp-client-接入" id="toc-mcp-client-接入">2.7.4 MCP Client
+接入</a></li>
+<li><a href="#主流-mcp-server-生态2026"
+id="toc-主流-mcp-server-生态2026">2.7.5 主流 MCP Server
+生态（2026）</a></li>
+<li><a href="#mcp-时间线与采用度" id="toc-mcp-时间线与采用度">2.7.6 MCP
+时间线与采用度</a></li>
+<li><a href="#a2aagent-之间的协议族"
+id="toc-a2aagent-之间的协议族">2.7.7 A2A：Agent 之间的协议族</a></li>
+<li><a href="#常见-mcp-设计陷阱" id="toc-常见-mcp-设计陷阱">2.7.8 常见
+MCP 设计陷阱</a></li>
+</ul></li>
+<li><a href="#bibliography" id="toc-bibliography">Bibliography</a></li>
+<li><a href="#章节交叉引用" id="toc-章节交叉引用">章节交叉引用</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="上下文工程含记忆系统与-rag-全栈选型">上下文工程：含记忆系统与
+RAG 全栈选型</h1>
+<p><strong>位置</strong>：LLM 应用工程四层演进的第二层
+<strong>调研日期</strong>：2026-05-01</p>
+<hr />
+<h2 id="executive-summary">Executive Summary</h2>
+<p><strong>Context Engineering（上下文工程）</strong> 在 2024 下半年由
+Karpathy 在 YC AI School 演讲中正式命名，被 Anthropic [6]
+定位为”提示词工程的自然演进”。其核心观察是：在 100K-1M 上下文窗口和
+Agent 时代，决定模型表现的不再是”那一句 prompt”，而是
+<strong>模型在推理这一刻能看到的全部信息</strong>——system
+prompt、对话历史、工具定义、检索文档、记忆、规划状态。</p>
+<p>本章覆盖：</p>
+<ul>
+<li><strong>§2.1</strong> 定义与起源（Karpathy + Anthropic + LangChain
+三方共识）</li>
+<li><strong>§2.2</strong> 长上下文物理学：O(N²) 成本、KV
+cache、Lost-in-the-Middle U 形召回曲线</li>
+<li><strong>§2.3</strong> RULER 基准与 1M 上下文真相——Gemini 1.5 Pro 单
+needle 99.7% 但多事实召回 ~60%；长上下文比 RAG 显著更慢、更贵（按单源
+[41] 估算约 30-60× 慢、~1000× 贵；具体倍率随模型和场景差异大）</li>
+<li><strong>§2.4</strong> RAG 全栈选型——从演进四代到 10
+个子节（解析→切分→嵌入→向量库→检索→重排→改写→GraphRAG→Self-RAG/CRAG/Agentic
+RAG→多模态）</li>
+<li><strong>§2.5</strong> 记忆系统四强对比：Mem0 / Letta（前 MemGPT）/
+Zep（temporal KG）/ Anthropic Memory Tool</li>
+<li><strong>§2.6</strong>
+上下文管理策略（优先级、淘汰、摘要、<code>/compact</code>）</li>
+<li><strong>§2.7</strong> MCP / A2A 协议生态（MCP 月下载量 9700
+万）</li>
+</ul>
+<p>关键转折：<strong>生产级 LLM 应用的核心难度从”写 prompt”迁移到了”管
+context”</strong>——这是 Agent（<a
+href="./03_agent_engineering.md">03</a>）和驾驭工程（<a
+href="./04_harness_engineering.md">04</a>）的前提。</p>
+<hr />
+<h2 id="定义与起源">2.1 定义与起源</h2>
+<p>“Context Engineering”（上下文工程）这个词在 2024
+年下半年开始在社区流传，普遍归功于 Karpathy 在 YC AI School 的
+<em>Software Is Changing (Again)</em> 演讲
+[5]。他给的定义后来被反复引用：</p>
+<blockquote>
+<p>“In every industrial-strength LLM app, context engineering is the
+delicate art and science of filling the context window with just the
+right information for the next step.” （在每一个工业级 LLM
+应用里，上下文工程是把恰好正确的信息填进上下文窗口、为下一步推理做准备的精细艺术与科学。）</p>
+</blockquote>
+<p>Anthropic 在 2025 年发布的官方文章 <em>Effective Context Engineering
+for AI Agents</em> [6] 进一步把它定位为”提示词工程的自然演进”：</p>
+<blockquote>
+<p>「prompt engineering 关心的是你给模型说的那句话；context engineering
+关心的是模型在推理那一刻能看到的所有信息——system
+prompt、对话历史、工具定义、检索到的文档、记忆、规划状态、约束与策略。」</p>
+</blockquote>
+<p>LangChain 团队在 <em>Context Engineering for Agents</em> 博客 [7]
+里给了一个常被引用的工程定义：</p>
+<blockquote>
+<p>“Context Engineering
+是设计<strong>动态系统</strong>的学科，这些系统在<strong>正确的时间、以正确的格式，向
+LLM 提供正确的信息和工具</strong>，让模型有完成任务所需的一切。”</p>
+</blockquote>
+<p>为什么”提示词工程”不够了？三个根本变化：</p>
+<ol type="1">
+<li><strong>窗口扩张</strong>：从 GPT-3.5 的 4K 一路涨到 Gemini 2.5 Pro
+的 1M、Claude Opus 4.7 的
+1M。能塞进窗口的信息从”几段文字”变成了”一整本书”。决定塞什么变得比写好那一句话重要得多</li>
+<li><strong>Agent 兴起</strong>：单轮 prompt 是孤立交易，agent
+是持续状态机。每一步推理的 context 都来自上一步的输出 + 工具返回 + 检索
++ 记忆，“prompt”已经不是用户写的那句话，而是 agent
+框架动态拼装的产物</li>
+<li><strong>多模态 + 工具调用</strong>：context
+不再只是文本，还有图像、表格、代码、tool schema、retrieved
+chunks、structured
+memory、scratchpad。把这些异构信息组织好是工程问题</li>
+</ol>
+<p>到 2026 年初，业界共识是：<strong>生产级 LLM 应用的核心难度从”写
+prompt”迁移到了”管 context”</strong>。</p>
+<hr />
+<h2 id="长上下文的物理学">2.2 长上下文的物理学</h2>
+<p>要理解为什么”塞满窗口”是个坏主意，必须先理解上下文的三个物理约束：</p>
+<h3 id="on²-成本">2.2.1 O(N²) 成本</h3>
+<p>回到 <a
+href="./01_prompt_engineering.md">01_prompt_engineering.md</a>
+§1.1：标准 attention 是 N² 复杂度。上下文从 32K 翻到
+128K，注意力计算量是 16 倍而非 4 倍。对推理服务来说这意味着两件事：</p>
+<ul>
+<li>首 token 延迟（TTFT）上升，因为要先 prefill 整个 prompt</li>
+<li>显存被 KV cache 占满，并发数下降</li>
+</ul>
+<h3 id="kv-cache-显存">2.2.2 KV Cache 显存</h3>
+<p>每个 attention 层在推理时要维护 K 和 V
+的缓存（避免重复计算）。<strong>一个 70B 模型在 128K 上下文时，KV cache
+占用可达 40+ GB，比模型权重本身还大</strong>。这就是为什么 vLLM 的
+PagedAttention 和 SGLang 的 RadixAttention 这类”管 KV
+cache”的技术成为推理服务器的核心竞争力（详见 <a
+href="./04_harness_engineering.md">04_harness_engineering.md</a>
+§3.9.2）。</p>
+<h3 id="lost-in-the-middle">2.2.3 Lost-in-the-Middle</h3>
+<p>Liu 等人 2024 TACL 论文 <em>Lost in the Middle: How Language Models
+Use Long Contexts</em> [2] 系统验证了一个反直觉现象：把关键信息放在
+prompt
+开头或结尾，模型能很好地利用；放在中间，模型常常视而不见。<strong>召回率随位置呈
+U 型曲线</strong>——开头有 primacy bias、结尾有 recency
+bias、中间是黑洞。</p>
+<p>这条曲线在 GPT-3.5 / GPT-4 / Claude 上都验证过。即便 2025 年的 Gemini
+1.5 Pro 在简单的 needle-in-a-haystack 测试上能拿到 99.7%
+召回，但当任务变成”在 1M token 里找出 8
+个相关事实并综合”，平均召回率掉到 ~60% [41]。</p>
+<hr />
+<h2 id="ruler-与-1m-上下文的真实能力">2.3 RULER 与 1M
+上下文的真实能力</h2>
+<p>NVIDIA 等机构 2024 年发布的 <strong>RULER 基准</strong>
+[12]（<em>What’s the Real Context Size of Your Long-Context Language
+Models?</em>）把”长上下文能力”从 needle-in-a-haystack
+的玩具测试升级为”折磨套件”：</p>
+<ul>
+<li><strong>多种类多数量的
+needle</strong>：不只是埋一个事实，是埋多个不同类型</li>
+<li><strong>多跳推理</strong>：找到 A 才能找到 B</li>
+<li><strong>聚合任务</strong>：在长文里数总数 / 求平均</li>
+<li><strong>变量追踪</strong>：跟踪一个变量在 100K token
+范围内的多次重新赋值</li>
+</ul>
+<p>RULER 暴露出的真相：<strong>几乎所有声称 100K+ 上下文的模型，在 RULER
+上的”有效上下文”远小于宣称值</strong>。比如某模型宣称支持 200K，但 RULER
+上 50K 后准确率就掉到 80% 以下，128K 时已经接近 random。</p>
+<p>这把行业拉回了现实：<strong>long context 不是 RAG
+的替代，而是补充</strong>。</p>
+<h3 id="长上下文-vs-rag-决策框架">长上下文 vs RAG 决策框架</h3>
+<p>Tianpan 在 <em>Long-Context Models vs RAG: When the 1M-Token Window
+Is the Wrong Tool</em> [41] 给了一个 2026 主流的决策框架：</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>维度</th>
+<th>1M 上下文模型</th>
+<th>RAG</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>延迟</strong></td>
+<td>30-60 倍慢（必须 prefill 整个窗口）</td>
+<td>检索 + 生成两阶段，但生成阶段输入小</td>
+</tr>
+<tr class="even">
+<td><strong>每查询成本</strong></td>
+<td>~1250 倍贵</td>
+<td>检索几乎免费，生成成本随相关 chunk 数</td>
+</tr>
+<tr class="odd">
+<td><strong>数据更新</strong></td>
+<td>每次查询都要重传</td>
+<td>索引更新一次，所有查询受益</td>
+</tr>
+<tr class="even">
+<td><strong>可解释性</strong></td>
+<td>黑箱</td>
+<td>检索结果可审计、可引用</td>
+</tr>
+<tr class="odd">
+<td><strong>多事实召回</strong></td>
+<td>~60%（实战）</td>
+<td>配合 reranker 可达 90%+</td>
+</tr>
+<tr class="even">
+<td><strong>真正适合长上下文的场景</strong></td>
+<td>单次深度分析（“读完这篇 200 页的 PDF 总结洞察”）</td>
+<td>知识库问答、客服、文档检索</td>
+</tr>
+</tbody>
+</table>
+<p><strong>实战指引</strong>：90% 的”知识检索”场景应该用 RAG，10%
+的”深度分析单文档”才用长上下文。</p>
+<hr />
+<h2 id="rag-全栈选型">2.4 RAG 全栈选型</h2>
+<p>RAG（Retrieval-Augmented
+Generation）是上下文工程最成熟的一支，已演进出完整的子学科。2025-2026
+年的状态可以用四代演进概括 [43]：</p>
+<ul>
+<li><strong>第一代：Naive RAG</strong>（2020-2022）—— 检索 → 拼接 →
+生成</li>
+<li><strong>第二代：Advanced RAG</strong>（2023-2024）—— 加 query
+rewriting / reranking / hybrid search / metadata filter</li>
+<li><strong>第三代：Modular RAG</strong>（2024）—— indexing /
+pre-retrieval / retrieval / post-retrieval / generation
+各自可独立替换</li>
+<li><strong>第四代：Agentic RAG</strong>（2025-2026）—— Agent
+自主决定何时检索、检索什么、如何评判</li>
+</ul>
+<p>下面按 RAG 流水线顺序拆解 2026 年的选型空间。</p>
+<h3 id="文档解析parsing-layout">2.4.1 文档解析（Parsing &amp;
+Layout）</h3>
+<p>现实世界的文档是 PDF、PPT、扫描件、Excel、HTML
+而不是纯文本。这一步常被忽略但影响极大：</p>
+<ul>
+<li><strong>基础</strong>：<code>pypdf</code> /
+<code>pdfplumber</code>（速度快，但表格 / 多栏排版易错）</li>
+<li><strong>进阶</strong>：<code>unstructured</code> /
+<code>LlamaParse</code>（带 layout 模型，能识别标题 / 段落 / 表格 /
+列表）</li>
+<li><strong>OCR</strong>：<code>PaddleOCR</code> /
+<code>Tesseract</code> / <code>EasyOCR</code>（扫描件、图片）</li>
+<li><strong>多模态原生</strong>：用 GPT-4o / Gemini / Claude 直接读 PDF
+页（vision），适合排版极复杂的文档但成本高</li>
+<li><strong>专用商用</strong>：Azure Document Intelligence、AWS
+Textract、Microsoft MarkItDown</li>
+</ul>
+<p>最佳实践：<strong>至少跑两套 parser 对比</strong>，再决定用哪个。表格
+/ 公式必须特别处理（转 markdown / LaTeX）。</p>
+<h3 id="切分策略chunking">2.4.2 切分策略（Chunking）</h3>
+<p>切分策略对召回质量影响远大于嵌入模型的选择：</p>
+<ul>
+<li><strong>Fixed Size Chunking</strong>：固定 N
+token，最简单。问题：容易切碎语义单元</li>
+<li><strong>Recursive Character Splitting</strong>：按段落 → 句子 →
+词层级递归切。LangChain 默认。性价比好的 baseline</li>
+<li><strong>Semantic Chunking</strong>：用 embedding
+计算相邻句子相似度，相似度骤降处切分</li>
+<li><strong>Document-Specific</strong>：Markdown 按 heading 切、code 按
+function 切、HTML 按 DOM 切</li>
+<li><strong>Agentic Chunking</strong>：让 LLM
+阅读文档后自己决定怎么切。最贵但最准</li>
+<li><strong>Late Chunking</strong>（Jina 2024）：先对整文档 embed 得到
+token 级 embedding，再切分聚合。在长上下文场景比传统切分召回高
+10-15%</li>
+</ul>
+<p>通用建议：<strong>chunk size 256-512 token、overlap 50-100
+token</strong>，是大多数任务的 sweet spot。</p>
+<h3 id="嵌入模型embedding-models">2.4.3 嵌入模型（Embedding
+Models）</h3>
+<p>2026 年 4 月 MTEB（Massive Text Embedding Benchmark）榜单 [13]
+主要选手：</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>模型</th>
+<th>MTEB</th>
+<th>维度</th>
+<th>价格 / 1M tok</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>OpenAI text-embedding-3-large</strong></td>
+<td>64.6</td>
+<td>3072（可截短）</td>
+<td>$0.13</td>
+<td>老牌稳定</td>
+</tr>
+<tr class="even">
+<td><strong>Cohere embed-v4</strong></td>
+<td>65.2</td>
+<td>1536</td>
+<td>$0.10</td>
+<td>当前 MTEB 第一</td>
+</tr>
+<tr class="odd">
+<td><strong>Voyage 3 large</strong></td>
+<td>~66</td>
+<td>1024/2048</td>
+<td>$0.18</td>
+<td>平均比 OpenAI 高 ~10%</td>
+</tr>
+<tr class="even">
+<td><strong>Google Gemini Embedding 2</strong></td>
+<td>64+</td>
+<td>3072</td>
+<td>$0.006</td>
+<td>多模态原生（文本/图/视频/音频/PDF），100+ 语言</td>
+</tr>
+<tr class="odd">
+<td><strong>BGE-M3</strong>（BAAI）</td>
+<td>64+</td>
+<td>1024</td>
+<td>免费（开源）</td>
+<td>同模型支持 dense / sparse / multi-vector 三种检索</td>
+</tr>
+<tr class="even">
+<td><strong>Jina v5-text-small</strong></td>
+<td>71.7（v2 榜）</td>
+<td>512</td>
+<td>免费（Apache 2.0）</td>
+<td>677M 参数，最佳质量 / 体积比</td>
+</tr>
+</tbody>
+</table>
+<p>2026 年的两个关键趋势：</p>
+<ol type="1">
+<li><strong>Matryoshka Representation
+Learning（套娃表示）</strong>：同一个 embedding 在不同截断长度（128 /
+256 / 512 / 1024 / 3072）都能用，索引时存全长，检索时按需截短。Gemini 2
+/ Voyage 4 / Cohere v4 / OpenAI text-3-* / Jina v5 / Microsoft Harrier /
+Nomic v1.5 都支持。可以让”先粗筛后精排”在 embedding 层就实现</li>
+<li><strong>多模态原生</strong>：Gemini Embedding 2 把图像 / 视频 / 音频
+/ PDF 编进同一个语义空间，多模态 RAG 的索引复杂度从”分模态建索引 +
+跨模态对齐”降到”统一索引”</li>
+</ol>
+<p>中文场景实测：<strong>BGE-M3 是免费第一</strong>（开源 + 多语言强 +
+同模型支持稀疏/稠密），<strong>Voyage 3 large</strong>
+是付费第一（中文召回普遍比 OpenAI 高 10%+）。</p>
+<h3 id="向量数据库vector-database">2.4.4 向量数据库（Vector
+Database）</h3>
+<p>2026 年生产部署的五大主流 [14]：<strong>pgvector / Qdrant / Weaviate
+/ Milvus / LanceDB</strong>。</p>
+<p>性能基准（2026，128 维 embedding，1M 向量量级）[14]：</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>数据库</th>
+<th>p99 延迟</th>
+<th>QPS（单节点）</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Qdrant</td>
+<td>2 ms</td>
+<td>12,000</td>
+<td>Rust 实现，元数据过滤最强</td>
+</tr>
+<tr class="even">
+<td>FAISS（in-memory）</td>
+<td>3 ms</td>
+<td>15,000</td>
+<td>单机性能王，无服务化能力</td>
+</tr>
+<tr class="odd">
+<td>Milvus</td>
+<td>5 ms</td>
+<td>8,000</td>
+<td>分布式 + 高可用，2.5 版本混合检索 30x 快于 ES</td>
+</tr>
+<tr class="even">
+<td>Pinecone</td>
+<td>8 ms</td>
+<td>5,000</td>
+<td>全托管，运维零负担</td>
+</tr>
+<tr class="odd">
+<td>Weaviate</td>
+<td>10 ms</td>
+<td>4,000</td>
+<td>内置 GraphQL 与知识图能力</td>
+</tr>
+</tbody>
+</table>
+<p>选型决策：</p>
+<ul>
+<li><strong>已经在用 Postgres</strong> → <code>pgvector</code> 0.9
+版本性能跟上了，避免运营第二个数据库的复杂度</li>
+<li><strong>需要复杂元数据过滤</strong>（按时间 / 类目 / 权限） →
+Qdrant（ACORN 算法解决了 filtered HNSW 的老大难问题）</li>
+<li><strong>要做向量 + 知识图</strong> → Weaviate</li>
+<li><strong>企业级 + 海量 + 高可用</strong> → Milvus</li>
+<li><strong>想要嵌入式（不需要服务）</strong> → LanceDB / Chroma</li>
+<li><strong>极简快速 prototype</strong> → Chroma</li>
+<li><strong>想用 Elasticsearch / OpenSearch 已有栈</strong> →
+它们自己也支持向量</li>
+</ul>
+<h3 id="检索稀疏-稠密-后期交互">2.4.5 检索：稀疏 + 稠密 + 后期交互</h3>
+<p>向量检索（稠密）擅长语义相似度但不擅长精确关键词匹配（产品
+ID、专有名词、错别字容忍）。<strong>生产级 RAG 几乎都是 hybrid
+search</strong>：</p>
+<ul>
+<li><strong>稀疏</strong>：BM25 / SPLADE / BGE-sparse（关键词 +
+词频）</li>
+<li><strong>稠密</strong>：embedding-based vector search（语义）</li>
+<li><strong>后期交互（late interaction）</strong>：ColBERT /
+ColBERT-v2，每个 token 单独 embedding，检索时按 token 级 max-similarity
+聚合。比单向量 dense 召回高，但索引大 100x。Vespa、Qdrant 已支持</li>
+</ul>
+<p>混合策略：用 RRF（Reciprocal Rank
+Fusion）合并稀疏与稠密的结果列表。简单且无需调参。</p>
+<p>实证：<strong>hybrid search + reranker 比 semantic-only 提升 +9.3
+个百分点 MRR</strong>，配合 Cohere Rerank 准确率可以到 90%+。</p>
+<h3 id="重排reranker">2.4.6 重排（Reranker）</h3>
+<p>第一阶段检索（embedding / BM25）召回 top-100 后，用更贵但更准的
+cross-encoder 模型对 query-doc 对重排，取 top-5 给 LLM。这一步的 ROI
+极高：</p>
+<table>
+<thead>
+<tr class="header">
+<th>Reranker</th>
+<th>类型</th>
+<th>ELO</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Zerank 2</strong></td>
+<td>API</td>
+<td>1638</td>
+<td>当前榜首</td>
+</tr>
+<tr class="even">
+<td><strong>Cohere Rerank v4 Pro</strong></td>
+<td>API</td>
+<td>1629</td>
+<td>老牌</td>
+</tr>
+<tr class="odd">
+<td><strong>Cohere Rerank 3 Nimble</strong></td>
+<td>API</td>
+<td>—</td>
+<td>速度优化版本</td>
+</tr>
+<tr class="even">
+<td><strong>BGE-reranker-v2-m3</strong></td>
+<td>自托管</td>
+<td>—</td>
+<td>开源，效果接近 Cohere</td>
+</tr>
+<tr class="odd">
+<td><strong>FlashRank</strong></td>
+<td>自托管</td>
+<td>—</td>
+<td>极轻量，毫秒级</td>
+</tr>
+<tr class="even">
+<td><strong>ColBERT v2</strong></td>
+<td>自托管</td>
+<td>—</td>
+<td>后期交互架构</td>
+</tr>
+<tr class="odd">
+<td><strong>RankLLM</strong>（用 LLM 直接 rerank）</td>
+<td>LLM</td>
+<td>—</td>
+<td>最贵但解释性最好</td>
+</tr>
+</tbody>
+</table>
+<p><strong>top rerankers 比纯 embedding 提升 15-40%
+精确率</strong>。如果只允许加一项 RAG 优化，加 reranker 通常 ROI
+第一。</p>
+<h3 id="查询改写query-rewriting-expansion">2.4.7 查询改写（Query
+Rewriting / Expansion）</h3>
+<p>用户问的”今天天气咋样”和文档里写的”current weather
+conditions”语义相同但词汇不重叠。Query rewriting 在检索前先对 query
+做处理：</p>
+<ul>
+<li><strong>HyDE（Hypothetical Document Embeddings）</strong>：先让 LLM
+假想”如果有一篇答案文档会写什么”，用这段假想文本去检索（不是用原
+query）</li>
+<li><strong>Multi-Query</strong>：让 LLM 把原 query 改写成 3-5
+个不同表达，分别检索后合并</li>
+<li><strong>Step-Back Prompting</strong>：先把 query
+抽象成更宏观的问题，用抽象问题的检索结果做铺垫</li>
+<li><strong>Sub-Query
+Decomposition</strong>：把复合问题拆成多个子问题分别检索（“对比 A 和 B”
+→ [“A 的特点”、“B 的特点”]）</li>
+<li><strong>HyDE + Multi-Query 组合</strong> 在 BEIR
+等检索基准上是当前最强 baseline 之一</li>
+</ul>
+<h3 id="graphrag">2.4.8 GraphRAG</h3>
+<p>Microsoft GraphRAG（2024 开源）和 LightRAG / Nano-GraphRAG
+等社区变体把检索从”向量相似”扩展到”知识图遍历”：</p>
+<ul>
+<li><strong>构建阶段</strong>：用 LLM
+抽取文档里的实体和关系，建一张知识图</li>
+<li><strong>检索阶段</strong>：把 query 映射到图上的实体，做局部子图查询
++ summary</li>
+<li><strong>优势</strong>：能回答”主题级”问题（“我们所有供应商合同里的合规风险有哪些”），传统
+RAG 因为这种问题没有局部相似 chunk 而失败</li>
+<li><strong>代价</strong>：图构建非常贵（LLM
+把每段文档抽实体），适合静态高价值知识库</li>
+</ul>
+<p>GraphRAG 在某些场景把检索精度推到
+99%（金融合规、法律、医疗等关系密集的领域）[43]。</p>
+<h3 id="self-rag-crag-agentic-rag">2.4.9 Self-RAG / CRAG / Agentic
+RAG</h3>
+<ul>
+<li><strong>Self-RAG</strong>（Asai
+2023）：让模型在生成时自己决定<strong>何时</strong>检索、<strong>评估</strong>检索结果是否相关、<strong>批判</strong>自己的输出是否有依据</li>
+<li><strong>CRAG（Corrective RAG）</strong>：检索后对 chunk
+打”高/中/低置信度”标签，低置信度时触发 web search 兜底</li>
+<li><strong>Agentic RAG</strong>：把上面所有能力包进一个 agent loop，让
+agent 在”想 → 检索 → 评判 → 重写 query → 重新检索 →
+综合”里循环直到自信为止。LangGraph 是实现 Agentic RAG 的主流框架</li>
+</ul>
+<p>实证：Self-RAG 在生产部署中能减少 25-40%
+的”不必要检索”——因为模型学会了对自己已有知识的事情不去检索。</p>
+<p>详见 <a href="./03_agent_engineering.md">03_agent_engineering.md</a>
+§2 范式演进、§5 框架对比。</p>
+<h3 id="多模态-rag">2.4.10 多模态 RAG</h3>
+<p>图像 + 文本混合的索引方案：</p>
+<ul>
+<li><strong>Late fusion</strong>：分别对文本和图像
+embed，检索时分别检索后合并</li>
+<li><strong>Early fusion</strong>：用 CLIP / Gemini Embedding 等多模态
+embedding，把图文嵌入同一空间</li>
+<li><strong>VLM-as-extractor</strong>：用 GPT-4o / Claude 3.5 Sonnet
+把图片转成详细描述，再走文本 RAG（成本最高但召回最稳）</li>
+</ul>
+<h3 id="完整-rag-pipeline-代码骨架">2.4.11 完整 RAG pipeline
+代码骨架</h3>
+<p>把上面 10 个子节串起来，一个生产级 RAG pipeline
+的最小可运行骨架：</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. 文档解析</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> llama_parse <span class="im">import</span> LlamaParse</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>parser <span class="op">=</span> LlamaParse(result_type<span class="op">=</span><span class="st">&quot;markdown&quot;</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>docs <span class="op">=</span> parser.load_data(<span class="st">&quot;./knowledge_base/&quot;</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. 切分</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> langchain.text_splitter <span class="im">import</span> RecursiveCharacterTextSplitter</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>splitter <span class="op">=</span> RecursiveCharacterTextSplitter(</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    chunk_size<span class="op">=</span><span class="dv">512</span>, chunk_overlap<span class="op">=</span><span class="dv">80</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    separators<span class="op">=</span>[<span class="st">&quot;</span><span class="ch">\n\n</span><span class="st">&quot;</span>, <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>, <span class="st">&quot;。&quot;</span>, <span class="st">&quot;!&quot;</span>, <span class="st">&quot;?&quot;</span>, <span class="st">&quot;.&quot;</span>, <span class="st">&quot; &quot;</span>]</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>chunks <span class="op">=</span> splitter.split_documents(docs)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. 嵌入 + 入向量库</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> langchain_community.embeddings <span class="im">import</span> HuggingFaceBgeEmbeddings</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> langchain_qdrant <span class="im">import</span> QdrantVectorStore</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>embeddings <span class="op">=</span> HuggingFaceBgeEmbeddings(model_name<span class="op">=</span><span class="st">&quot;BAAI/bge-m3&quot;</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>vectorstore <span class="op">=</span> QdrantVectorStore.from_documents(</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    chunks, embeddings, url<span class="op">=</span><span class="st">&quot;http://localhost:6333&quot;</span>, collection_name<span class="op">=</span><span class="st">&quot;kb&quot;</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. 混合检索（dense + sparse + RRF）</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> langchain.retrievers <span class="im">import</span> EnsembleRetriever, BM25Retriever</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>bm25_retriever <span class="op">=</span> BM25Retriever.from_documents(chunks)<span class="op">;</span> bm25_retriever.k <span class="op">=</span> <span class="dv">20</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>dense_retriever <span class="op">=</span> vectorstore.as_retriever(search_kwargs<span class="op">=</span>{<span class="st">&quot;k&quot;</span>: <span class="dv">20</span>})</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>hybrid_retriever <span class="op">=</span> EnsembleRetriever(</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    retrievers<span class="op">=</span>[bm25_retriever, dense_retriever], weights<span class="op">=</span>[<span class="fl">0.4</span>, <span class="fl">0.6</span>]</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. 查询改写（multi-query + step-back）</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> langchain.retrievers.multi_query <span class="im">import</span> MultiQueryRetriever</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> langchain_anthropic <span class="im">import</span> ChatAnthropic</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>llm <span class="op">=</span> ChatAnthropic(model<span class="op">=</span><span class="st">&quot;claude-sonnet-4-6&quot;</span>)</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>multi_q_retriever <span class="op">=</span> MultiQueryRetriever.from_llm(retriever<span class="op">=</span>hybrid_retriever, llm<span class="op">=</span>llm)</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="co"># 6. 重排（Cohere Rerank 或 BGE-reranker）</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> langchain.retrievers <span class="im">import</span> ContextualCompressionRetriever</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> langchain_cohere <span class="im">import</span> CohereRerank</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>reranker <span class="op">=</span> CohereRerank(model<span class="op">=</span><span class="st">&quot;rerank-v3.5&quot;</span>, top_n<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>final_retriever <span class="op">=</span> ContextualCompressionRetriever(</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    base_retriever<span class="op">=</span>multi_q_retriever, base_compressor<span class="op">=</span>reranker</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="co"># 7. 生成（带 citation）</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> langchain.chains <span class="im">import</span> create_retrieval_chain</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> langchain.chains.combine_documents <span class="im">import</span> create_stuff_documents_chain</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> langchain_core.prompts <span class="im">import</span> ChatPromptTemplate</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>prompt <span class="op">=</span> ChatPromptTemplate.from_messages([</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>    (<span class="st">&quot;system&quot;</span>, <span class="st">&quot;你是一个严谨的助手。仅根据给定 context 回答，每条事实必须标注 [doc_id]。&quot;</span>),</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>    (<span class="st">&quot;human&quot;</span>, <span class="st">&quot;Context:</span><span class="ch">\n</span><span class="sc">{context}</span><span class="ch">\n\n</span><span class="st">问题: </span><span class="sc">{input}</span><span class="st">&quot;</span>),</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>combine_chain <span class="op">=</span> create_stuff_documents_chain(llm, prompt)</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>rag_chain <span class="op">=</span> create_retrieval_chain(final_retriever, combine_chain)</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>answer <span class="op">=</span> rag_chain.invoke({<span class="st">&quot;input&quot;</span>: <span class="st">&quot;Transformer 的 attention 复杂度是多少？&quot;</span>})</span></code></pre></div>
+<p>这个骨架覆盖了 RAG 的 7 个核心步骤。生产化还需要加：</p>
+<ul>
+<li><strong>eval 闭环</strong>：RAGAS 跑 faithfulness /
+context_precision / answer_relevancy</li>
+<li><strong>观测</strong>：Langfuse 接入捕获每次检索 + 生成的 trace</li>
+<li><strong>缓存</strong>：embedding cache + LLM 响应 cache</li>
+<li><strong>降级</strong>：检索失败 fallback、重排失败 fallback、LLM
+失败 fallback</li>
+</ul>
+<h3 id="github-系统化学习资源rag-专题">2.4.12 GitHub 系统化学习资源（RAG
+专题）</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>资源</th>
+<th>类型</th>
+<th>推荐用法</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a
+href="https://github.com/NirDiamant/RAG_Techniques"><code>NirDiamant/RAG_Techniques</code></a></td>
+<td>高级技术 notebook 集</td>
+<td>30+ 种 RAG 高级技术每个都有可跑 notebook，最全</td>
+</tr>
+<tr class="even">
+<td><a
+href="https://github.com/infiniflow/ragflow"><code>infiniflow/ragflow</code></a></td>
+<td>开源 RAG 引擎</td>
+<td>想要”开箱即用”的企业级 RAG 平台</td>
+</tr>
+<tr class="odd">
+<td><a
+href="https://github.com/HKUDS/LightRAG"><code>HKUDS/LightRAG</code></a></td>
+<td>EMNLP 2025 论文 + 实现</td>
+<td>简洁高效的 RAG 范式参考</td>
+</tr>
+<tr class="even">
+<td><a
+href="https://github.com/Danielskry/Awesome-RAG"><code>Danielskry/Awesome-RAG</code></a></td>
+<td>awesome list</td>
+<td>找特定主题资源时的入口</td>
+</tr>
+<tr class="odd">
+<td><a
+href="https://github.com/lehoanglong95/rag-all-in-one"><code>lehoanglong95/rag-all-in-one</code></a></td>
+<td>全栈指南</td>
+<td>想要按组件对照工具时</td>
+</tr>
+<tr class="even">
+<td><a
+href="https://github.com/pguso/rag-from-scratch"><code>pguso/rag-from-scratch</code></a></td>
+<td>从零实现</td>
+<td>想搞清”黑盒里到底发生了什么”</td>
+</tr>
+<tr class="odd">
+<td><a
+href="https://github.com/microsoft/graphrag"><code>microsoft/graphrag</code></a></td>
+<td>GraphRAG 官方</td>
+<td>实体关系图 RAG 的参考实现</td>
+</tr>
+<tr class="even">
+<td><a
+href="https://github.com/abhinav-kimothi/A-Simple-Guide-to-RAG"><code>abhinav-kimothi/A-Simple-Guide-to-RAG</code></a></td>
+<td>入门书配套</td>
+<td>完全新手入门</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="记忆系统完整工程指南">2.5 记忆系统：完整工程指南</h2>
+<p>如果 RAG 解决”<strong>外部知识库</strong>怎么塞进
+context”，记忆系统解决”<strong>agent 自身经验</strong>怎么塞进
+context”。这两件事在工程上有相似的部分（都是检索 + 注入
+prompt），但有本质差异：</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>维度</th>
+<th>RAG</th>
+<th>记忆系统</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>数据来源</td>
+<td>外部静态文档（公司 wiki、PDF）</td>
+<td>历史对话、agent 行为、用户偏好</td>
+</tr>
+<tr class="even">
+<td>写入触发</td>
+<td>索引时一次性</td>
+<td>每次交互都可能触发增量写入</td>
+</tr>
+<tr class="odd">
+<td>数据生命周期</td>
+<td>跟着源文档走</td>
+<td>有独立的”过期 / 淘汰 / 摘要”逻辑</td>
+</tr>
+<tr class="even">
+<td>隔离粒度</td>
+<td>全局或部门级</td>
+<td>必须 per-user / per-agent / per-session</td>
+</tr>
+<tr class="odd">
+<td>时效性</td>
+<td>通常分钟到天</td>
+<td>可能秒级（“用户刚才说的”）</td>
+</tr>
+<tr class="even">
+<td>一致性</td>
+<td>强（一份 ground truth）</td>
+<td>弱（事实会变、有矛盾）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="为什么仅靠-context-window-不够">2.5.1 为什么仅靠 context window
+不够</h3>
+<p>“上下文窗口已经 1 M 了，还需要记忆系统吗？”
+是个真实问题。三个理由：</p>
+<ol type="1">
+<li><strong>成本与延迟</strong>：1M context 一次推理比同等任务的 RAG
+显著更慢更贵（按 [41] 单一来源估算约 30-60× 慢、~1000×
+贵，<strong>具体倍率因模型和任务差异很大，建议在自家场景实测</strong>）</li>
+<li><strong>Lost-in-the-Middle</strong>：把所有历史塞进
+context，关键事实被中间黑洞吞掉（U 形召回）</li>
+<li><strong>跨 session 持久化</strong>：context window
+是单次推理生命周期，session
+结束即销毁；记忆系统要跨天、跨周、跨设备</li>
+</ol>
+<p>记忆系统本质上是
+<strong>“把过去的全部经验变成一个可检索的小数据库，每次推理只检索最相关的几条注入
+context”</strong>——把”全部输入到模型”换成”模型按需检索”。</p>
+<h3 id="记忆类型的工程映射">2.5.2 记忆类型的工程映射</h3>
+<p>借自认知心理学的分类，每一类对应不同的工程实现：</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>记忆类型</th>
+<th>认知含义</th>
+<th>工程实现</th>
+<th>存储后端</th>
+<th>写入时机</th>
+<th>检索时机</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Working Memory（工作）</strong></td>
+<td>当前任务的”草稿纸”</td>
+<td>当前 context window</td>
+<td>LLM 内部 KV cache</td>
+<td>每个 token</td>
+<td>每个 token</td>
+</tr>
+<tr class="even">
+<td><strong>Short-term（短期）</strong></td>
+<td>最近 N 轮对话</td>
+<td>滚动 message buffer</td>
+<td>内存 / Redis</td>
+<td>每轮</td>
+<td>每轮全注入</td>
+</tr>
+<tr class="odd">
+<td><strong>Episodic（情景）</strong></td>
+<td>“什么时候发生了什么”</td>
+<td>带时间戳的对话片段</td>
+<td>向量库 + 时间索引</td>
+<td>会话结束 / 重要事件</td>
+<td>按主题 + 时间窗</td>
+</tr>
+<tr class="even">
+<td><strong>Semantic（语义）</strong></td>
+<td>关于世界 / 用户的稳定事实</td>
+<td>KV pair 或图节点</td>
+<td>图库 / KV 库 / SQL</td>
+<td>抽取出新事实时</td>
+<td>按实体名</td>
+</tr>
+<tr class="odd">
+<td><strong>Procedural（程序）</strong></td>
+<td>“这类任务怎么做”</td>
+<td>可执行 skill / 流程脚本</td>
+<td>文件系统 / skill registry</td>
+<td>任务成功后总结</td>
+<td>按任务类型</td>
+</tr>
+<tr class="even">
+<td><strong>Long-term（长期）</strong></td>
+<td>跨 session 的所有上述类型</td>
+<td>上面几种的合集</td>
+<td>通常多种后端组合</td>
+<td>异步 / 后台 worker</td>
+<td>按需</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键洞察</strong>：一个生产级 agent
+的”记忆”通常<strong>不是单一系统</strong>，而是上面 6
+类的不同子集组合。Letta（MemGPT）把短期 + 语义放 in-context（Core
+Memory），把情景放向量库（Recall
+Memory），把外部知识放另一个向量库（Archival Memory）——这是 OS-inspired
+设计的经典三层。</p>
+<h3 id="记忆系统的核心架构组件">2.5.3 记忆系统的核心架构组件</h3>
+<p>任何记忆系统拆开都是这 5 个组件：</p>
+<pre><code>                    ┌──────────────────────────┐
+                    │  Conversation / Action   │
+                    │  (raw events)            │
+                    └────────────┬─────────────┘
+                                 │
+           ┌─────────────────────▼──────────────────────┐
+           │  ① Extractor（抽取器）                    │
+           │  LLM 把原始事件抽成结构化&quot;记忆事实&quot;       │
+           │  e.g. &quot;用户偏好暗色主题&quot;                  │
+           └─────────────────────┬──────────────────────┘
+                                 │
+           ┌─────────────────────▼──────────────────────┐
+           │  ② Writer（写入器）                       │
+           │  去重 / merge / conflict resolution        │
+           │  embed + 入库                             │
+           └─────────────────────┬──────────────────────┘
+                                 │
+                       ┌─────────▼─────────┐
+                       │  Storage Backend  │
+                       │  vector / graph / │
+                       │  KV / SQL / file  │
+                       └─────────┬─────────┘
+                                 │
+           ┌─────────────────────▼──────────────────────┐
+           │  ③ Retriever（检索器）                   │
+           │  query → top-K 相关记忆                  │
+           │  hybrid: semantic + keyword + graph       │
+           └─────────────────────┬──────────────────────┘
+                                 │
+           ┌─────────────────────▼──────────────────────┐
+           │  ④ Forgetter（遗忘器）                   │
+           │  按 LRU / 重要性 / 时间衰减 淘汰          │
+           └─────────────────────┬──────────────────────┘
+                                 │
+           ┌─────────────────────▼──────────────────────┐
+           │  ⑤ Compressor（压缩器）                  │
+           │  老记忆摘要、冲突合并、知识图重建          │
+           └────────────────────────────────────────────┘</code></pre>
+<p>每个组件都有独立的工程决策点。下面 §2.5.4-2.5.8 逐个展开。</p>
+<h3 id="存储后端选型">2.5.4 存储后端选型</h3>
+<p>记忆系统的存储后端不是”选一个”而是”选哪几个组合”。常见选项：</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>后端</th>
+<th>强项</th>
+<th>弱项</th>
+<th>典型用法</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>向量库</strong>（Qdrant / Weaviate / Pinecone /
+pgvector）</td>
+<td>语义相似检索</td>
+<td>不擅长精确匹配 / 关系查询</td>
+<td>情景记忆主存储</td>
+</tr>
+<tr class="even">
+<td><strong>图库</strong>（Neo4j / FalkorDB / Memgraph）</td>
+<td>实体关系 / 多跳查询 / 时序</td>
+<td>部署复杂 / 检索慢</td>
+<td>语义记忆 + 关系 + 时序</td>
+</tr>
+<tr class="odd">
+<td><strong>KV 库</strong>（Redis / DynamoDB）</td>
+<td>极低延迟 / 简单</td>
+<td>无语义检索</td>
+<td>短期 working memory + 缓存</td>
+</tr>
+<tr class="even">
+<td><strong>关系型</strong>（Postgres + pgvector / Tiger Data）</td>
+<td>事务性 / SQL filter / 一站式</td>
+<td>大规模向量索引调优麻烦</td>
+<td>中小规模一体化</td>
+</tr>
+<tr class="odd">
+<td><strong>文件系统</strong>（Anthropic Memory Tool）</td>
+<td>简单 / 可审计 / agent 自管</td>
+<td>检索能力依赖 agent 自己 grep</td>
+<td>Claude 生态原生</td>
+</tr>
+<tr class="even">
+<td><strong>专用记忆 SaaS</strong>（Mem0 Cloud / Zep Cloud /
+Supermemory）</td>
+<td>零运维</td>
+<td>锁定 / 数据出域</td>
+<td>创业 MVP</td>
+</tr>
+</tbody>
+</table>
+<h4 id="选型决策树">选型决策树</h4>
+<pre><code>你的记忆主体是什么？
+│
+├─ 主要是用户偏好 / 实体事实 → 语义记忆为主
+│   ├─ 关系密集（&quot;A 是 B 的同事&quot;、&quot;X 公司 2024 收购 Y&quot;）→ Zep（Graphiti 图）
+│   └─ 关系简单 → Mem0（vector + 可选 graph）
+│
+├─ 主要是对话历史 + 长跑任务 → 情景记忆为主 + agent 自管
+│   └─ → Letta（Core + Recall + Archival 三层）
+│
+├─ 主要是 agent 行为可审计 / 可回滚
+│   └─ → Anthropic Memory Tool（filesystem，可 git 管理）
+│
+└─ 已用 Redis / Postgres，不想加新栈
+    ├─ 用 Redis Agent Memory Server
+    └─ 用 Postgres + pgvector + Tiger</code></pre>
+<h4 id="实测性能2026">实测性能（2026）</h4>
+<ul>
+<li><strong>pgvectorscale</strong>: 50 M 向量上 471 QPS @ 99%
+recall（来自 Tiger Data 基准）</li>
+<li><strong>Redis vector</strong>: p99 &lt; 5 ms（in-memory 优势）</li>
+<li><strong>Qdrant</strong>: p99 ~2 ms，元数据 filter 强</li>
+<li><strong>Neo4j 图遍历</strong>: 多跳查询毫秒级，但全量语义检索不如纯
+vector</li>
+</ul>
+<h3 id="写入流程抽取-去重-关联">2.5.5 写入流程：抽取 + 去重 + 关联</h3>
+<p>记忆<strong>不是简单地把对话原文存下来</strong>，而是经过 LLM
+抽取的”事实”。Mem0 v2 的写入算法（论文 [19]）拆解：</p>
+<pre><code>1. Retrieve 相关记忆（top-10 semantically similar）
+2. LLM 单次调用抽取新事实（Add-only, 不 Update / Delete）
+   └─ Prompt: &quot;Given new conversation + existing memories,
+              extract NEW facts that should be remembered.
+              Return JSON list.&quot;
+3. Embed + MD5 hash 去重
+4. 实体抽取 + 链接（用于 graph memory）
+5. 批量写入 vector store + entity collection</code></pre>
+<p><strong>关键设计选择</strong>：</p>
+<ul>
+<li><strong>Add-only vs Update-in-place</strong>：Mem0 选
+Add-only（新事实和老事实并存，靠检索器过滤过期的）；Zep 选
+invalidate（老事实标记为 invalid，保留历史）；Letta 让 agent 自己
+decide（用 <code>core_memory_replace</code> 工具）</li>
+<li><strong>抽取触发时机</strong>：每轮 / N 轮一次 / 会话结束 /
+重要事件触发。Mem0 默认每轮，但可配</li>
+<li><strong>去重粒度</strong>：完全字符串一致用 MD5（Mem0），语义近似用
+embedding 距离（Letta）</li>
+</ul>
+<p>写入伪代码（自实现版）：</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> write_memory(user_id, conversation_chunk):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 1. 检索相关历史</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    relevant <span class="op">=</span> vector_store.search(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>        embed(conversation_chunk), <span class="bu">filter</span><span class="op">=</span>{<span class="st">&quot;user_id&quot;</span>: user_id}, k<span class="op">=</span><span class="dv">10</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 2. LLM 抽取</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    extracted <span class="op">=</span> llm.extract_facts(</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>        prompt<span class="op">=</span><span class="ss">f&quot;对话：</span><span class="sc">{</span>conversation_chunk<span class="sc">}</span><span class="ch">\n</span><span class="ss">现有记忆：</span><span class="sc">{</span>relevant<span class="sc">}</span><span class="ch">\n</span><span class="ss">新事实？&quot;</span>,</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        schema<span class="op">=</span>{<span class="st">&quot;facts&quot;</span>: [{<span class="st">&quot;text&quot;</span>: <span class="bu">str</span>, <span class="st">&quot;category&quot;</span>: <span class="bu">str</span>, <span class="st">&quot;confidence&quot;</span>: <span class="bu">float</span>}]},</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 3. 过滤低置信度</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    facts <span class="op">=</span> [f <span class="cf">for</span> f <span class="kw">in</span> extracted[<span class="st">&quot;facts&quot;</span>] <span class="cf">if</span> f[<span class="st">&quot;confidence&quot;</span>] <span class="op">&gt;</span> <span class="fl">0.7</span>]</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 4. 去重</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    new_facts <span class="op">=</span> []</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> f <span class="kw">in</span> facts:</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>        h <span class="op">=</span> hashlib.md5(f[<span class="st">&quot;text&quot;</span>].encode()).hexdigest()</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> vector_store.exists(<span class="bu">hash</span><span class="op">=</span>h, user_id<span class="op">=</span>user_id):</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>            new_facts.append({<span class="op">**</span>f, <span class="st">&quot;hash&quot;</span>: h, <span class="st">&quot;user_id&quot;</span>: user_id, <span class="st">&quot;ts&quot;</span>: now()})</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 5. 写入</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    vector_store.add_batch(new_facts)</span></code></pre></div>
+<h3 id="检索流程多信号融合">2.5.6 检索流程：多信号融合</h3>
+<p>仅用 embedding 检索召回会漏，2026 年生产级记忆系统都用
+<strong>multi-signal fusion</strong>——和 RAG 的混合检索是同一思路。Mem0
+v2 的检索：</p>
+<pre><code>Query → preprocess（lemmatize + entity 抽取）
+      ↓
+   ┌──┴──────────────────────────┬────────────────────────┐
+   ▼                             ▼                        ▼
+Semantic（vector cosine）    BM25 keyword             Entity match
+   │                             │                        │
+   └──────────────┬──────────────┴────────────────────────┘
+                  ▼
+            Score Fusion (RRF or weighted)
+                  ▼
+           Top-K Memories → 注入 system prompt</code></pre>
+<p><strong>进阶技术</strong>：</p>
+<ul>
+<li><strong>个性化重排</strong>：把”被检索后是否被 LLM
+实际引用”作为反馈信号训练 reranker</li>
+<li><strong>时间衰减</strong>：检索分数 ×
+<code>exp(-λ·age)</code>，新记忆优先</li>
+<li><strong>重要性加权</strong>：写入时让 LLM 给每条记忆打 importance
+分（0-1），检索时加权</li>
+<li><strong>冷启动
+fallback</strong>：用户刚开始用、记忆为空时返回空而不是噪声</li>
+</ul>
+<h3 id="淘汰策略6-种-forgetting-policies">2.5.7 淘汰策略：6 种
+Forgetting Policies</h3>
+<p>记忆爆炸是真实问题。MaRS 架构（arXiv 2603.07670）形式化了 6
+种主流淘汰策略：</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>策略</th>
+<th>公式 / 规则</th>
+<th>适用</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>FIFO</strong></td>
+<td>按插入时间</td>
+<td>最简单，几乎不用（删了重要老事实）</td>
+</tr>
+<tr class="even">
+<td><strong>LRU</strong></td>
+<td>按最后访问时间</td>
+<td>desktop agent 默认起点</td>
+</tr>
+<tr class="odd">
+<td><strong>Priority Decay</strong></td>
+<td><code>score = w₁·prior + w₂·recency + w₃·frequency</code></td>
+<td>通用最佳 baseline</td>
+</tr>
+<tr class="even">
+<td><strong>Reflection-Summary</strong></td>
+<td>老的 N 条 → LLM 摘要成 1 条</td>
+<td>配合 LRU 用，长跑 agent 必备</td>
+</tr>
+<tr class="odd">
+<td><strong>Random-Drop</strong></td>
+<td>随机删</td>
+<td>仅作 baseline 对比</td>
+</tr>
+<tr class="even">
+<td><strong>Hybrid</strong></td>
+<td>LRU + Priority Decay + Summary 联用</td>
+<td>生产推荐</td>
+</tr>
+</tbody>
+</table>
+<p><strong>实战配方</strong>（Letta 与 Mem0 都接近这个思路）：</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> evict_if_needed(memories, max_count<span class="op">=</span><span class="dv">10000</span>):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(memories) <span class="op">&lt;=</span> max_count:</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> memories</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 1. 计算每条记忆的&quot;保留分数&quot;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> m <span class="kw">in</span> memories:</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        m.keep_score <span class="op">=</span> (</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>            m.importance <span class="op">*</span> <span class="fl">0.4</span>              <span class="co"># 写入时打的重要性</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">+</span> recency_score(m.last_access) <span class="op">*</span> <span class="fl">0.3</span>   <span class="co"># 越近越高</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>            <span class="op">+</span> access_frequency(m) <span class="op">*</span> <span class="fl">0.2</span>     <span class="co"># 被引用次数</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>            <span class="op">-</span> age_penalty(m.created) <span class="op">*</span> <span class="fl">0.1</span>  <span class="co"># 越老越低</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 2. 按分数排序，淘汰末尾 N 条</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    memories.sort(key<span class="op">=</span><span class="kw">lambda</span> m: m.keep_score, reverse<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    to_evict <span class="op">=</span> memories[max_count:]</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 3. 老记忆不直接删，先尝试摘要</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    summary_chunks <span class="op">=</span> group_by_topic(to_evict, n<span class="op">=</span><span class="dv">10</span>)  <span class="co"># 10 条一组</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> chunk <span class="kw">in</span> summary_chunks:</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>        summary <span class="op">=</span> llm.summarize(chunk)</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>        memories.append(Memory(</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>            text<span class="op">=</span>summary, importance<span class="op">=</span>avg([m.importance <span class="cf">for</span> m <span class="kw">in</span> chunk]),</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>            ts<span class="op">=</span><span class="bu">min</span>([m.created <span class="cf">for</span> m <span class="kw">in</span> chunk]),</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>            sources<span class="op">=</span>[m.<span class="bu">id</span> <span class="cf">for</span> m <span class="kw">in</span> chunk],</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>        ))</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 4. 真正删除原始 N 条</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    delete_batch([m.<span class="bu">id</span> <span class="cf">for</span> m <span class="kw">in</span> to_evict])</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> memories</span></code></pre></div>
+<p><strong>经验法则</strong>：</p>
+<ul>
+<li>desktop agent / 简单 chatbot → 纯 LRU 起步</li>
+<li>长跑 agent / 多用户 SaaS → Priority Decay</li>
+<li>需要追溯 / 法务场景 → Hybrid + 摘要不删原始（archive 到冷存储）</li>
+</ul>
+<h3 id="四大主流系统深度剖析">2.5.8 四大主流系统深度剖析</h3>
+<h4 id="a.-mem0-通用记忆层最易接入">A. Mem0 —
+通用记忆层（最易接入）</h4>
+<p><strong>架构</strong>：5 个支柱（论文 [19] 与 Mem0 docs 总结）：</p>
+<ol type="1">
+<li><strong>LLM-Powered Fact Extraction</strong>：单 LLM
+调用把对话转结构化事实</li>
+<li><strong>Vector Storage</strong>：默认 Qdrant，可换 24+ 后端（Chroma
+/ Pinecone / pgvector / MongoDB / Weaviate / OpenSearch / 等）</li>
+<li><strong>Graph Storage</strong>（可选）：Neo4j / Neptune / FalkorDB /
+Memgraph，存实体关系</li>
+<li><strong>Hybrid Retrieval</strong>：semantic + BM25 + entity matching
+并行打分 + RRF 融合</li>
+<li><strong>Production Infrastructure</strong>：批处理、MD5
+去重、用户/会话/agent 三层 hierarchy</li>
+</ol>
+<blockquote>
+<p>注：上述 5 项是按工程职责整理的检查清单，不是 Mem0 / Letta / Zep
+任何一家的官方架构图。Mem0 论文实际描述的是 Add/Update/Delete/NoOp
+四种操作 + LLM 抽取 pipeline；Letta 用 Core/Recall/Archival 三层；Zep 用
+Episodic/Entity/Edge 三类节点。</p>
+</blockquote>
+<p><strong>性能</strong>（v2 算法，按 Mem0 论文 arXiv:2504.19413
+报告口径）：在 LoCoMo / LongMemEval 等长对话记忆 benchmark 上显著优于
+RAG / full-context
+baseline（具体提升幅度按子任务和指标维度差异较大，详见原论文表
+4-5）；抽取延迟降一半。</p>
+<p><strong>完整代码示例</strong>：</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> mem0 <span class="im">import</span> Memory</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 初始化（用 Qdrant + Neo4j + OpenAI）</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>config <span class="op">=</span> {</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;vector_store&quot;</span>: {</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;provider&quot;</span>: <span class="st">&quot;qdrant&quot;</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;config&quot;</span>: {<span class="st">&quot;host&quot;</span>: <span class="st">&quot;localhost&quot;</span>, <span class="st">&quot;port&quot;</span>: <span class="dv">6333</span>},</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;graph_store&quot;</span>: {  <span class="co"># 可选</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;provider&quot;</span>: <span class="st">&quot;neo4j&quot;</span>,</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;config&quot;</span>: {<span class="st">&quot;url&quot;</span>: <span class="st">&quot;bolt://localhost:7687&quot;</span>,</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;username&quot;</span>: <span class="st">&quot;neo4j&quot;</span>, <span class="st">&quot;password&quot;</span>: <span class="st">&quot;...&quot;</span>},</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;llm&quot;</span>: {</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;provider&quot;</span>: <span class="st">&quot;openai&quot;</span>,</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;config&quot;</span>: {<span class="st">&quot;model&quot;</span>: <span class="st">&quot;gpt-4o-mini&quot;</span>},</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;embedder&quot;</span>: {</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;provider&quot;</span>: <span class="st">&quot;openai&quot;</span>,</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;config&quot;</span>: {<span class="st">&quot;model&quot;</span>: <span class="st">&quot;text-embedding-3-small&quot;</span>},</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> Memory.from_config(config)</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="co"># 写入：从对话自动抽事实</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>m.add(</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    messages<span class="op">=</span>[</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>        {<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: <span class="st">&quot;我是 Liang，住北京，做 AI 工程师，我喜欢冷咖啡&quot;</span>},</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>        {<span class="st">&quot;role&quot;</span>: <span class="st">&quot;assistant&quot;</span>, <span class="st">&quot;content&quot;</span>: <span class="st">&quot;记下了&quot;</span>},</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    user_id<span class="op">=</span><span class="st">&quot;liang_001&quot;</span>,</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Mem0 自动：提取 [&quot;用户名是 Liang&quot;, &quot;住北京&quot;, &quot;职业 AI 工程师&quot;, &quot;偏好冷咖啡&quot;]</span></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a><span class="co"># 检索</span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>memories <span class="op">=</span> m.search(query<span class="op">=</span><span class="st">&quot;他喝什么咖啡？&quot;</span>, user_id<span class="op">=</span><span class="st">&quot;liang_001&quot;</span>, limit<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a><span class="co"># [{&quot;memory&quot;: &quot;用户偏好冷咖啡&quot;, &quot;score&quot;: 0.89}, ...]</span></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a><span class="co"># 注入下次 prompt</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>context <span class="op">=</span> <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>.join([<span class="ss">f&quot;- </span><span class="sc">{</span>m[<span class="st">&#39;memory&#39;</span>]<span class="sc">}</span><span class="ss">&quot;</span> <span class="cf">for</span> m <span class="kw">in</span> memories])</span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>prompt <span class="op">=</span> <span class="ss">f&quot;已知用户信息：</span><span class="ch">\n</span><span class="sc">{</span>context<span class="sc">}</span><span class="ch">\n\n</span><span class="ss">用户：今天给我推荐什么饮料？&quot;</span></span></code></pre></div>
+<p><strong>AWS 推荐生产架构</strong>：Mem0 + ElastiCache for
+Valkey（短期 + 缓存）+ Neptune Analytics（图）+ OpenSearch（向量）。</p>
+<p><strong>适合</strong>：通用 chatbot、客服、个人助手——“5
+行代码加记忆”的场景。</p>
+<h4 id="b.-letta前-memgpt-os-inspiredagent-自管">B. Letta（前 MemGPT）—
+OS-Inspired，Agent 自管</h4>
+<p><strong>架构</strong>：把 LLM 当 OS，记忆分三层（核心创新）：</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>层</th>
+<th>名称</th>
+<th>位置</th>
+<th>容量</th>
+<th>谁能改</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>L1</td>
+<td><strong>Core Memory</strong>（核心）</td>
+<td><strong>In-context</strong>（system prompt 里）</td>
+<td>固定（如 4 KB）</td>
+<td>agent 自己用 tool</td>
+</tr>
+<tr class="even">
+<td>L2</td>
+<td><strong>Recall Memory</strong>（回忆）</td>
+<td>外部 DB</td>
+<td>完整对话历史</td>
+<td>自动</td>
+</tr>
+<tr class="odd">
+<td>L3</td>
+<td><strong>Archival Memory</strong>（档案）</td>
+<td>向量库</td>
+<td>无限</td>
+<td>agent 自己用 tool</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Core Memory</strong>
+是关键创新——它<strong>不是数据库</strong>而是<strong>system prompt
+的一部分</strong>。Agent 可以用 <code>core_memory_append</code> /
+<code>core_memory_replace</code>
+工具像编辑文件一样改它，下一次推理这些内容自动出现在 context
+头部。这等价于让 agent <strong>“持续编辑自己的人设”</strong>。</p>
+<p><strong>6 个内置工具</strong>（agent 自管内存）：</p>
+<table>
+<thead>
+<tr class="header">
+<th>工具</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>send_message</code></td>
+<td>给用户发消息</td>
+</tr>
+<tr class="even">
+<td><code>core_memory_append</code></td>
+<td>往 in-context 内存追加新 fact</td>
+</tr>
+<tr class="odd">
+<td><code>core_memory_replace</code></td>
+<td>替换 in-context 内存（修正错误 / 更新偏好）</td>
+</tr>
+<tr class="even">
+<td><code>conversation_search</code></td>
+<td>搜历史对话（recall memory）</td>
+</tr>
+<tr class="odd">
+<td><code>archival_memory_insert</code></td>
+<td>写入长期档案</td>
+</tr>
+<tr class="even">
+<td><code>archival_memory_search</code></td>
+<td>检索长期档案</td>
+</tr>
+</tbody>
+</table>
+<p><strong>完整代码</strong>：</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> letta_client <span class="im">import</span> Letta</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>client <span class="op">=</span> Letta(base_url<span class="op">=</span><span class="st">&quot;http://localhost:8283&quot;</span>)  <span class="co"># 自托管 server</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 创建 agent，定义 core memory blocks</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>agent <span class="op">=</span> client.agents.create(</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    name<span class="op">=</span><span class="st">&quot;my_assistant&quot;</span>,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    memory_blocks<span class="op">=</span>[</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>        {<span class="st">&quot;label&quot;</span>: <span class="st">&quot;human&quot;</span>, <span class="st">&quot;value&quot;</span>: <span class="st">&quot;用户的名字、偏好、当前正在做的事&quot;</span>},</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>        {<span class="st">&quot;label&quot;</span>: <span class="st">&quot;persona&quot;</span>, <span class="st">&quot;value&quot;</span>: <span class="st">&quot;你是一个简洁、礼貌的助理&quot;</span>},</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span><span class="st">&quot;anthropic/claude-sonnet-4-6&quot;</span>,</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    embedding<span class="op">=</span><span class="st">&quot;openai/text-embedding-3-small&quot;</span>,</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 对话（多轮，每次 Letta 自动管理 context）</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> client.agents.messages.create(</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    agent_id<span class="op">=</span>agent.<span class="bu">id</span>,</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    messages<span class="op">=</span>[{<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: <span class="st">&quot;我叫 Liang，下周要面试&quot;</span>}],</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Letta 内部：agent 调用 core_memory_append(&quot;human&quot;, &quot;用户叫 Liang，下周面试&quot;)</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="co"># 关掉、重启、明天继续——agent 还记得 Liang 与他的面试</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> client.agents.messages.create(</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    agent_id<span class="op">=</span>agent.<span class="bu">id</span>,</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>    messages<span class="op">=</span>[{<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: <span class="st">&quot;帮我准备一下&quot;</span>}],</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a><span class="co"># agent 看 core memory → 知道 Liang 要面试 → 自动反馈</span></span></code></pre></div>
+<p><strong>适合</strong>：长跑 agent（数天 /
+数周）、需要”持久身份”的产品（个性化助理 / AI 教练）、Anthropic Memory
+Tool 之外的 OSS 替代。</p>
+<h4 id="c.-zepgraphiti-temporal-knowledge-graph">C. Zep（Graphiti）—
+Temporal Knowledge Graph</h4>
+<p><strong>核心创新</strong>：每条事实带 <strong>双时间轴</strong>：</p>
+<ul>
+<li><strong>Event Time T</strong>：这条事实在现实世界何时为真（“Alice
+2023-01 加入 TechCorp”）</li>
+<li><strong>Ingestion Time T’</strong>：Zep 何时学到这条事实（对话发生在
+2024-03）</li>
+</ul>
+<p><strong>架构</strong>：3 类节点 + 边</p>
+<pre><code>┌────────────────┐  rel  ┌────────────────┐
+│  Entity Node   │◀─────▶│  Entity Node   │
+│  Alice         │  edge │  TechCorp      │
+└───────┬────────┘       └────────────────┘
+        │ source                    ▲
+        ▼                           │ joined
+┌────────────────┐                  │
+│ Episodic Node  │──────────────────┘
+│ &quot;对话片段&quot;     │  derives
+│ T=2024-03-15   │
+└────────────────┘</code></pre>
+<p><strong>关键能力</strong>：当事实变化时（“Alice 2024-06 离职”），Zep
+<strong>不删除</strong>老事实，而是给老 edge 标
+<code>valid_to=2024-06</code>，新 edge 标
+<code>valid_from=2024-06</code>。查询时可问：</p>
+<ul>
+<li>“Alice 现在在哪家公司？” → 查 <code>valid_to=NULL</code> 的
+edge</li>
+<li>“Alice 2024-04 在哪？” → 查
+<code>valid_from &lt;= 2024-04 &lt;= valid_to</code> 的 edge</li>
+<li>“TechCorp 历史所有员工？” → 不限时间窗的 edge</li>
+</ul>
+<p><strong>Hybrid 检索</strong>：semantic embedding + BM25 +
+直接图遍历——<strong>无需 LLM 调用</strong>，纯索引和图查询，延迟 100-500
+ms。</p>
+<p><strong>最小代码</strong>（Graphiti SDK）：</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> graphiti_core <span class="im">import</span> Graphiti</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> graphiti_core.nodes <span class="im">import</span> EpisodeType</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> Graphiti(uri<span class="op">=</span><span class="st">&quot;bolt://localhost:7687&quot;</span>, user<span class="op">=</span><span class="st">&quot;neo4j&quot;</span>, password<span class="op">=</span><span class="st">&quot;...&quot;</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span> g.build_indices_and_constraints()</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 写入（episode = 一段对话或事件）</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span> g.add_episode(</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    name<span class="op">=</span><span class="st">&quot;meeting_2026_03&quot;</span>,</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    episode_body<span class="op">=</span><span class="st">&quot;Alice 离开 TechCorp，加入 Anthropic 做 research engineer&quot;</span>,</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    source<span class="op">=</span>EpisodeType.message,</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    reference_time<span class="op">=</span>datetime.now(),</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Graphiti 自动：抽 entities → 建 nodes → 抽 relations → 建 edges → invalid 旧 edges</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 查询</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> <span class="cf">await</span> g.search(query<span class="op">=</span><span class="st">&quot;Alice 现在在哪工作？&quot;</span>, limit<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="co"># [{&quot;fact&quot;: &quot;Alice 现在在 Anthropic&quot;, &quot;valid_from&quot;: &quot;2026-03&quot;, &quot;valid_to&quot;: None}, ...]</span></span></code></pre></div>
+<p><strong>适合</strong>：用户状态会变的场景——CRM、客服、医疗病史、合规审计、法律事实库。</p>
+<h4 id="d.-anthropic-memory-tool-filesystem-as-memory">D. Anthropic
+Memory Tool — Filesystem-as-Memory</h4>
+<p><strong>2026-04-23
+公测发布</strong>。设计哲学：<strong>把记忆当文件</strong>，让 Claude
+用熟悉的 <code>bash</code> + <code>code execution</code> 工具读写。</p>
+<p><strong>架构</strong>：</p>
+<pre><code>Claude Agent
+    │
+    ├─ tool: bash (read/write/grep files)
+    ├─ tool: code execution
+    └─ tool: memory (mount filesystem)
+                │
+                ▼
+        ┌───────────────────┐
+        │  /memories/       │
+        │   ├ liang.md      │ ← user profile
+        │   ├ tasks/        │
+        │   │   ├ today.md  │
+        │   │   └ done.md   │
+        │   └ playbooks/    │
+        │       └ deploy.md │ ← procedural
+        └───────────────────┘
+            (any backend:
+             local fs, S3,
+             encrypted, ...)</code></pre>
+<p><strong>完整代码</strong>（Python SDK，public beta）：</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> anthropic <span class="im">import</span> Anthropic</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> anthropic.lib.tools <span class="im">import</span> BetaAbstractMemoryTool</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 选项 1：默认本地 filesystem 后端</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>client <span class="op">=</span> Anthropic()</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> client.beta.messages.create(</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span><span class="st">&quot;claude-sonnet-4-6&quot;</span>,</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    max_tokens<span class="op">=</span><span class="dv">4096</span>,</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    tools<span class="op">=</span>[</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>        {<span class="st">&quot;type&quot;</span>: <span class="st">&quot;memory_2026_04_23&quot;</span>, <span class="st">&quot;name&quot;</span>: <span class="st">&quot;memory&quot;</span>},</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>        {<span class="st">&quot;type&quot;</span>: <span class="st">&quot;bash_2026_04_23&quot;</span>, <span class="st">&quot;name&quot;</span>: <span class="st">&quot;bash&quot;</span>},</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    messages<span class="op">=</span>[{<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: <span class="st">&quot;记一下：我下周三要去机场，记得提醒我提前 3 小时出发&quot;</span>}],</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    extra_headers<span class="op">=</span>{<span class="st">&quot;anthropic-beta&quot;</span>: <span class="st">&quot;memory-2026-04-23&quot;</span>},</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Claude 自动：bash &gt; echo &quot;trip_2026_03_20 ...&quot; &gt; /memories/calendar.md</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="co"># 选项 2：自定义后端（S3 / 加密 / 数据库）</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> S3MemoryTool(BetaAbstractMemoryTool):</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, bucket):</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.bucket <span class="op">=</span> bucket</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">async</span> <span class="kw">def</span> list_files(<span class="va">self</span>, path: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="bu">list</span>[<span class="bu">str</span>]:</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> list_s3_keys(<span class="va">self</span>.bucket, path)</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">async</span> <span class="kw">def</span> read_file(<span class="va">self</span>, path: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> s3_get(<span class="va">self</span>.bucket, path)</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">async</span> <span class="kw">def</span> write_file(<span class="va">self</span>, path: <span class="bu">str</span>, content: <span class="bu">str</span>):</span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>        s3_put(<span class="va">self</span>.bucket, path, content)</span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ... delete / move / search 等</span></span></code></pre></div>
+<p><strong>早期客户案例</strong>（Anthropic 官方公布）：</p>
+<ul>
+<li><strong>Netflix</strong>：内容元数据校验，<strong>首遍错误率降
+97%</strong></li>
+<li><strong>Wisedocs</strong>：医保文档审核，<strong>速度提升
+30%</strong></li>
+<li><strong>Rakuten / Ando</strong>：客户支持自动化</li>
+</ul>
+<p><strong>适合</strong>：已绑 Claude 生态、需要”agent
+像程序员一样管自己的笔记本”、需要审计/版本控制（memory 文件可入
+git）的场景。</p>
+<h4 id="e.-其他值得关注">E. 其他值得关注</h4>
+<ul>
+<li><strong>Cognee</strong>（<a
+href="https://github.com/topoteretes/cognee">github.com/topoteretes/cognee</a>）：图原生记忆框架，强
+ontology</li>
+<li><strong>Supermemory</strong>（<a
+href="https://supermemory.ai">supermemory.ai</a>）：Anthropic Memory
+Tool 的兼容层，跨厂商</li>
+<li><strong>Redis Agent Memory Server</strong>：Redis 出品，semantic +
+keyword + hybrid 一站式</li>
+<li><strong>AgentCore Long-Term Memory</strong>：AWS Bedrock 内置</li>
+</ul>
+<h4 id="横向对比矩阵2026">横向对比矩阵（2026）</h4>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>维度</th>
+<th>Mem0</th>
+<th>Letta</th>
+<th>Zep / Graphiti</th>
+<th>Anthropic Memory Tool</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>数据模型</td>
+<td>facts (vector + graph)</td>
+<td>core / recall / archival</td>
+<td>temporal KG</td>
+<td>filesystem</td>
+</tr>
+<tr class="even">
+<td>Agent 主动性</td>
+<td>passive（auto extract）</td>
+<td><strong>agent 自管 tool</strong></td>
+<td>passive</td>
+<td><strong>agent 自管 tool</strong></td>
+</tr>
+<tr class="odd">
+<td>多模型支持</td>
+<td>16+ LLM</td>
+<td>任意</td>
+<td>任意</td>
+<td>仅 Claude</td>
+</tr>
+<tr class="even">
+<td>后端选择</td>
+<td>24+ vector + graph</td>
+<td>Postgres / 内置</td>
+<td>Neo4j / FalkorDB</td>
+<td>filesystem 任意</td>
+</tr>
+<tr class="odd">
+<td>时序追踪</td>
+<td>弱（基于 timestamp）</td>
+<td>弱</td>
+<td><strong>强（双时间轴）</strong></td>
+<td>文件 mtime</td>
+</tr>
+<tr class="even">
+<td>关系建模</td>
+<td>中（可选 graph）</td>
+<td>弱</td>
+<td><strong>强（图原生）</strong></td>
+<td>弱</td>
+</tr>
+<tr class="odd">
+<td>上手成本</td>
+<td><strong>5 行</strong></td>
+<td>50 行</td>
+<td>30 行</td>
+<td>10 行</td>
+</tr>
+<tr class="even">
+<td>开源</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓（Graphiti）</td>
+<td>×</td>
+</tr>
+<tr class="odd">
+<td>中文支持</td>
+<td>配中文 embedder 即可</td>
+<td>同</td>
+<td>同</td>
+<td>原生</td>
+</tr>
+<tr class="even">
+<td>论文 / 数字</td>
+<td>LoCoMo +20pt</td>
+<td>MemGPT 论文</td>
+<td>arXiv 2501.13956</td>
+<td>Netflix 错误率 -97%</td>
+</tr>
+</tbody>
+</table>
+<h3 id="多租户隔离生产必修课">2.5.9 多租户隔离：生产必修课</h3>
+<p><strong>绝大多数 SaaS
+必踩的坑</strong>：记忆系统跨用户泄露。两层防御：</p>
+<h4 id="层-1写入与查询都强制-user_id">层 1：写入与查询都强制
+user_id</h4>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 错误示范（会跨用户混）</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>m.add(messages<span class="op">=</span>msgs)  <span class="co"># ❌ 没 user_id</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 正确：强制 user_id 必填</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>m.add(messages<span class="op">=</span>msgs, user_id<span class="op">=</span>request.user.<span class="bu">id</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>m.search(query<span class="op">=</span>q, user_id<span class="op">=</span>request.user.<span class="bu">id</span>, ...)  <span class="co"># 检索也必须带</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 强制约束（包一层）：</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> TenantSafeMemory:</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, m, user_id):</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.m <span class="op">=</span> m<span class="op">;</span> <span class="va">self</span>.uid <span class="op">=</span> user_id</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> add(<span class="va">self</span>, messages, <span class="op">**</span>kw):</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.m.add(messages<span class="op">=</span>messages, user_id<span class="op">=</span><span class="va">self</span>.uid, <span class="op">**</span>kw)</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> search(<span class="va">self</span>, query, <span class="op">**</span>kw):</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.m.search(query<span class="op">=</span>query, user_id<span class="op">=</span><span class="va">self</span>.uid, <span class="op">**</span>kw)</span></code></pre></div>
+<h4 id="层-2存储后端层-namespace-collection-db-隔离">层 2：存储后端层
+namespace / collection / DB 隔离</h4>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>方案</th>
+<th>隔离强度</th>
+<th>性能</th>
+<th>适合规模</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>共享 collection + <code>user_id</code> filter</td>
+<td>弱（依赖应用层）</td>
+<td>好</td>
+<td>&lt; 1k 用户</td>
+</tr>
+<tr class="even">
+<td>每用户一个 collection</td>
+<td>强</td>
+<td>中（collection 数有上限）</td>
+<td>1k - 10k</td>
+</tr>
+<tr class="odd">
+<td>每用户一个 namespace（Pinecone / Turbopuffer）</td>
+<td><strong>强</strong></td>
+<td><strong>好</strong></td>
+<td>10k - 1M+</td>
+</tr>
+<tr class="even">
+<td>每租户一个独立 DB instance</td>
+<td>最强（物理隔离）</td>
+<td>中</td>
+<td>大客户 / 合规</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Turbopuffer</strong>
+等专门为多租户设计的向量库可以撑<strong>百万
+namespace</strong>，单租户内部数据严格隔离。</p>
+<h4 id="层-3审计-gdpr-合规">层 3：审计 + GDPR 合规</h4>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 审计：所有跨用户的访问立刻报警</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="at">@audit_log</span>(level<span class="op">=</span><span class="st">&quot;critical&quot;</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> admin_search_all(query):</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> vector_store.search(query<span class="op">=</span>query, no_user_filter<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co"># GDPR &quot;被遗忘权&quot;</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> forget_user(user_id):</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    vector_store.delete_all(user_id<span class="op">=</span>user_id)</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    graph_store.delete_subgraph(user_id<span class="op">=</span>user_id)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    redis.delete_pattern(<span class="ss">f&quot;user:</span><span class="sc">{</span>user_id<span class="sc">}</span><span class="ss">:*&quot;</span>)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    audit_log(<span class="ss">f&quot;user </span><span class="sc">{</span>user_id<span class="sc">}</span><span class="ss"> memory wiped at </span><span class="sc">{</span>now()<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+<h3 id="记忆-vs-rag边界与协同">2.5.10 记忆 vs RAG：边界与协同</h3>
+<p>实战中<strong>记忆和 RAG 经常并存</strong>，不冲突：</p>
+<pre><code>User Query
+    │
+    ├──▶ RAG（公司文档 / 产品手册 / 政策） → 通用知识
+    │
+    └──▶ Memory（用户偏好 / 历史交互 / agent 经验） → 个性化
+
+       两路检索结果合并 → 注入 system prompt → LLM</code></pre>
+<p><strong>典型生产 prompt 结构</strong>：</p>
+<pre><code>你是 ACME 公司客服。
+
+# 用户档案（来自 Memory）
+- 姓名：Liang
+- 历史订单：3 单（2 单已完成）
+- 偏好：电邮通知优先
+
+# 相关知识（来自 RAG）
+[政策片段] 30 天内可全额退款
+[FAQ 片段] 退款流程通常 3-5 工作日
+
+# 当前对话
+用户：我想退订单 #12345</code></pre>
+<h3 id="失败模式与对策">2.5.11 失败模式与对策</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>失败模式</th>
+<th>表象</th>
+<th>对策</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>记忆爆炸</strong></td>
+<td>记 1000 条后检索全是噪声</td>
+<td>LRU + 摘要（§2.5.7）</td>
+</tr>
+<tr class="even">
+<td><strong>过期记忆</strong></td>
+<td>“我喜欢冷咖啡”过期但仍生效</td>
+<td>Zep 时序 / 写入时检测冲突 / 用户主动覆盖</td>
+</tr>
+<tr class="odd">
+<td><strong>幻觉记忆</strong></td>
+<td>LLM 把没说过的事抽成事实</td>
+<td>抽取时加 confidence 阈值 + 用户可审计</td>
+</tr>
+<tr class="even">
+<td><strong>跨用户泄露</strong></td>
+<td>A 的偏好被注入 B 的 prompt</td>
+<td>强制 user_id（§2.5.9）</td>
+</tr>
+<tr class="odd">
+<td><strong>冷启动</strong></td>
+<td>新用户记忆为空，agent 显得”陌生”</td>
+<td>显式 onboarding + 通用画像兜底</td>
+</tr>
+<tr class="even">
+<td><strong>隐私 / 合规</strong></td>
+<td>GDPR / CCPA 要求删除用户数据</td>
+<td><code>forget_user</code> API 全栈级联删除</td>
+</tr>
+<tr class="odd">
+<td><strong>抽取成本</strong></td>
+<td>每轮调 LLM 抽事实，token 成本翻倍</td>
+<td>importance gate 跳过无关对话 + 批处理 N 轮</td>
+</tr>
+<tr class="even">
+<td><strong>检索召回低</strong></td>
+<td>LLM 看不到关键事实</td>
+<td>加 BM25 + entity match（§2.5.6 multi-signal）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="github-实战资源记忆系统专题">2.5.12 GitHub
+实战资源（记忆系统专题）</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>资源</th>
+<th>类型</th>
+<th>推荐用法</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a
+href="https://github.com/mem0ai/mem0"><code>mem0ai/mem0</code></a></td>
+<td>官方仓库</td>
+<td>通用记忆层，5 行接入</td>
+</tr>
+<tr class="even">
+<td><a
+href="https://github.com/letta-ai/letta"><code>letta-ai/letta</code></a></td>
+<td>官方仓库</td>
+<td>OS-inspired stateful agent</td>
+</tr>
+<tr class="odd">
+<td><a
+href="https://github.com/getzep/graphiti"><code>getzep/graphiti</code></a></td>
+<td>官方仓库</td>
+<td>Temporal KG 引擎（Zep 内核）</td>
+</tr>
+<tr class="even">
+<td><a
+href="https://github.com/getzep/zep"><code>getzep/zep</code></a></td>
+<td>官方仓库</td>
+<td>完整 Zep 服务（基于 Graphiti）</td>
+</tr>
+<tr class="odd">
+<td><a
+href="https://github.com/redis/agent-memory-server"><code>redis/agent-memory-server</code></a></td>
+<td>官方仓库</td>
+<td>Redis 一站式 agent memory</td>
+</tr>
+<tr class="even">
+<td><a
+href="https://github.com/topoteretes/cognee"><code>topoteretes/cognee</code></a></td>
+<td>官方仓库</td>
+<td>图原生 + ontology</td>
+</tr>
+<tr class="odd">
+<td><a
+href="https://github.com/supermemoryai/supermemory"><code>supermemoryai/supermemory</code></a></td>
+<td>官方仓库</td>
+<td>跨厂商记忆 SDK</td>
+</tr>
+<tr class="even">
+<td>Anthropic Memory Tool 文档</td>
+<td>官方文档</td>
+<td><code>https://platform.claude.com/docs/en/agents-and-tools/tool-use/memory-tool</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>论文必读</strong>：</p>
+<ul>
+<li><a
+href="https://arxiv.org/abs/2504.19413"><code>Mem0 论文</code></a> —
+Production-Ready AI Agents with Scalable Long-Term Memory</li>
+<li><a
+href="https://arxiv.org/abs/2310.08560"><code>MemGPT 论文</code></a> —
+Towards LLMs as Operating Systems</li>
+<li><a href="https://arxiv.org/abs/2501.13956"><code>Zep 论文</code></a>
+— A Temporal Knowledge Graph Architecture for Agent Memory</li>
+<li><a
+href="https://arxiv.org/abs/2603.07670"><code>MaRS 论文</code></a> —
+Memory for Autonomous LLM Agents: Mechanisms, Evaluation, and Emerging
+Frontiers（2026 综述）</li>
+<li><a
+href="https://arxiv.org/abs/2512.12856"><code>Forgetful but Faithful</code></a>
+— Cognitive Memory Architecture and Benchmark</li>
+</ul>
+<hr />
+<h2 id="上下文管理策略把-context-window-当作稀缺资源">2.6
+上下文管理策略：把 context window 当作稀缺资源</h2>
+<h3 id="为什么需要管理">2.6.1 为什么需要”管理”</h3>
+<p>Context window 即使到了 1M
+tokens，仍然是<strong>稀缺资源</strong>——三个原因：</p>
+<ol type="1">
+<li><strong>成本</strong>：1 M token prompt 一次 ~$1（Claude
+Opus），一天调几千次就破产</li>
+<li><strong>延迟</strong>：1 M token prefill ~30 秒，用户体验崩塌</li>
+<li><strong>质量</strong>：Lost-in-the-Middle，多事实场景召回降到
+~60%（§2.2.3）</li>
+</ol>
+<p>所以生产级 agent 不是”塞满 1 M”，而是<strong>精打细算</strong>：每个
+token 都该有理由出现在 prompt 里。</p>
+<h3 id="context-的分区模型">2.6.2 Context 的”分区”模型</h3>
+<p>把 context window
+看作有逻辑分区的固定空间，每个分区有不同优先级和淘汰策略：</p>
+<pre><code>┌─────────────────────────────────────────────────────┐
+│ ┌─────────────────────────────────────────────────┐ │
+│ │ [固定区] System Prompt + Persona                │ │  ← 永不淘汰
+│ │   - 人设、约束、风格、角色                       │ │     ~500-2000 tokens
+│ └─────────────────────────────────────────────────┘ │
+│ ┌─────────────────────────────────────────────────┐ │
+│ │ [可变高优] Memory（注入的用户/agent 记忆）       │ │  ← 检索 + 重排
+│ │   - 用户档案、偏好、近期事件                     │ │     ~500-3000 tokens
+│ └─────────────────────────────────────────────────┘ │
+│ ┌─────────────────────────────────────────────────┐ │
+│ │ [可变高优] RAG 检索结果                          │ │  ← top-K + reranker
+│ │   - 公司知识、文档片段                           │ │     ~2000-8000 tokens
+│ └─────────────────────────────────────────────────┘ │
+│ ┌─────────────────────────────────────────────────┐ │
+│ │ [可变中优] 工具定义 schema                       │ │  ← 仅放当前可能用到的
+│ │   - tool descriptions + signatures               │ │     ~500-3000 tokens
+│ └─────────────────────────────────────────────────┘ │
+│ ┌─────────────────────────────────────────────────┐ │
+│ │ [可变中优] 历史对话                              │ │  ← 滑窗 + 摘要
+│ │   - 最近 N 轮 + 早期摘要                         │ │     可变
+│ └─────────────────────────────────────────────────┘ │
+│ ┌─────────────────────────────────────────────────┐ │
+│ │ [低优 / 易淘汰] 工具调用结果                     │ │  ← 旧的截断或摘要
+│ │   - tool outputs，往往最长                       │ │     可变
+│ └─────────────────────────────────────────────────┘ │
+│ ┌─────────────────────────────────────────────────┐ │
+│ │ [尾部] 当前 user message                         │ │  ← 永远是最后
+│ └─────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────┘
+   头部                                          尾部
+   ↑ primacy bias                       recency bias ↑
+                  Lost-in-the-Middle 黑洞</code></pre>
+<p><strong>配额分配建议</strong>（按业务类型）：</p>
+<table>
+<thead>
+<tr class="header">
+<th>业务类型</th>
+<th>System</th>
+<th>Memory</th>
+<th>RAG</th>
+<th>Tools</th>
+<th>历史</th>
+<th>工具结果</th>
+<th>User</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>客服 chatbot</td>
+<td>10%</td>
+<td>15%</td>
+<td>30%</td>
+<td>5%</td>
+<td>20%</td>
+<td>10%</td>
+<td>10%</td>
+</tr>
+<tr class="even">
+<td>Coding agent</td>
+<td>5%</td>
+<td>5%</td>
+<td>40%</td>
+<td>10%</td>
+<td>10%</td>
+<td>25%</td>
+<td>5%</td>
+</tr>
+<tr class="odd">
+<td>研究 agent</td>
+<td>5%</td>
+<td>10%</td>
+<td>30%</td>
+<td>5%</td>
+<td>10%</td>
+<td>35%</td>
+<td>5%</td>
+</tr>
+<tr class="even">
+<td>个人助理</td>
+<td>15%</td>
+<td>30%</td>
+<td>10%</td>
+<td>10%</td>
+<td>25%</td>
+<td>5%</td>
+<td>5%</td>
+</tr>
+</tbody>
+</table>
+<p>实战经验：<strong>任何分区超过 50%
+都是设计有问题的信号</strong>。</p>
+<h3 id="上下文管理的-5-类常见动作综合-anthropic-langchain-实践">2.6.3
+上下文管理的 5 类常见动作（综合 Anthropic / LangChain 实践）</h3>
+<blockquote>
+<p>业界两个权威来源给的拆法都不是”5”——Anthropic <em>Effective Context
+Engineering</em> [6] 给 <strong>compaction / structured note-taking /
+sub-agent architectures</strong> 三类策略；LangChain <em>Context
+Engineering for Agents</em> [7] 给 <strong>write / select / compress /
+isolate</strong> 四类。下面 5
+个动作是把两家的拆法合并展开，便于工程实施时逐项检查；不是业界标准
+taxonomy。</p>
+</blockquote>
+<h4 id="动作-1优先级排序priority-ranking">动作 1：优先级排序（Priority
+Ranking）</h4>
+<p>利用 primacy + recency bias，把最重要的放头尾，次要的放中间：</p>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> assemble_context(system, memories, rag_chunks, tools, history, current_user_msg):</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>        system,                              <span class="co"># 头部：永远在前</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>        <span class="op">*</span>high_priority(memories),            <span class="co"># 头部 2：用户身份与偏好</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>        <span class="op">*</span>high_priority(rag_chunks, top<span class="op">=</span><span class="dv">3</span>),   <span class="co"># 头部 3：最相关的 3 个片段</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>        <span class="op">*</span>medium_priority(history),           <span class="co"># 中部：历史对话（可被中部黑洞稀释）</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>        <span class="op">*</span>low_priority(rag_chunks, rest<span class="op">=</span><span class="va">True</span>),<span class="co"># 中部：剩余 RAG 片段</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">*</span>truncate(tool_results),             <span class="co"># 尾部 -2：截断的工具结果</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>        tools_definitions,                    <span class="co"># 尾部 -1：tool schema</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>        current_user_msg,                    <span class="co"># 尾部：当前消息</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    ]</span></code></pre></div>
+<h4 id="动作-2动态裁剪trimming">动作 2：动态裁剪（Trimming）</h4>
+<p>定时检查 token 使用率，超阈值触发：</p>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> trim_if_needed(context, max_tokens<span class="op">=</span><span class="dv">180_000</span>, target<span class="op">=</span><span class="dv">140_000</span>):</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    current <span class="op">=</span> count_tokens(context)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> current <span class="op">&lt;</span> max_tokens: <span class="cf">return</span> context</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 优先淘汰：旧的工具结果</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    context <span class="op">=</span> truncate_old_tool_results(context, keep_recent<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> count_tokens(context) <span class="op">&lt;=</span> target: <span class="cf">return</span> context</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 其次：早期对话压缩成摘要</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    context <span class="op">=</span> summarize_old_history(context, summary_length<span class="op">=</span><span class="dv">500</span>)</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> count_tokens(context) <span class="op">&lt;=</span> target: <span class="cf">return</span> context</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 再次：删除非 top-K 的 RAG 片段</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>    context <span class="op">=</span> drop_low_score_rag(context, threshold<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> context</span></code></pre></div>
+<h4 id="动作-3摘要压缩summarization-compact-实现">动作
+3：摘要压缩（Summarization）—— <code>/compact</code> 实现</h4>
+<p>Claude Code 的 <code>/compact</code> 命令把当前长对话压成摘要 + 关键
+facts，回收 token：</p>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> compact(messages, llm):</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 1. 抽取关键事实（不能丢）</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    facts <span class="op">=</span> llm.invoke(<span class="ss">f&quot;&quot;&quot;</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="ss">    Extract critical facts from this conversation that MUST be preserved:</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="ss">    </span><span class="sc">{</span>messages<span class="sc">}</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="ss">    Return as bullet list. Include: user requirements, decisions made, code locations,</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="ss">    pending tasks, open questions.</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="ss">    &quot;&quot;&quot;</span>)</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 2. 写一段精简摘要</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    summary <span class="op">=</span> llm.invoke(<span class="ss">f&quot;&quot;&quot;</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="ss">    Summarize this conversation in &lt;500 words. Focus on:</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a><span class="ss">    - What problem we&#39;re solving</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a><span class="ss">    - What approach we took</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a><span class="ss">    - Current progress</span></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a><span class="ss">    </span><span class="sc">{</span>messages<span class="sc">}</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a><span class="ss">    &quot;&quot;&quot;</span>)</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 3. 重置 context</span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>    new_context <span class="op">=</span> [</span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>        SystemMessage(original_system),</span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>        SystemMessage(<span class="ss">f&quot;# Compressed conversation context</span><span class="ch">\n\n</span><span class="sc">{</span>summary<span class="sc">}</span><span class="ch">\n\n</span><span class="ss"># Key facts</span><span class="ch">\n</span><span class="sc">{</span>facts<span class="sc">}</span><span class="ss">&quot;</span>),</span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 保留最近 3 轮原文（细节在新对话里有用）</span></span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>        <span class="op">*</span>messages[<span class="op">-</span><span class="dv">3</span>:],</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> new_context</span></code></pre></div>
+<p><strong>关键点</strong>：摘要必须 LLM 生成（rule-based
+抽取会丢上下文），但 LLM 摘要本身要 prompt
+明确要求”保留代码位置/数字/决定”等关键信息。</p>
+<h4 id="动作-4scratchpad-分离">动作 4：Scratchpad 分离</h4>
+<p>ReAct 等推理 agent 在思考时会产生大量 thought /
+observation，不应该污染对外 context：</p>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AgentMemory:</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.public_messages <span class="op">=</span> []   <span class="co"># 用户和 agent 互发</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.scratchpad <span class="op">=</span> []        <span class="co"># agent 内部草稿（thought / 中间 tool result）</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> get_llm_context(<span class="va">self</span>):</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 给 LLM 看的：public + 最近 5 步 scratchpad（防止失忆）</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.public_messages <span class="op">+</span> <span class="va">self</span>.scratchpad[<span class="op">-</span><span class="dv">5</span>:]</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> get_user_facing(<span class="va">self</span>):</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 给用户看的：仅 public</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.public_messages</span></code></pre></div>
+<p>LangGraph 的 state 机制 / Letta 的 core vs recall
+都是这个思路的产品化。</p>
+<h4 id="动作-5工具结果裁剪">动作 5：工具结果裁剪</h4>
+<p>工具返回的 JSON 经常爆长（比如一次 SQL 查询 1000 行）。两层过滤：</p>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> clip_tool_result(tool_name, result, current_step, total_steps):</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 1. 大结果直接截断</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    s <span class="op">=</span> <span class="bu">str</span>(result)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(s) <span class="op">&gt;</span> <span class="dv">4000</span>:</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>        s <span class="op">=</span> s[:<span class="dv">2000</span>] <span class="op">+</span> <span class="ss">f&quot;</span><span class="ch">\n</span><span class="ss">... [truncated </span><span class="sc">{</span><span class="bu">len</span>(s)<span class="op">-</span><span class="dv">2000</span><span class="sc">}</span><span class="ss"> chars] ...</span><span class="ch">\n</span><span class="ss">&quot;</span> <span class="op">+</span> s[<span class="op">-</span><span class="dv">500</span>:]</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 2. 老的 tool result（&gt;3 步前）摘要化</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> total_steps <span class="op">-</span> current_step <span class="op">&gt;</span> <span class="dv">3</span>:</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>        s <span class="op">=</span> summarize_tool_result(s, max_length<span class="op">=</span><span class="dv">300</span>)</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> s</span></code></pre></div>
+<h3 id="三种压缩路径对比">2.6.4 三种”压缩”路径对比</h3>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>方法</th>
+<th>压缩比</th>
+<th>信息损失</th>
+<th>延迟</th>
+<th>适用</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>简单截断</strong></td>
+<td>中</td>
+<td>高</td>
+<td>0</td>
+<td>工具结果 / 兜底</td>
+</tr>
+<tr class="even">
+<td><strong>rule-based 抽取</strong>（regex / structured）</td>
+<td>中</td>
+<td>低</td>
+<td>0</td>
+<td>已知格式（JSON / 表格）</td>
+</tr>
+<tr class="odd">
+<td><strong>LLM 摘要</strong>（<code>/compact</code>）</td>
+<td><strong>高</strong></td>
+<td><strong>低</strong></td>
+<td>1-3 秒</td>
+<td>长对话 / 高价值历史</td>
+</tr>
+<tr class="even">
+<td><strong>Anchored Iterative Summary</strong>（2026 SOTA）</td>
+<td><strong>高</strong></td>
+<td><strong>最低</strong></td>
+<td>3-10 秒</td>
+<td>极长任务（数小时 agent）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="实战配方完整-context-manager-类">2.6.5 实战配方：完整 Context
+Manager 类</h3>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ContextManager:</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, max_tokens<span class="op">=</span><span class="dv">180_000</span>, target_tokens<span class="op">=</span><span class="dv">140_000</span>):</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.<span class="bu">max</span> <span class="op">=</span> max_tokens</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.target <span class="op">=</span> target_tokens</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> assemble(<span class="va">self</span>, system, memories, rag, tools, history, user_msg):</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>        ctx <span class="op">=</span> <span class="va">self</span>._assemble_by_priority(system, memories, rag, tools, history, user_msg)</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> count_tokens(ctx) <span class="op">&gt;</span> <span class="va">self</span>.<span class="bu">max</span>:</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>            ctx <span class="op">=</span> <span class="va">self</span>._compress(ctx)</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ctx</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _assemble_by_priority(<span class="va">self</span>, ...):</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 见 §2.6.3 动作 1</span></span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _compress(<span class="va">self</span>, ctx):</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 顺序尝试 5 种压缩，越早越轻：</span></span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> fn <span class="kw">in</span> [</span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>            <span class="kw">lambda</span> c: drop_low_score_rag(c, threshold<span class="op">=</span><span class="fl">0.6</span>),</span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>            <span class="kw">lambda</span> c: clip_tool_results(c, keep_recent<span class="op">=</span><span class="dv">5</span>),</span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>            <span class="kw">lambda</span> c: summarize_old_history(c, length<span class="op">=</span><span class="dv">500</span>),</span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>            <span class="kw">lambda</span> c: drop_low_priority_memory(c, keep<span class="op">=</span><span class="dv">10</span>),</span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>            <span class="kw">lambda</span> c: hard_truncate_history(c, keep_recent<span class="op">=</span><span class="dv">3</span>),</span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>        ]:</span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>            ctx <span class="op">=</span> fn(ctx)</span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> count_tokens(ctx) <span class="op">&lt;=</span> <span class="va">self</span>.target:</span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a>                <span class="cf">return</span> ctx</span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ctx  <span class="co"># 实在压不下，让 LLM 自己拒绝</span></span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> metrics(<span class="va">self</span>, ctx):</span>
+<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>        <span class="co"># observability：每次返回 dict 让 dashboard 跟踪每分区占比</span></span>
+<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> {</span>
+<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;total&quot;</span>: count_tokens(ctx),</span>
+<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;system_pct&quot;</span>: count_tokens(ctx[<span class="dv">0</span>]) <span class="op">/</span> count_tokens(ctx),</span>
+<span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;rag_pct&quot;</span>: ...,</span>
+<span id="cb24-35"><a href="#cb24-35" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;history_pct&quot;</span>: ...,</span>
+<span id="cb24-36"><a href="#cb24-36" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;tool_results_pct&quot;</span>: ...,</span>
+<span id="cb24-37"><a href="#cb24-37" aria-hidden="true" tabindex="-1"></a>        }</span></code></pre></div>
+<p>把 <code>metrics()</code> 接进 Langfuse / LangSmith，能在 dashboard
+看到”哪类内容在吃 context 配额”——这是诊断 agent 漂移最实用的工具。</p>
+<h3 id="prompt-context-caching2026-年最大-cost-杠杆">2.6.6 Prompt /
+Context Caching：2026 年最大 cost 杠杆</h3>
+<p><strong>所有现代 LLM provider 都支持 prompt
+caching</strong>——把”prompt 前缀”在 KV cache
+层缓存起来，下次相同前缀复用。<strong>这是 2025-2026 年单次最大的 cost
+优化机会，最高 90% 折扣</strong>。</p>
+<h4 id="三大-provider-实现对比">三大 provider 实现对比</h4>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Provider</th>
+<th>触发方式</th>
+<th>命中折扣</th>
+<th>最小命中长度</th>
+<th>TTL</th>
+<th>写入</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Anthropic</strong></td>
+<td>显式（<code>cache_control</code> 标记）</td>
+<td><strong>90%</strong>（cached input $0.30 vs base $3.00 /
+Sonnet）</td>
+<td>1024 tokens（Sonnet）/ 2048（Haiku）</td>
+<td>5 min（默认）/ 1h（付费）</td>
+<td>1.25× base</td>
+</tr>
+<tr class="even">
+<td><strong>OpenAI</strong></td>
+<td>自动（≥1024 token prefix 自动缓存）</td>
+<td><strong>50-90%</strong>（视模型）</td>
+<td>1024 tokens</td>
+<td>5-10 min</td>
+<td>0（免费写）</td>
+</tr>
+<tr class="odd">
+<td><strong>Google Gemini</strong></td>
+<td>隐式（2.5+ 默认开）+ 显式 API</td>
+<td>隐式约 50% / 显式约 75%</td>
+<td>4096 tokens</td>
+<td>默认 1h</td>
+<td>按存储付费</td>
+</tr>
+<tr class="even">
+<td><strong>AWS Bedrock</strong></td>
+<td>全 provider 转译</td>
+<td>同各 provider</td>
+<td>同</td>
+<td>同</td>
+<td>同</td>
+</tr>
+</tbody>
+</table>
+<p>实证（ProjectDiscovery 公开数据）：把 prompt caching
+接好后，<strong>LLM 月账单降 59-70%</strong>。学术研究（arXiv
+2601.06007）跑 long-horizon agent 任务，<strong>API cost 降 41-80%、TTFT
+降 13-31%</strong>。</p>
+<h4 id="什么-prompt-适合缓存">什么 prompt 适合缓存</h4>
+<p>按”复用频率 × 长度”打分：</p>
+<table>
+<thead>
+<tr class="header">
+<th>内容类型</th>
+<th>适合缓存？</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>System prompt + persona</strong></td>
+<td>★★★ 强烈推荐</td>
+</tr>
+<tr class="even">
+<td><strong>大量 few-shot examples</strong></td>
+<td>★★★</td>
+</tr>
+<tr class="odd">
+<td><strong>工具定义 schema（10+ tools）</strong></td>
+<td>★★★</td>
+</tr>
+<tr class="even">
+<td><strong>RAG 检索的固定文档（如 SLA / 政策手册）</strong></td>
+<td>★★</td>
+</tr>
+<tr class="odd">
+<td><strong>会变的对话历史</strong></td>
+<td>✗ 别缓存（缓存击穿）</td>
+</tr>
+<tr class="even">
+<td><strong>每次都不同的 user query</strong></td>
+<td>✗</td>
+</tr>
+</tbody>
+</table>
+<p><strong>经验法则</strong>：<strong>prefix 重复率 &gt; 50%
+的就缓存，否则别</strong>。</p>
+<h4 id="anthropic-显式缓存代码">Anthropic 显式缓存代码</h4>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> anthropic <span class="im">import</span> Anthropic</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>client <span class="op">=</span> Anthropic()</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="co"># system + tools + 大段 RAG 都加 cache_control</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> client.messages.create(</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span><span class="st">&quot;claude-sonnet-4-6&quot;</span>,</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    max_tokens<span class="op">=</span><span class="dv">1024</span>,</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>    system<span class="op">=</span>[</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>        {</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;type&quot;</span>: <span class="st">&quot;text&quot;</span>,</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;text&quot;</span>: <span class="st">&quot;你是 ACME 公司客服，遵循以下规则...&quot;</span>,  <span class="co"># 长 system</span></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;cache_control&quot;</span>: {<span class="st">&quot;type&quot;</span>: <span class="st">&quot;ephemeral&quot;</span>},          <span class="co"># ★ 标记为可缓存</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>        },</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>        {</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;type&quot;</span>: <span class="st">&quot;text&quot;</span>,</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;text&quot;</span>: KB_KNOWLEDGE_BASE,  <span class="co"># 100K token 的知识库</span></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;cache_control&quot;</span>: {<span class="st">&quot;type&quot;</span>: <span class="st">&quot;ephemeral&quot;</span>},</span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>        },</span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>    tools<span class="op">=</span>[</span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>        {<span class="st">&quot;name&quot;</span>: <span class="st">&quot;search&quot;</span>, <span class="st">&quot;description&quot;</span>: <span class="st">&quot;...&quot;</span>, <span class="st">&quot;input_schema&quot;</span>: {...},</span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>         <span class="st">&quot;cache_control&quot;</span>: {<span class="st">&quot;type&quot;</span>: <span class="st">&quot;ephemeral&quot;</span>}},</span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>    messages<span class="op">=</span>[</span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a>        {<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: user_query},  <span class="co"># 这部分不缓存</span></span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a><span class="co"># 看 cache 命中</span></span>
+<span id="cb25-31"><a href="#cb25-31" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;Cache read: </span><span class="sc">{</span>response<span class="sc">.</span>usage<span class="sc">.</span>cache_read_input_tokens<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb25-32"><a href="#cb25-32" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;Cache write: </span><span class="sc">{</span>response<span class="sc">.</span>usage<span class="sc">.</span>cache_creation_input_tokens<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb25-33"><a href="#cb25-33" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;Regular input: </span><span class="sc">{</span>response<span class="sc">.</span>usage<span class="sc">.</span>input_tokens<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb25-34"><a href="#cb25-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-35"><a href="#cb25-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Cost 计算</span></span>
+<span id="cb25-36"><a href="#cb25-36" aria-hidden="true" tabindex="-1"></a>cost <span class="op">=</span> (</span>
+<span id="cb25-37"><a href="#cb25-37" aria-hidden="true" tabindex="-1"></a>    response.usage.cache_read_input_tokens <span class="op">*</span> <span class="fl">0.30</span> <span class="op">/</span> <span class="fl">1e6</span>        <span class="co"># 命中超便宜</span></span>
+<span id="cb25-38"><a href="#cb25-38" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> response.usage.cache_creation_input_tokens <span class="op">*</span> <span class="fl">3.75</span> <span class="op">/</span> <span class="fl">1e6</span>   <span class="co"># 写入贵 1.25×</span></span>
+<span id="cb25-39"><a href="#cb25-39" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> response.usage.input_tokens <span class="op">*</span> <span class="fl">3.00</span> <span class="op">/</span> <span class="fl">1e6</span>                  <span class="co"># 普通输入</span></span>
+<span id="cb25-40"><a href="#cb25-40" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> response.usage.output_tokens <span class="op">*</span> <span class="fl">15.00</span> <span class="op">/</span> <span class="fl">1e6</span>                <span class="co"># 输出</span></span>
+<span id="cb25-41"><a href="#cb25-41" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<h4 id="cache-命中的几个关键约束">Cache 命中的几个关键约束</h4>
+<ol type="1">
+<li><strong>必须严格前缀匹配</strong>：从开头到
+<code>cache_control</code>
+标记位置必须<strong>完全一致</strong>——多一个空格都 miss</li>
+<li><strong>顺序敏感</strong>：把固定的（system / tools /
+RAG）放前，可变的（user message）放后</li>
+<li><strong>TTL 短</strong>：默认 5 min，意味着 5
+分钟内没第二次调用就白缓存了——适合”高 QPS 同一系统 prompt”场景</li>
+<li><strong>Cache write 也付费</strong>：第一次写入
+1.25×，所以<strong>至少要被命中 2 次才划算</strong></li>
+</ol>
+<h4 id="显式-vs-自动-caching-选型">显式 vs 自动 caching 选型</h4>
+<ul>
+<li><strong>OpenAI
+自动</strong>：零改动接入，但你不知道哪些命中、不可控</li>
+<li><strong>Anthropic 显式</strong>：要改 SDK
+调用，但<strong>完全可控</strong>——可以精确知道节省多少</li>
+<li><strong>生产推荐 Anthropic</strong>：把 system / tools / 大段 RAG
+都标 cache_control，配合 observability 看 cache hit 率</li>
+</ul>
+<h4 id="dont-break-the-cacheagent-长任务的关键">“Don’t Break the
+Cache”：agent 长任务的关键</h4>
+<p>agent 跑 long-horizon 任务时，prompt 是”前缀（系统）+
+不断追加的对话历史”。<strong>追加新内容不破坏前缀缓存</strong>，所以前缀部分一直命中：</p>
+<pre><code>Round 1: [system] [user1]                          → write cache（system）
+Round 2: [system] [user1] [bot1] [user2]           → cache HIT 前缀，付钱仅 [bot1][user2]
+Round 3: [system] [user1] [bot1] [user2] [bot2] [user3] → cache HIT 更长前缀
+...</code></pre>
+<p><strong>反面</strong>：如果你在中间插入 / 修改 / 删除任何内容（如 RAG
+重新检索把不同 chunk 塞进 system），cache
+直接失效，下一次又要全付费。</p>
+<p>agent 设计的隐藏 best
+practice：<strong>把”会变的内容”放尾部，前缀永远只追加不修改</strong>。</p>
+<h4 id="监控-cache-效果">监控 cache 效果</h4>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Langfuse 把 cache metrics 也记下来</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="at">@observe</span>(metadata<span class="op">=</span>{<span class="st">&quot;cache_strategy&quot;</span>: <span class="st">&quot;anthropic_explicit&quot;</span>})</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> my_agent_call(query):</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    response <span class="op">=</span> client.messages.create(...)</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    langfuse_context.update_current_observation(</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>        usage<span class="op">=</span>{</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;cache_read&quot;</span>: response.usage.cache_read_input_tokens,</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;cache_write&quot;</span>: response.usage.cache_creation_input_tokens,</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;regular_input&quot;</span>: response.usage.input_tokens,</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;output&quot;</span>: response.usage.output_tokens,</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>        },</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> response</span></code></pre></div>
+<p>dashboard 关注：</p>
+<ul>
+<li><strong>Cache hit rate</strong>（cache_read / total_input）—— 目标
+&gt; 60%</li>
+<li><strong>Cost per request 对比</strong>（启用前 vs 启用后）—— 目标降
+50%+</li>
+<li><strong>TTFT 对比</strong>——目标降 20%+</li>
+</ul>
+<hr />
+<h2 id="mcp-a2a-协议生态">2.7 MCP / A2A 协议生态</h2>
+<h3 id="为什么需要-mcp解决mn-集成噩梦">2.7.1 为什么需要 MCP：解决”M×N
+集成噩梦”</h3>
+<p>把工具和数据源接入 LLM 长期是脏活：</p>
+<ul>
+<li>每个 LLM provider 的 function calling schema 都不一样（OpenAI /
+Anthropic / Google）</li>
+<li>每个工具都要手写 wrapper、维护多份</li>
+<li>工具升级 = 所有 agent 都要重新对接</li>
+<li>跨 LLM 切换 = 全套 wrapper 重写</li>
+</ul>
+<p>数学模型：M 个 LLM × N 个工具 = M·N 个适配器。10 个 LLM × 50 个工具 =
+500 个集成点。</p>
+<p><strong>MCP（Model Context Protocol）</strong> [9] 是 Anthropic 2024
+年 11 月推出的开放标准，把 M·N 拆成 M+N：</p>
+<pre><code>  没有 MCP                       有 MCP
+  ┌───┬───┬───┐                ┌───┬───┬───┐
+  │GPT│Cld│Gem│                │GPT│Cld│Gem│
+  └─┬─┴─┬─┴─┬─┘                └─┬─┴─┬─┴─┬─┘
+    │   │   │ × N tools          └───┼───┘
+   各连各的 (M·N)                    │  MCP protocol (JSON-RPC 2.0)
+                                     │
+                              ┌──────┼──────┐
+                              │      │      │
+                            ┌─┴─┬──┬─┴─┬──┬─┴─┐
+                            │GH │DB│Fs │Sl│...│  ← N tools
+                            └───┴──┴───┴──┴───┘</code></pre>
+<p><strong>类比</strong>：USB-C 之前每个手机一根线（M·N）；USB-C
+之后任意主机接任意外设（M+N）。MCP 是 AI 的 USB-C。</p>
+<h3 id="mcp-协议规格">2.7.2 MCP 协议规格</h3>
+<h4 id="三类原语primitives">三类原语（Primitives）</h4>
+<p>MCP server 暴露给 client 的能力分三类：</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>原语</th>
+<th>含义</th>
+<th>例子</th>
+<th>由谁触发</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Tools</strong></td>
+<td>可执行函数，有副作用</td>
+<td><code>create_issue</code>、<code>run_sql</code></td>
+<td><strong>模型决定调用</strong></td>
+</tr>
+<tr class="even">
+<td><strong>Resources</strong></td>
+<td>只读数据，URI 寻址</td>
+<td><code>file:///doc.md</code>、<code>db://table/users</code></td>
+<td><strong>应用预加载</strong></td>
+</tr>
+<tr class="odd">
+<td><strong>Prompts</strong></td>
+<td>用户可调用的模板</td>
+<td><code>/explain-code</code>、<code>/summarize</code></td>
+<td><strong>用户触发</strong></td>
+</tr>
+</tbody>
+</table>
+<p>这三类对应 LLM
+应用的三种数据流：模型主动调用、应用注入、用户调用。</p>
+<h4 id="三种-transport">三种 Transport</h4>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Transport</th>
+<th>适用</th>
+<th>部署</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>stdio</strong></td>
+<td>本地进程间通信（Claude Desktop / Cursor / Cline 默认）</td>
+<td>进程子进程，配置在 <code>mcp_servers.json</code></td>
+</tr>
+<tr class="even">
+<td><strong>SSE</strong>（Server-Sent Events）</td>
+<td>远程服务，单向流</td>
+<td>HTTP server，长连接</td>
+</tr>
+<tr class="odd">
+<td><strong>Streamable HTTP</strong>（2025 替代 SSE）</td>
+<td>远程服务，双向流，更标准</td>
+<td>HTTP server，事实标准</td>
+</tr>
+</tbody>
+</table>
+<h3 id="完整-mcp-server-实现示例">2.7.3 完整 MCP Server 实现示例</h3>
+<h4 id="pythonfastmcp">Python（FastMCP）</h4>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># server.py</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> mcp.server.fastmcp <span class="im">import</span> FastMCP</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> datetime <span class="im">import</span> datetime</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>mcp <span class="op">=</span> FastMCP(<span class="st">&quot;my-toolkit&quot;</span>, version<span class="op">=</span><span class="st">&quot;1.0.0&quot;</span>)</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="co"># === Tools（有副作用的函数）===</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a><span class="at">@mcp.tool</span>()</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_github_issue(repo: <span class="bu">str</span>, title: <span class="bu">str</span>, body: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="bu">dict</span>:</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;在指定 GitHub repo 创建 issue。</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a><span class="co">    Args:</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a><span class="co">        repo: owner/name 格式</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a><span class="co">        title: issue 标题</span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a><span class="co">        body: issue 正文（markdown）</span></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a><span class="co">        {&quot;id&quot;: int, &quot;url&quot;: str}</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a><span class="co">    &quot;&quot;&quot;</span></span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 实际调用 GitHub API</span></span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>    response <span class="op">=</span> github.create_issue(repo, title, body)</span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">&quot;id&quot;</span>: response.<span class="bu">id</span>, <span class="st">&quot;url&quot;</span>: response.html_url}</span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a><span class="at">@mcp.tool</span>()</span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> run_sql(query: <span class="bu">str</span>, params: <span class="bu">list</span> <span class="op">=</span> <span class="va">None</span>) <span class="op">-&gt;</span> <span class="bu">list</span>[<span class="bu">dict</span>]:</span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;对只读副本执行 SQL 查询。&quot;&quot;&quot;</span></span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 安全：用 parameterized query</span></span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> <span class="cf">await</span> db.fetch_all(query, params <span class="kw">or</span> [])</span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [<span class="bu">dict</span>(r) <span class="cf">for</span> r <span class="kw">in</span> result[:<span class="dv">1000</span>]]  <span class="co"># 上限 1000 行</span></span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a><span class="co"># === Resources（只读数据）===</span></span>
+<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a><span class="at">@mcp.resource</span>(<span class="st">&quot;docs://</span><span class="sc">{topic}</span><span class="st">&quot;</span>)</span>
+<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_docs(topic: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
+<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;获取某主题的内部文档。&quot;&quot;&quot;</span></span>
+<span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> knowledge_base.get(topic)</span>
+<span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-35"><a href="#cb29-35" aria-hidden="true" tabindex="-1"></a><span class="at">@mcp.resource</span>(<span class="st">&quot;user://</span><span class="sc">{user_id}</span><span class="st">/profile&quot;</span>)</span>
+<span id="cb29-36"><a href="#cb29-36" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_user_profile(user_id: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="bu">dict</span>:</span>
+<span id="cb29-37"><a href="#cb29-37" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;获取用户档案（仅 PII redacted 版）。&quot;&quot;&quot;</span></span>
+<span id="cb29-38"><a href="#cb29-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> user_db.get_redacted(user_id)</span>
+<span id="cb29-39"><a href="#cb29-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-40"><a href="#cb29-40" aria-hidden="true" tabindex="-1"></a><span class="co"># === Prompts（用户模板）===</span></span>
+<span id="cb29-41"><a href="#cb29-41" aria-hidden="true" tabindex="-1"></a><span class="at">@mcp.prompt</span>()</span>
+<span id="cb29-42"><a href="#cb29-42" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> code_review(code: <span class="bu">str</span>, language: <span class="bu">str</span> <span class="op">=</span> <span class="st">&quot;python&quot;</span>) <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
+<span id="cb29-43"><a href="#cb29-43" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;让 AI 做代码审查。&quot;&quot;&quot;</span></span>
+<span id="cb29-44"><a href="#cb29-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ss">f&quot;&quot;&quot;请对以下 </span><span class="sc">{</span>language<span class="sc">}</span><span class="ss"> 代码做 code review：</span></span>
+<span id="cb29-45"><a href="#cb29-45" aria-hidden="true" tabindex="-1"></a><span class="ss">- 找出潜在 bug</span></span>
+<span id="cb29-46"><a href="#cb29-46" aria-hidden="true" tabindex="-1"></a><span class="ss">- 评估可读性</span></span>
+<span id="cb29-47"><a href="#cb29-47" aria-hidden="true" tabindex="-1"></a><span class="ss">- 建议优化</span></span>
+<span id="cb29-48"><a href="#cb29-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-49"><a href="#cb29-49" aria-hidden="true" tabindex="-1"></a><span class="ss">```</span><span class="sc">{</span>language<span class="sc">}</span></span>
+<span id="cb29-50"><a href="#cb29-50" aria-hidden="true" tabindex="-1"></a><span class="sc">{</span>code<span class="sc">}</span></span></code></pre></div>
+<p>““”</p>
+<p>if <strong>name</strong> == “<strong>main</strong>”:
+mcp.run(transport=“stdio”) # 或 sse / streamable-http</p>
+<pre><code>
+#### TypeScript（@modelcontextprotocol/sdk）
+
+```typescript
+import { McpServer } from &quot;@modelcontextprotocol/sdk/server/mcp.js&quot;;
+import { StdioServerTransport } from &quot;@modelcontextprotocol/sdk/server/stdio.js&quot;;
+import { z } from &quot;zod&quot;;
+
+const server = new McpServer({ name: &quot;my-toolkit&quot;, version: &quot;1.0.0&quot; });
+
+// Tool
+server.tool(
+  &quot;create_issue&quot;,
+  { repo: z.string(), title: z.string(), body: z.string() },
+  async ({ repo, title, body }) =&gt; {
+    const result = await github.createIssue(repo, title, body);
+    return { content: [{ type: &quot;text&quot;, text: JSON.stringify(result) }] };
+  }
+);
+
+// Resource
+server.resource(
+  &quot;user-profile&quot;,
+  &quot;user://{user_id}/profile&quot;,
+  async (uri, { user_id }) =&gt; ({
+    contents: [{ uri: uri.href, mimeType: &quot;application/json&quot;,
+                 text: JSON.stringify(await userDb.get(user_id)) }],
+  })
+);
+
+const transport = new StdioServerTransport();
+await server.connect(transport);</code></pre>
+<h3 id="mcp-client-接入">2.7.4 MCP Client 接入</h3>
+<h4 id="claude-desktop-cursor-cline-配置">Claude Desktop / Cursor /
+Cline 配置</h4>
+<p><code>~/.config/claude/mcp_servers.json</code>（Mac/Linux）或 Cursor
+/ Cline 类似配置：</p>
+<div class="sourceCode" id="cb31"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;mcpServers&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;my-toolkit&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;command&quot;</span><span class="fu">:</span> <span class="st">&quot;python&quot;</span><span class="fu">,</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;args&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;/abs/path/to/server.py&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;env&quot;</span><span class="fu">:</span> <span class="fu">{</span><span class="dt">&quot;GITHUB_TOKEN&quot;</span><span class="fu">:</span> <span class="st">&quot;ghp_...&quot;</span><span class="fu">}</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">},</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;github-official&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;command&quot;</span><span class="fu">:</span> <span class="st">&quot;npx&quot;</span><span class="fu">,</span></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;args&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;-y&quot;</span><span class="ot">,</span> <span class="st">&quot;@modelcontextprotocol/server-github&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;env&quot;</span><span class="fu">:</span> <span class="fu">{</span><span class="dt">&quot;GITHUB_PERSONAL_ACCESS_TOKEN&quot;</span><span class="fu">:</span> <span class="st">&quot;ghp_...&quot;</span><span class="fu">}</span></span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">},</span></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;filesystem&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;command&quot;</span><span class="fu">:</span> <span class="st">&quot;npx&quot;</span><span class="fu">,</span></span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;args&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;-y&quot;</span><span class="ot">,</span> <span class="st">&quot;@modelcontextprotocol/server-filesystem&quot;</span><span class="ot">,</span></span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>               <span class="st">&quot;/Users/liang/projects&quot;</span><span class="ot">]</span></span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>重启 client，所有 tools / resources / prompts 自动可用。</p>
+<h4 id="在-langchain-langgraph-里用">在 LangChain / LangGraph 里用</h4>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> langchain_mcp_adapters.client <span class="im">import</span> MultiServerMCPClient</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> langgraph.prebuilt <span class="im">import</span> create_react_agent</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 一次连多个 MCP server</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="cf">with</span> MultiServerMCPClient({</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;my-toolkit&quot;</span>: {<span class="st">&quot;command&quot;</span>: <span class="st">&quot;python&quot;</span>, <span class="st">&quot;args&quot;</span>: [<span class="st">&quot;./server.py&quot;</span>], <span class="st">&quot;transport&quot;</span>: <span class="st">&quot;stdio&quot;</span>},</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;github&quot;</span>:     {<span class="st">&quot;url&quot;</span>: <span class="st">&quot;http://localhost:3000/sse&quot;</span>, <span class="st">&quot;transport&quot;</span>: <span class="st">&quot;sse&quot;</span>},</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>}) <span class="im">as</span> client:</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>    tools <span class="op">=</span> client.get_tools()  <span class="co"># 自动转成 LangChain Tool 列表</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>    agent <span class="op">=</span> create_react_agent(<span class="st">&quot;anthropic:claude-sonnet-4-6&quot;</span>, tools)</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> <span class="cf">await</span> agent.ainvoke({<span class="st">&quot;messages&quot;</span>: [(<span class="st">&quot;user&quot;</span>, <span class="st">&quot;在 acme/api repo 开个 bug issue&quot;</span>)]})</span></code></pre></div>
+<h3 id="主流-mcp-server-生态2026">2.7.5 主流 MCP Server
+生态（2026）</h3>
+<p>按类别选用：</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>类别</th>
+<th>仓库</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>官方参考实现</strong></td>
+<td><a
+href="https://github.com/modelcontextprotocol/servers"><code>modelcontextprotocol/servers</code></a></td>
+<td>几十个开箱即用：filesystem / git / github / postgres / sqlite /
+slack / google-drive / brave-search / sequential-thinking</td>
+</tr>
+<tr class="even">
+<td><strong>Awesome 列表</strong></td>
+<td><a
+href="https://github.com/punkpeye/awesome-mcp-servers"><code>punkpeye/awesome-mcp-servers</code></a></td>
+<td>社区 server 索引（数百个）</td>
+</tr>
+<tr class="odd">
+<td><strong>数据库</strong></td>
+<td>postgres / mysql / sqlite / mongodb / redis 都有官方或社区 MCP</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><strong>云服务</strong></td>
+<td>aws-mcp / gcp-mcp / azure-mcp</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><strong>DevOps</strong></td>
+<td>kubernetes / terraform / docker MCP</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><strong>生产力</strong></td>
+<td>notion / linear / jira / confluence MCP</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><strong>浏览器</strong></td>
+<td>playwright-mcp / browserbase-mcp / Puppeteer MCP</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><strong>企业商用</strong></td>
+<td>Zapier MCP（5000+ 集成）</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="mcp-时间线与采用度">2.7.6 MCP 时间线与采用度</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>时间</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2024-11</td>
+<td>Anthropic 发布 MCP 协议</td>
+</tr>
+<tr class="even">
+<td>2025-Q1</td>
+<td>Cursor / Cline 等 IDE 接入</td>
+</tr>
+<tr class="odd">
+<td>2025-Q2</td>
+<td>OpenAI 宣布支持</td>
+</tr>
+<tr class="even">
+<td>2025-Q3</td>
+<td>Google / Microsoft / Amazon 跟进</td>
+</tr>
+<tr class="odd">
+<td>2025-Q4</td>
+<td>MCP 治理转入独立 <strong>MCP Steering Committee</strong>（Anthropic
++ Block + OpenAI + Microsoft 等共同治理）</td>
+</tr>
+<tr class="even">
+<td>2026-02</td>
+<td>Python + TypeScript SDK 月下载量破 <strong>9700 万</strong></td>
+</tr>
+<tr class="odd">
+<td>2026-Q1</td>
+<td>几乎所有主流 LLM 客户端原生支持</td>
+</tr>
+</tbody>
+</table>
+<h3 id="a2aagent-之间的协议族">2.7.7 A2A：Agent 之间的协议族</h3>
+<p>MCP 解决”agent 与工具的沟通”，<strong>A2A（Agent-to-Agent）</strong>
+解决”agent 之间的沟通”。这块仍在多协议竞争：</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>协议 / 框架</th>
+<th>出处</th>
+<th>范式</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Google A2A</strong></td>
+<td>Google 2025</td>
+<td>HTTP-based agent discovery + task delegation</td>
+<td>早期</td>
+</tr>
+<tr class="even">
+<td><strong>Microsoft Agent Framework Protocol</strong></td>
+<td>Microsoft 2026</td>
+<td>AutoGen 接班，多 agent 对话标准</td>
+<td>推广中</td>
+</tr>
+<tr class="odd">
+<td><strong>Anthropic Agent Skills</strong></td>
+<td>Anthropic 2026</td>
+<td>Skill 包：可复用 agent 能力单元</td>
+<td>早期</td>
+</tr>
+<tr class="even">
+<td><strong>MCP for A2A</strong></td>
+<td>社区</td>
+<td>把”另一个 agent”当作 MCP server</td>
+<td>实践中</td>
+</tr>
+<tr class="odd">
+<td><strong>Letta multi-agent</strong></td>
+<td>Letta</td>
+<td>通过 message passing</td>
+<td>框架内</td>
+</tr>
+</tbody>
+</table>
+<p><strong>MCP vs A2A 类比</strong>：</p>
+<blockquote>
+<p>“<strong>MCP 给 agent 一双手</strong>（连工具/数据），<strong>A2A
+让多个 agent 组队干活</strong>。MCP 是垂直整合（单 agent ↔︎ 工具栈），A2A
+是水平协作（agent ↔︎ agent 网络）。”</p>
+</blockquote>
+<p>2026 春的现状：MCP 已是事实标准，A2A 还在 Cambrian
+大爆发期。<strong>实战建议</strong>：现在做单 agent → 全押 MCP；做多
+agent → 用具体框架（LangGraph / Microsoft Agent
+Framework）的内置协议，等 A2A 标准明朗。</p>
+<h3 id="常见-mcp-设计陷阱">2.7.8 常见 MCP 设计陷阱</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>陷阱</th>
+<th>表现</th>
+<th>对策</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Tool 太多</strong></td>
+<td>50+ tool 让 LLM 决策困难</td>
+<td>分组 + 路由（先选类目再选 tool）</td>
+</tr>
+<tr class="even">
+<td><strong>Tool description 太短</strong></td>
+<td>模型不知道何时用</td>
+<td>写”何时用 / 何时不用”+ 1-2 个 example</td>
+</tr>
+<tr class="odd">
+<td><strong>副作用未声明</strong></td>
+<td>模型当只读调用，造成意外修改</td>
+<td>description 明确”会修改 X”+ 在 client 侧加 deny-first</td>
+</tr>
+<tr class="even">
+<td><strong>超长返回</strong></td>
+<td>一次返回 10K rows 撑爆 context</td>
+<td>server 侧 cap + 分页 + 摘要</td>
+</tr>
+<tr class="odd">
+<td><strong>同步阻塞</strong></td>
+<td>长任务把 client 卡死</td>
+<td>用 async transport（streamable-http）</td>
+</tr>
+<tr class="even">
+<td><strong>认证混乱</strong></td>
+<td>每个 tool 自己处理 token</td>
+<td>server 侧统一从 env 读，client 侧用 OAuth flow</td>
+</tr>
+</tbody>
+</table>
+<p>工具集成在 Agent 实现层面的细节 → <a
+href="./03_agent_engineering.md">03_agent_engineering.md</a> §3.1 与
+§5； LLM 网关 / observability / 推理服务器层面的基础设施 → <a
+href="./04_harness_engineering.md">04_harness_engineering.md</a> §3.9
+附录（注：04 章把这 4 类显式标记为”相关但非 harness 工程”）。</p>
+<hr />
+<h2 id="bibliography">Bibliography</h2>
+<p>[2] Liu, N. F. et al. (2024). <em>Lost in the Middle: How Language
+Models Use Long Contexts</em>. TACL. [5] Karpathy, A. <em>Software Is
+Changing (Again)</em>. YC AI School talk. [6] Anthropic. <em>Effective
+Context Engineering for AI Agents</em>. <a
+href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"
+class="uri">https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents</a>
+[7] LangChain. <em>Context Engineering for Agents</em>. <a
+href="https://www.langchain.com/blog/context-engineering-for-agents"
+class="uri">https://www.langchain.com/blog/context-engineering-for-agents</a>
+[9] Wikipedia. <em>Model Context Protocol</em>. <a
+href="https://en.wikipedia.org/wiki/Model_Context_Protocol"
+class="uri">https://en.wikipedia.org/wiki/Model_Context_Protocol</a>
+[12] Hsieh, C. et al. (2024). <em>RULER: What’s the Real Context Size of
+Your Long-Context Language Models?</em> <a
+href="https://arxiv.org/abs/2404.06654"
+class="uri">https://arxiv.org/abs/2404.06654</a> [13] Cheney Zhang.
+<em>Embedding Models Benchmark 2026</em>. [14] CallSphere. <em>Vector
+Database Benchmarks 2026: pgvector / Qdrant / Weaviate / Milvus /
+LanceDB</em>. [18] Packer, C. et al. (2023). <em>MemGPT: Towards LLMs as
+Operating Systems</em>. [19] Mem0 Team (2025). <em>Mem0: Building
+Production-Ready AI Agents with Scalable Long-Term Memory</em>. <a
+href="https://arxiv.org/abs/2504.19413"
+class="uri">https://arxiv.org/abs/2504.19413</a> [21] Anthropic Memory
+Tool docs. <a href="https://docs.anthropic.com"
+class="uri">https://docs.anthropic.com</a> [41] TianPan.
+<em>Long-Context Models vs RAG: When the 1M-Token Window Is the Wrong
+Tool</em>. [43] Squirro. <em>RAG in 2026: Bridging Knowledge and
+Generative AI</em>.</p>
+<p>补充： - Asai et al. (2023). <em>Self-RAG</em>. - Microsoft GraphRAG.
+<a href="https://github.com/microsoft/graphrag"
+class="uri">https://github.com/microsoft/graphrag</a> - LightRAG. <a
+href="https://github.com/HKUDS/LightRAG"
+class="uri">https://github.com/HKUDS/LightRAG</a> - Edge et al. (2024).
+<em>From Local to Global: A Graph RAG Approach to Query-Focused
+Summarization</em>. - BGE-M3. <a
+href="https://huggingface.co/BAAI/bge-m3"
+class="uri">https://huggingface.co/BAAI/bge-m3</a></p>
+<hr />
+<h2 id="章节交叉引用">章节交叉引用</h2>
+<ul>
+<li>想理解长上下文背后的 Transformer 物理 → <a
+href="./01_prompt_engineering.md">01_prompt_engineering.md</a> §1.1</li>
+<li>想理解 Agentic RAG / 记忆 在 Agent 里怎么用 → <a
+href="./03_agent_engineering.md">03_agent_engineering.md</a> §3 +
+§4</li>
+<li>想理解 KV cache / prefix caching 推理服务器层面 → <a
+href="./04_harness_engineering.md">04_harness_engineering.md</a>
+§3.9.2</li>
+</ul>
+<nav class="page-pager" id="page-pager" aria-label="章节翻页"></nav>
+
+<footer class="site-foot">
+  <div class="site-foot-inner">
+    <span>LLM 应用工程的四层演进 · 系列文档</span>
+    <span class="site-foot-sep">·</span>
+    <span>调研日期 2026-05-01</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  /* ---- 章节翻页（顺序：README → 01 → 02 → 03 → 04） ---- */
+  var pages = [
+    { file: 'README.html',                  title: '总览' },
+    { file: '01_prompt_engineering.html',   title: '01 · 提示词工程' },
+    { file: '02_context_engineering.html',  title: '02 · 上下文工程' },
+    { file: '03_agent_engineering.html',    title: '03 · Agent 工程' },
+    { file: '04_harness_engineering.html',  title: '04 · 驾驭工程' }
+  ];
+  var here = (location.pathname.split('/').pop() || 'README.html').toLowerCase();
+  var idx = -1;
+  for (var i = 0; i < pages.length; i++) {
+    if (pages[i].file.toLowerCase() === here) { idx = i; break; }
+  }
+  var pager = document.getElementById('page-pager');
+  if (idx < 0) {
+    pager.style.display = 'none';
+  } else {
+    var prev = pages[idx - 1];
+    var next = pages[idx + 1];
+    var html = '';
+    if (prev) {
+      html += '<a class="pager-prev" href="' + prev.file + '">' +
+              '<span class="pager-label">← 上一篇</span>' +
+              '<span class="pager-title">' + prev.title + '</span></a>';
+    } else {
+      html += '<span class="pager-empty"></span>';
+    }
+    if (next) {
+      html += '<a class="pager-next" href="' + next.file + '">' +
+              '<span class="pager-label">下一篇 →</span>' +
+              '<span class="pager-title">' + next.title + '</span></a>';
+    } else {
+      html += '<span class="pager-empty"></span>';
+    }
+    pager.innerHTML = html;
+  }
+
+  /* ---- TOC 当前位置高亮（IntersectionObserver） ---- */
+  var toc = document.getElementById('TOC');
+  if (!toc || !('IntersectionObserver' in window)) return;
+  var links = toc.querySelectorAll('a[href^="#"]');
+  if (!links.length) return;
+
+  var byId = {};
+  var orderedIds = [];
+  links.forEach(function(a){
+    var id = decodeURIComponent((a.getAttribute('href') || '').slice(1));
+    if (!id) return;
+    byId[id] = a;
+    orderedIds.push(id);
+  });
+  var headings = orderedIds
+    .map(function(id){ return document.getElementById(id); })
+    .filter(Boolean);
+  if (!headings.length) return;
+
+  var visible = {};
+  function update() {
+    var firstId = null;
+    for (var i = 0; i < orderedIds.length; i++) {
+      if (visible[orderedIds[i]]) { firstId = orderedIds[i]; break; }
+    }
+    links.forEach(function(a){ a.classList.remove('toc-active'); });
+    if (firstId && byId[firstId]) {
+      var a = byId[firstId];
+      a.classList.add('toc-active');
+      /* 让激活项保持在视野内 */
+      var rect = a.getBoundingClientRect();
+      var box = toc.getBoundingClientRect();
+      if (rect.top < box.top + 40 || rect.bottom > box.bottom - 40) {
+        a.scrollIntoView({ block: 'nearest' });
+      }
+    }
+  }
+
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      visible[e.target.id] = e.isIntersecting;
+    });
+    update();
+  }, { rootMargin: '-12% 0px -70% 0px', threshold: 0 });
+
+  headings.forEach(function(h){ io.observe(h); });
+})();
+</script>
+</body>
+</html>

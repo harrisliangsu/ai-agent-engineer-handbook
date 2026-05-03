@@ -1,0 +1,39 @@
+{"id": "S01", "type": "paper", "name": "Attention Is All You Need", "authors": "Vaswani et al.", "year": 2017, "venue": "NeurIPS", "url": "https://arxiv.org/abs/1706.03762"}
+{"id": "S02", "type": "paper", "name": "Lost in the Middle: How Language Models Use Long Contexts", "authors": "Liu et al.", "year": 2024, "venue": "TACL"}
+{"id": "S03", "type": "paper", "name": "Self-Refine: Iterative Refinement with Self-Feedback", "authors": "Madaan et al.", "year": 2023, "venue": "NeurIPS"}
+{"id": "S04", "type": "paper", "name": "ReAct: Synergizing Reasoning and Acting in Language Models", "authors": "Yao et al.", "year": 2023, "venue": "ICLR"}
+{"id": "S05", "type": "talk", "name": "Software Is Changing (Again)", "author": "Karpathy", "venue": "YC AI School"}
+{"id": "S06", "type": "official-blog", "name": "Effective Context Engineering for AI Agents", "org": "Anthropic", "url": "https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents"}
+{"id": "S07", "type": "blog", "name": "Context Engineering for Agents", "org": "LangChain", "url": "https://www.langchain.com/blog/context-engineering-for-agents"}
+{"id": "S08", "type": "blog", "name": "Harness Engineering for AI Coding Agents", "org": "Augment Code", "url": "https://www.augmentcode.com/guides/harness-engineering-ai-coding-agents"}
+{"id": "S09", "type": "wiki", "name": "Model Context Protocol", "url": "https://en.wikipedia.org/wiki/Model_Context_Protocol"}
+{"id": "S10", "type": "official-blog", "name": "Inside vLLM: Anatomy of a High-Throughput LLM Inference System", "org": "vLLM", "url": "https://blog.vllm.ai/2025/09/05/anatomy-of-vllm.html"}
+{"id": "S11", "type": "blog", "name": "When to Choose SGLang Over vLLM", "org": "Runpod", "url": "https://www.runpod.io/blog/sglang-vs-vllm-kv-cache"}
+{"id": "S12", "type": "paper", "name": "RULER: What's the Real Context Size of Your Long-Context Language Models?", "year": 2024, "url": "https://arxiv.org/abs/2404.06654"}
+{"id": "S13", "type": "blog", "name": "Embedding Models Benchmark 2026", "author": "Cheney Zhang", "url": "https://zc277584121.github.io/rag/2026/03/20/embedding-models-benchmark-2026.html"}
+{"id": "S14", "type": "blog", "name": "Vector Database Benchmarks 2026", "org": "CallSphere", "url": "https://callsphere.ai/blog/vector-database-benchmarks-2026-pgvector-qdrant-weaviate-milvus-lancedb"}
+{"id": "S16", "type": "paper", "name": "Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection", "authors": "Asai et al.", "year": 2023}
+{"id": "S18", "type": "paper", "name": "MemGPT: Towards LLMs as Operating Systems", "authors": "Packer et al.", "year": 2023}
+{"id": "S19", "type": "paper", "name": "Mem0: Building Production-Ready AI Agents with Scalable Long-Term Memory", "year": 2025, "url": "https://arxiv.org/abs/2504.19413"}
+{"id": "S21", "type": "official-docs", "name": "Anthropic Memory Tool", "org": "Anthropic"}
+{"id": "S22", "type": "blog", "name": "State of LLMs 2025", "author": "Sebastian Raschka", "url": "https://magazine.sebastianraschka.com/p/state-of-llms-2025"}
+{"id": "S23", "type": "blog", "name": "Post-Training in 2026: GRPO, DAPO, RLVR & Beyond", "org": "llm-stats", "url": "https://llm-stats.com/blog/research/post-training-techniques-2026"}
+{"id": "S24", "type": "blog", "name": "Guide to RL Post-Training: PPO, DPO, GRPO", "org": "HuggingFace", "url": "https://huggingface.co/blog/karina-zadorozhny/guide-to-llm-post-training-algorithms"}
+{"id": "S25", "type": "blog", "name": "Fine-Tuning Infrastructure: LoRA, QLoRA, PEFT at Scale", "org": "Introl"}
+{"id": "S26", "type": "paper", "name": "LoRA: Low-Rank Adaptation of Large Language Models", "authors": "Hu et al.", "year": 2021}
+{"id": "S27", "type": "paper", "name": "QLoRA: Efficient Finetuning of Quantized LLMs", "authors": "Dettmers et al.", "year": 2023}
+{"id": "S28", "type": "guide", "name": "Prompt Engineering Guide (CoT/ReAct sections)", "org": "promptingguide.ai", "url": "https://www.promptingguide.ai"}
+{"id": "S29", "type": "blog", "name": "Prompt Engineering 2026: Frameworks That Actually Work", "author": "Pasquale Pillitteri", "url": "https://pasqualepillitteri.it/en/news/1090/prompt-engineering-2026-frameworks-complete-guide"}
+{"id": "S30", "type": "blog", "name": "Prompt Engineering Guide", "org": "BrightCoding"}
+{"id": "S31", "type": "blog", "name": "What Is Harness Engineering AI? The Definitive 2026 Guide", "org": "Atlan", "url": "https://atlan.com/know/what-is-harness-engineering/"}
+{"id": "S32", "type": "blog", "name": "Agent Harness Engineering: The Rise of the AI Control Plane", "author": "Adnan Masood", "venue": "Medium", "year": 2026}
+{"id": "S33", "type": "blog", "name": "LLM Observability on GPU Cloud (2026)", "org": "Spheron"}
+{"id": "S34", "type": "blog", "name": "Top 10 LLM Observability Tools 2026", "org": "Confident AI"}
+{"id": "S35", "type": "blog", "name": "Top 7 LLM Evaluation Tools 2026", "org": "Confident AI"}
+{"id": "S36", "type": "official-docs", "name": "NeMo Guardrails Documentation", "org": "NVIDIA", "url": "https://docs.nvidia.com/nemo/guardrails/latest/index.html"}
+{"id": "S37", "type": "blog", "name": "Top 5 LLM Gateways", "org": "Helicone", "url": "https://www.helicone.ai/blog/top-llm-gateways-comparison-2025"}
+{"id": "S38", "type": "blog", "name": "Portkey vs LiteLLM vs OpenRouter: LLM Gateway 2026", "org": "PkgPulse"}
+{"id": "S39", "type": "blog", "name": "LLM Inference Servers Compared: vLLM vs TGI vs SGLang vs Triton (2026)", "org": "PreMAI"}
+{"id": "S41", "type": "blog", "name": "Long-Context Models vs RAG: When the 1M-Token Window Is the Wrong Tool", "author": "TianPan", "year": 2026}
+{"id": "S42", "type": "model-card", "name": "BGE-M3", "org": "BAAI", "url": "https://huggingface.co/BAAI/bge-m3"}
+{"id": "S43", "type": "blog", "name": "RAG in 2026: Bridging Knowledge and Generative AI", "org": "Squirro"}

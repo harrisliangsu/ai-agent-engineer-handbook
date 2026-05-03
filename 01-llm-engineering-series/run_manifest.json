@@ -1,0 +1,49 @@
+{
+  "skill": "deep-research",
+  "version": "2.3.1",
+  "run_versions": [
+    {"version": "v1", "date": "2026-05-01T17:30Z", "output": "article.md (合并版)"},
+    {"version": "v2", "date": "2026-05-01T19:00Z", "output": "按章节拆分 + 新增 Agent 章节", "trigger": "用户要求拆分 + Agent 单独成章"}
+  ],
+  "query": "提示词工程(含 LLM/Transformer 基础) + 上下文工程(含记忆/RAG 选型) + Agent 工程 + 驾驭工程(harness engineering)，越全越好",
+  "mode": "ultradeep",
+  "date": "2026-05-01",
+  "language_preference": "zh-CN",
+  "audience": "中文 AI 工程师 / Agent 开发者 / 大模型应用架构师",
+  "user_explicit_requirements": [
+    "训练方法：预训练、后训练、微调（SFT/RL...）必须包含",
+    "按章节分成独立文档（v2）",
+    "Agent 单独成章（v2）"
+  ],
+  "search_provider": "WebSearch (built-in fallback)",
+  "search_queries_total": 26,
+  "search_batches": [
+    {"batch": 1, "version": "v1", "count": 8, "topics": ["prompt engineering", "context engineering def", "harness engineering", "transformer evolution", "RAG SOTA", "vector DB", "embeddings", "memory systems"]},
+    {"batch": 2, "version": "v1", "count": 8, "topics": ["reranker", "long context vs RAG", "MCP/A2A", "observability", "evaluation", "guardrails", "LLM gateway", "inference servers"]},
+    {"batch": 3, "version": "v1", "count": 2, "topics": ["pretraining/post-training/SFT/DPO/GRPO/RLAIF/RLVR", "LoRA/QLoRA/PEFT/distillation"]},
+    {"batch": 4, "version": "v2", "count": 8, "topics": ["agent definition/architecture", "agent frameworks 2026 comparison", "multi-agent orchestration patterns", "agent benchmarks (SWE-bench/GAIA/WebArena/OSWorld)", "coding agents (Claude Code/Cursor/Devin)", "computer use agents", "agent failure modes", "agent safety/permission"]}
+  ],
+  "files_v2": {
+    "README.md": "目录索引、阅读顺序、与 v1 差异说明",
+    "01_prompt_engineering.md": "Transformer / 训练栈 / 解码 / CoT / ReAct / 自动化 / 评估",
+    "02_context_engineering.md": "定义 / 长上下文物理 / RULER / RAG 全栈 10 节 / 记忆 4 强 / MCP",
+    "03_agent_engineering.md": "Agent 定义 / 范式演进 / 4 层架构 / 7 类型 / 10 框架 / 5 协作模式 / 5 benchmark / 8 产品 / 5 失败模式 / 安全权限",
+    "04_harness_engineering.md": "起源 / 与三层边界 / 7 大组件 / 完整生产栈图 / 综合 / 选型 / 限制 / 完整 Bibliography / Methodology",
+    "article.md": "v1 合并版（保留作历史参考）"
+  },
+  "key_claims_with_2plus_sources": 26,
+  "real_world_incidents_documented_v2": [
+    "Amazon Kiro 自主删除生产 AWS 环境 13 小时停机",
+    "Replit AI 在代码冻结期删除生产数据库",
+    "Google AI 清缓存时删整盘",
+    "Claude Code sub-agent 27M token 4.6 小时无限循环",
+    "某 Opus 4.6 agent 9 秒删除生产数据库",
+    "无限重试循环数分钟内消耗 $40 API 费"
+  ],
+  "agent_benchmark_results_2026_04": {
+    "SWE-bench_Verified": "Claude Opus 4.7 = 87.6% (榜首)",
+    "GAIA_Princeton_HAL": "Claude Sonnet 4.5 = 74.6%; Anthropic 横扫前 6",
+    "warning": "Berkeley RDI 审计 8 个主流 benchmark 全部可被 hack 出近完美分数"
+  },
+  "output_files": ["README.md", "01_prompt_engineering.md", "02_context_engineering.md", "03_agent_engineering.md", "04_harness_engineering.md", "article.md", "sources.jsonl", "run_manifest.json"]
+}

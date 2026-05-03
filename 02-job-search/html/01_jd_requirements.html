@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>AI Agent 岗位面试 JD 要求研究报告（2026-05）</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header class="site-nav" role="banner">
+  <div class="site-nav-inner">
+    <a href="01_jd_requirements.html" class="site-nav-brand">AI Agent 求职研究</a>
+    <nav class="site-nav-links" aria-label="文档导航">
+      <a href="01_jd_requirements.html"><span class="ch-no">01</span><span class="ch-name">JD 要求</span></a>
+      <a href="02_interview_questions.html"><span class="ch-no">02</span><span class="ch-name">面试题与答案</span></a>
+    </nav>
+  </div>
+</header>
+<script>
+(function(){
+  var here = (location.pathname.split('/').pop() || '01_jd_requirements.html').toLowerCase();
+  document.querySelectorAll('.site-nav a').forEach(function(a){
+    if ((a.getAttribute('href') || '').toLowerCase() === here) {
+      a.setAttribute('aria-current', 'page');
+    }
+  });
+})();
+</script>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#ai-agent-岗位面试-jd-要求研究报告"
+id="toc-ai-agent-岗位面试-jd-要求研究报告">AI Agent 岗位面试 JD
+要求研究报告</a>
+<ul>
+<li><a href="#executive-summary" id="toc-executive-summary">Executive
+Summary</a></li>
+<li><a href="#中国市场完整-jd-摘录与硬指标"
+id="toc-中国市场完整-jd-摘录与硬指标">1. 中国市场：完整 JD
+摘录与硬指标</a>
+<ul>
+<li><a href="#编程语言-框架-工具栈高频要求"
+id="toc-编程语言-框架-工具栈高频要求">1.1 编程语言 / 框架 /
+工具栈高频要求</a></li>
+<li><a href="#领域知识要求" id="toc-领域知识要求">1.2
+领域知识要求</a></li>
+<li><a href="#工程能力-系统能力" id="toc-工程能力-系统能力">1.3 工程能力
+/ 系统能力</a></li>
+<li><a href="#学历-经验门槛" id="toc-学历-经验门槛">1.4 学历 /
+经验门槛</a></li>
+<li><a href="#加分项-nice-to-have按出现频率降序"
+id="toc-加分项-nice-to-have按出现频率降序">1.5 加分项 /
+Nice-to-have（按出现频率降序）</a></li>
+<li><a href="#薪资水平2026-05-抓取数据"
+id="toc-薪资水平2026-05-抓取数据">1.6 薪资水平（2026-05
+抓取数据）</a></li>
+<li><a href="#不同级别岗位差异" id="toc-不同级别岗位差异">1.7
+不同级别岗位差异</a></li>
+</ul></li>
+<li><a href="#北美-欧洲市场完整-jd-摘录与硬指标"
+id="toc-北美-欧洲市场完整-jd-摘录与硬指标">2. 北美 / 欧洲市场：完整 JD
+摘录与硬指标</a>
+<ul>
+<li><a href="#条真实完整-jd-摘录原文-url2026-05-02-抓取"
+id="toc-条真实完整-jd-摘录原文-url2026-05-02-抓取">2.1 8 条真实完整 JD
+摘录（原文 + URL，2026-05-02 抓取）</a></li>
+<li><a href="#langchain-ecosystem-频率统计2026-04-数据"
+id="toc-langchain-ecosystem-频率统计2026-04-数据">2.2 LangChain
+Ecosystem 频率统计（2026-04 数据）</a></li>
+<li><a href="#北美-欧洲薪资对照2026-05"
+id="toc-北美-欧洲薪资对照2026-05">2.3 北美 /
+欧洲薪资对照（2026-05）</a></li>
+</ul></li>
+<li><a href="#高频考察点-top-20综合中外-jd"
+id="toc-高频考察点-top-20综合中外-jd">3. 高频考察点 Top 20（综合中外
+JD）</a></li>
+<li><a href="#岗位变种区分" id="toc-岗位变种区分">4. 岗位变种区分</a>
+<ul>
+<li><a href="#中国市场-7-类" id="toc-中国市场-7-类">4.1 中国市场 7
+类</a></li>
+<li><a href="#北美-欧洲-6-类" id="toc-北美-欧洲-6-类">4.2 北美 / 欧洲 6
+类</a></li>
+</ul></li>
+<li><a href="#海外-中国对比观察" id="toc-海外-中国对比观察">5. 海外 /
+中国对比观察</a></li>
+<li><a href="#面向求职者的关键建议" id="toc-面向求职者的关键建议">6.
+面向求职者的关键建议</a></li>
+<li><a href="#limitations-caveats"
+id="toc-limitations-caveats">Limitations &amp; Caveats</a></li>
+<li><a href="#bibliography" id="toc-bibliography">Bibliography</a>
+<ul>
+<li><a href="#中国市场按引用顺序"
+id="toc-中国市场按引用顺序">中国市场（按引用顺序）</a></li>
+<li><a href="#北美-欧洲市场" id="toc-北美-欧洲市场">北美 /
+欧洲市场</a></li>
+</ul></li>
+<li><a href="#methodology-appendix"
+id="toc-methodology-appendix">Methodology Appendix</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="ai-agent-岗位面试-jd-要求研究报告">AI Agent 岗位面试 JD
+要求研究报告</h1>
+<p><strong>调研日期</strong>：2026-05-02
+<strong>覆盖范围</strong>：中国大陆 + 北美 / 欧洲市场，BOSS 直聘 / 拉勾
+/ 51job / 智联 / V2EX / 猎聘 / Hacker News / LinkedIn / Greenhouse /
+Ashby / Glassdoor / Levels.fyi
+<strong>目标读者</strong>：求职者、招聘方、转型 AI Agent
+方向的工程师</p>
+<hr />
+<h2 id="executive-summary">Executive Summary</h2>
+<p>2026 年 5 月，“AI Agent 工程师”已经从 2023
+年的”概念词”转化为有清晰边界的工程岗位。中国大陆和北美/欧洲市场呈现<strong>两极化与岗位收敛</strong>的特征：</p>
+<ul>
+<li><strong>中国市场</strong>：大厂算法岗（字节豆包 / 阿里通义 /
+腾讯混元 / 百度文心 / 月之暗面 Kimi / 智谱 GLM / DeepSeek / MiniMax /
+阶跃星辰 / 百川 / 零一万物）继续抢博士与顶会一作；中型厂和传统 IT/SaaS
+把”AI Agent 工程师 / LLM
+应用开发工程师”当成新工种放出，硬性要求高度趋同——<strong>Python +
+LangChain/LangGraph + RAG + Tool Calling + 向量库 +
+Docker/K8s</strong>。3-5 年经验普遍开 25-60K·14/15 薪。Prompt
+工程师独立岗位明显萎缩（2025 年比 2023 年减少约 70%），正被”Agent
+应用工程师”和”上下文工程”吸收。</li>
+<li><strong>北美/欧洲市场</strong>：6 类岗位已收敛——<strong>Forward
+Deployed Engineer (FDE)</strong>、<strong>Applied AI
+Engineer</strong>、<strong>Agent Engineer / Software Engineer
+Agent</strong>、<strong>Research
+Engineer</strong>、<strong>Deployed/Field Engineer</strong>、<strong>AI
+Platform/Infra
+Engineer</strong>。Anthropic、Glean、Vercel、Replit、Sierra、Cognition
+(Devin)、Cursor、Harvey、Perplexity 是 mid-stage 主力雇主。Senior IC 在
+SF / NYC / Seattle 集中在 base $200K-$320K（含 equity 通常 2-4
+倍），London 折合 £225K-£240K，欧洲 €80K-€160K。</li>
+</ul>
+<p>跨地区共同信号：<strong>生产 LLM 经验、Python（含 TypeScript 作为常见
+#2）、agent 框架（LangGraph 领先，Claude Agent SDK / OpenAI Agents SDK
+上升）、评估基础设施、MCP（2026 年增速最快的单一技能）、Prompt/Context
+Engineering</strong>。</p>
+<hr />
+<h2 id="中国市场完整-jd-摘录与硬指标">1. 中国市场：完整 JD
+摘录与硬指标</h2>
+<h3 id="编程语言-框架-工具栈高频要求">1.1 编程语言 / 框架 /
+工具栈高频要求</h3>
+<p>下面均带原文 + URL，非二手转述：</p>
+<ol type="1">
+<li><p><strong>「精通 LangChain、LlamaIndex、AutoGen、Dify、CrewAI
+等至少一种主流 Agent 开发框架」「能驾驭 ClaudeCode、Cursor
+进行意图级编程」</strong> — 浙江义乌 AI Agent 工程师（V2EX
+招聘帖，25-35K/月）— <a href="https://www.v2ex.com/t/1200716"
+class="uri">https://www.v2ex.com/t/1200716</a></p></li>
+<li><p><strong>「熟悉 Langchain、LangGraph、AutoGen 等 Agent
+相关框架」「熟悉 LLM、LVM、推理等相关大模型知识」</strong> —
+腾讯混元大模型 Agent 开发工程师（深圳，3 年+，2025-11-28）— <a
+href="https://jobs.niuqizp.com/job-vm85LaLa5.html"
+class="uri">https://jobs.niuqizp.com/job-vm85LaLa5.html</a></p></li>
+<li><p><strong>「精通 Python，熟悉 Java/Go/C++ 之一」「掌握 Prompt
+设计、多轮对话管理、Tool/Function Calling」「熟悉 RAG
+技术与向量数据库」</strong> — 湖南林泽科技 LLM 应用工程师（长沙，1.5-2.5
+万，3-5 年）— <a
+href="https://www.zhaopin.com/jobdetail/CC455023520J40918852615.htm"
+class="uri">https://www.zhaopin.com/jobdetail/CC455023520J40918852615.htm</a></p></li>
+<li><p><strong>「熟练掌握 C/C++、Python」「熟悉 GPU/AI
+芯片编程（CUDA、OpenCL、Ascend C
+等）」「熟悉主流大模型推理框架（vllm、sglang、tensorrt-llm、FasterTransformer）」</strong>
+— 高级推理工程师通用 JD（牛客网集合）</p></li>
+<li><p><strong>「掌握 Python、Java 和 TensorFlow、PyTorch
+框架」</strong> — 蚂蚁集团 AI Force AI-Agent 算法工程师（金融场景，社招
+13-15 级）— <a
+href="https://blog.csdn.net/m0_59162248/article/details/149967708"
+class="uri">https://blog.csdn.net/m0_59162248/article/details/149967708</a></p></li>
+<li><p><strong>「熟悉 Coze、Spring AI Alibaba 等 AI Agent
+开发工具」「熟悉 OpenAI、阿里通义、豆包、DeepSeek 等 API」</strong> —
+字节跳动 Agent 软件架构师-移动 OS（北京海淀，70-100K·15 薪，3-5 年）— <a
+href="https://www.liepin.com/job/1978252587.shtml"
+class="uri">https://www.liepin.com/job/1978252587.shtml</a></p></li>
+<li><p><strong>「熟练使用 vibe
+coding，能独立完成实验与结果分析」</strong> — 月之暗面 Kimi Agent Team
+实习（北京，6-7K/月）— <a
+href="https://www.superlinear.academy/c/collaborate/kimi-agent-team"
+class="uri">https://www.superlinear.academy/c/collaborate/kimi-agent-team</a></p></li>
+<li><p><strong>「熟悉 ChatGLM 或 Llama
+等模型的使用或训练经验者优先」</strong> — 智谱 AI Agent 算法工程师 /
+实习生（北京）— <a
+href="https://blog.csdn.net/c9yv2cf9i06k2a9e/article/details/137574967"
+class="uri">https://blog.csdn.net/c9yv2cf9i06k2a9e/article/details/137574967</a></p></li>
+</ol>
+<h3 id="领域知识要求">1.2 领域知识要求</h3>
+<ol start="9" type="1">
+<li><strong>「精通 SFT、RLHF、RAG 等技术，有 1 年以上落地经验」</strong>
+— 蚂蚁 AI Force 社招</li>
+<li><strong>「研究 Prompt 工程、指令微调、RAG、Agent
+系统等技术」</strong> — 一线大厂大模型算法岗（V2EX 高薪贴 6-15 万+/月）—
+<a href="https://www.v2ex.com/t/1186466"
+class="uri">https://www.v2ex.com/t/1186466</a></li>
+<li><strong>「AI Agent
+架构设计、多代理系统、RAG、长期记忆等技术研究」</strong> — 同上</li>
+<li><strong>「整合 ASR、NLP、TTS 技术实现多轮对话和风险感知」</strong> —
+蚂蚁金融场景 AI-Agent 算法岗</li>
+<li><strong>「探索大模型在 Ranking 技术中的应用范式，包括 LLM-based
+向量召回、相关性模型、Ranking 模型等」</strong> —
+字节豆包大模型搜索增强算法工程师 — <a
+href="https://blog.csdn.net/c9yv2cf9i06k2a9e/article/details/145331986"
+class="uri">https://blog.csdn.net/c9yv2cf9i06k2a9e/article/details/145331986</a></li>
+<li><strong>「构建覆盖文生文、多模态理解与生成的全模态评测基准，设计多维度指标并开发自动化评测工具链」</strong>
+— 腾讯混元大模型评测算法研究员 — <a
+href="https://www.monimianshi.com/job/51362"
+class="uri">https://www.monimianshi.com/job/51362</a></li>
+<li><strong>「设计和开发多 Agent
+协同交互框架，支持使用一套标准协议接入内外部开发的 Agent」</strong> —
+字节 Agent 软件架构师-移动 OS</li>
+<li><strong>「跟踪并复现前沿 RL &amp; Agent 论文，快速验证创新
+idea」</strong> — 月之暗面 Kimi Agent Team</li>
+</ol>
+<h3 id="工程能力-系统能力">1.3 工程能力 / 系统能力</h3>
+<ol start="17" type="1">
+<li><strong>「具有复杂系统开发经验」「会微信小程序或 app 开发」</strong>
+— 湖南林泽 LLM 应用工程师</li>
+<li><strong>「系统设计、云原生、容器化（Docker/K8s）、API
+开发」</strong> — 浙江义乌 AI Agent 工程师 JD</li>
+<li><strong>「主导客户端整体架构设计与重构，包括模块拆分、跨端协同、数据流管理、多模态融合等核心层面」</strong>
+— 字节 Agent 软件架构师-移动 OS</li>
+<li><strong>「评测/标注平台、AI
+辅标、自动化质检及评测能力，持续提升各场景的准确性和效率」</strong> —
+腾讯混元 Agent 开发工程师</li>
+<li><strong>「PaaS 智能体平台研发：多 Agent
+编排、智能体设计、多智能体协作、任务规划、工具调用」</strong> — 蚂蚁
+PaaS 智能体平台研发专家</li>
+</ol>
+<h3 id="学历-经验门槛">1.4 学历 / 经验门槛</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>公司类型</th>
+<th>学历要求</th>
+<th>经验要求</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>头部大模型算法岗（DeepSeek / Kimi / 智谱 / 阶跃 / 百川 /
+MiniMax）</td>
+<td>硕博为主</td>
+<td>顶会论文 / Kaggle / ACM 金牌优先</td>
+<td>DeepSeek 官方说”不设学历门槛”，实操高度筛选发文与竞赛</td>
+</tr>
+<tr class="even">
+<td>大厂 Agent 应用 / 落地工程岗</td>
+<td>本科即可</td>
+<td>3-5 年是主流</td>
+<td>腾讯混元 Agent：本科+3 年；字节 Agent 软件架构师：本科+3-5 年</td>
+</tr>
+<tr class="odd">
+<td>大模型推理 / Infra 工程师</td>
+<td>硕士优先</td>
+<td>3-7 年</td>
+<td>C++/CUDA 强背景；vLLM/SGLang 实操经验</td>
+</tr>
+<tr class="even">
+<td>实习生</td>
+<td>在读</td>
+<td>6 个月连续可投入</td>
+<td>强调 vibe coding 能力和复现论文</td>
+</tr>
+</tbody>
+</table>
+<h3 id="加分项-nice-to-have按出现频率降序">1.5 加分项 /
+Nice-to-have（按出现频率降序）</h3>
+<ol type="1">
+<li><strong>顶会一作</strong>（NeurIPS / ICML / ACL / CVPR / ICLR /
+KDD）— 几乎所有大模型公司算法岗</li>
+<li><strong>ACM / ICPC、NOI / IOI、Top Coder、Kaggle 获奖</strong> —
+字节豆包、阶跃星辰、DeepSeek、华为天才少年通道</li>
+<li><strong>开源贡献</strong>（vLLM、SGLang、LangChain、HuggingFace
+模型仓库）— 腾讯混元、阿里通义、推理工程师 JD</li>
+<li><strong>行业垂域经验</strong>：金融（蚂蚁、智谱）、医疗（百川）、法律
+NLP、电商搜索（字节、阿里）、智能客服 / 外呼（蚂蚁）</li>
+<li><strong>顶尖高校博士 +
+“天才少年”通道</strong>：字节年薪近亿挖入”天才少年”陈冠英（21
+经济网，2026-04-17）；华为盘古多模态算法组保留组内”天才少年名额”</li>
+</ol>
+<h3 id="薪资水平2026-05-抓取数据">1.6 薪资水平（2026-05 抓取数据）</h3>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>层级</th>
+<th>岗位 / 公司</th>
+<th>月薪 / 总包</th>
+<th>地点</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>应届 SSP</td>
+<td>字节 AIGC 算法（卓越）</td>
+<td>33-36K×15 + 5W 签字 + 10W 股票 ≈ 55W+</td>
+<td>北京 / 上海</td>
+<td>CSDN 156735755</td>
+</tr>
+<tr class="even">
+<td>应届 SSP</td>
+<td>百度 大模型算法（卓越）</td>
+<td>40K+×16 + 10W 股票 ≈ 70W+</td>
+<td>北京</td>
+<td>同上</td>
+</tr>
+<tr class="odd">
+<td>应届 SSP</td>
+<td>拼多多 搜推广算法（卓越）</td>
+<td>40K+×16 + 5W 签字 + 15W 股票 ≈ 80W+</td>
+<td>上海</td>
+<td>同上</td>
+</tr>
+<tr class="even">
+<td>应届 SP</td>
+<td>腾讯 算法（优先）</td>
+<td>30-32K×15 + 3W 签字 ≈ 48-52W</td>
+<td>深圳</td>
+<td>同上</td>
+</tr>
+<tr class="odd">
+<td>顶尖博士</td>
+<td>大厂 AI 架构师</td>
+<td>200 万+/年，传闻”近亿元”挖人个例</td>
+<td>北京</td>
+<td>21 经济网</td>
+</tr>
+<tr class="even">
+<td>资深 Agent 架构师</td>
+<td>字节 Agent 软件架构师-移动 OS</td>
+<td>70-100K·15 薪</td>
+<td>北京海淀</td>
+<td>猎聘 1978252587</td>
+</tr>
+<tr class="odd">
+<td>一线大厂 Agent</td>
+<td>预训练 / Agent / 多模态 / RL</td>
+<td>6-15W+/月</td>
+<td>北京 / 上海</td>
+<td>V2EX 1186466</td>
+</tr>
+<tr class="even">
+<td>高级 Agent</td>
+<td>AI Agent 专家 / 架构师</td>
+<td>50-80K·18 薪</td>
+<td>北京 / 上海</td>
+<td>火山引擎 ADG</td>
+</tr>
+<tr class="odd">
+<td>中级 Agent</td>
+<td>LLM 应用开发工程师（AI Agent 方向）</td>
+<td>40-70K·18 薪</td>
+<td>上海</td>
+<td>猎聘</td>
+</tr>
+<tr class="even">
+<td>中级 Agent</td>
+<td>AI Agent 开发工程师</td>
+<td>18-28K·14 薪</td>
+<td>—</td>
+<td>火山引擎 ADG</td>
+</tr>
+<tr class="odd">
+<td>中型厂</td>
+<td>浙江义乌 AI Agent 工程师</td>
+<td>25-35K</td>
+<td>浙江义乌</td>
+<td>V2EX 1200716</td>
+</tr>
+<tr class="even">
+<td>中型厂</td>
+<td>湖南林泽 LLM 应用工程师</td>
+<td>15-25K</td>
+<td>长沙</td>
+<td>智联</td>
+</tr>
+<tr class="odd">
+<td>Prompt 工程师</td>
+<td>北京 1959085873</td>
+<td>15-30K·13 薪，1-3 年</td>
+<td>北京</td>
+<td>猎聘（已下线）</td>
+</tr>
+<tr class="even">
+<td>实习</td>
+<td>月之暗面 Kimi Agent</td>
+<td>6-7K/月，要求连续 6 月</td>
+<td>北京</td>
+<td>Superlinear</td>
+</tr>
+<tr class="odd">
+<td>资深博士</td>
+<td>DeepSeek 深度学习研究员-AGI</td>
+<td>8-11W/月，14 薪，年包 154W</td>
+<td>北京</td>
+<td>财新基金</td>
+</tr>
+</tbody>
+</table>
+<p>行业宏观数据：AI 岗月薪下限均值 4.7 万、上限均值 7.8 万（时代周报
+2025-09，仍是 2026 年招聘市场基准引用源）；大模型算法岗月薪应届中位
+24.8K，90 分位 5.2 万。</p>
+<h3 id="不同级别岗位差异">1.7 不同级别岗位差异</h3>
+<ul>
+<li><strong>应届</strong>：算法岗看顶会 / 竞赛 / 实习；应用岗看 GitHub
+Agent 项目（LangChain / LlamaIndex demo + Cursor 重构经历）</li>
+<li><strong>1-3 年</strong>：腾讯混元
+Agent、湖南林泽这类岗位定位为”主力执行”，要 RAG、向量库、Tool
+Calling、Prompt 设计落地经验</li>
+<li><strong>3-5 年</strong>：开始要”主导客户端架构设计与重构”、“设计多
+Agent 协同框架”（字节 Agent 软件架构师），薪资跳到 70K+</li>
+<li><strong>5-10 年</strong>：架构师 / 专家，要求”已在生产带过 Agent
+系统上线” + “客户 / 业务层咨询能力”</li>
+<li><strong>资深博士 / 科研</strong>：DeepSeek 给”深度学习研究员-AGI”
+8-11 万月薪、14 薪，年包 154 万</li>
+</ul>
+<hr />
+<h2 id="北美-欧洲市场完整-jd-摘录与硬指标">2. 北美 / 欧洲市场：完整 JD
+摘录与硬指标</h2>
+<h3 id="条真实完整-jd-摘录原文-url2026-05-02-抓取">2.1 8 条真实完整 JD
+摘录（原文 + URL，2026-05-02 抓取）</h3>
+<h4
+id="jd-en-1anthropic-forward-deployed-engineer-applied-ai">JD-EN-1：Anthropic
+— Forward Deployed Engineer, Applied AI</h4>
+<p>URL：<a
+href="https://job-boards.greenhouse.io/anthropic/jobs/4985877008"
+class="uri">https://job-boards.greenhouse.io/anthropic/jobs/4985877008</a>
+地点：Boston / Chicago / NYC / Seattle / SF / Washington DC
+薪资：<strong>$200,000 – $300,000</strong></p>
+<blockquote>
+<p>“Embed directly with our most strategic customers to drive
+transformational AI adoption.” “Work within customer systems to build
+production applications with Claude models.” “Deliver technical
+artifacts for customers like MCP servers, sub-agents, and agent skills.”
+“Provide white glove deployment support for Anthropic products in
+enterprise environments.” “3+ years of experience in a technical,
+customer facing role.” “Production experience with LLMs including
+advanced prompt engineering, agent development, evaluation frameworks.”
+“Strong programming skills with proficiency in Python (and ideally in
+one or more additional languages).”</p>
+</blockquote>
+<p>差旅 ~25%；25% in-office minimum；提供签证支持。</p>
+<h4
+id="jd-en-2anthropic-applied-ai-engineer-enterprise-tech">JD-EN-2：Anthropic
+— Applied AI Engineer, Enterprise Tech</h4>
+<p>URL：<a
+href="https://job-boards.greenhouse.io/anthropic/jobs/5057647008"
+class="uri">https://job-boards.greenhouse.io/anthropic/jobs/5057647008</a>
+地点：SF / NYC / Seattle，每周 3 天 in office 薪资：<strong>$200,000 –
+$320,000</strong></p>
+<blockquote>
+<p>“Serve as a specialist technical advisor to Anthropic customers as
+they deploy new products &amp; workflows.” “Influence technical
+architecture decisions and customer product strategy by developing
+customized pilots, prototypes, and evaluation suites.” “Lead hands-on
+technical workshops and code reviews with customer engineering teams.”
+“Create scalable public and internal assets, documenting the latest LLM
+prompting, evaling, agentic, and architecture techniques.”</p>
+</blockquote>
+<p>要求：<strong>“Production experience with LLMs including advanced
+prompt engineering, agent development and frameworks, evaluation
+frameworks, transcript analysis, MCP, and deployment at scale.”</strong>
+“Strong programming skills with proficiency in Python or TypeScript.” 4+
+YOE。</p>
+<h4 id="jd-en-3anthropic-applied-ai-engineer-london">JD-EN-3：Anthropic
+— Applied AI Engineer (London)</h4>
+<p>URL：<a
+href="https://job-boards.greenhouse.io/anthropic/jobs/5116274008"
+class="uri">https://job-boards.greenhouse.io/anthropic/jobs/5116274008</a>
+薪资：<strong>£225,000 – £240,000 GBP</strong></p>
+<blockquote>
+<p>“Production experience building LLM-powered applications, including
+prompting, context engineering, agent architectures.”</p>
+</blockquote>
+<p>4+ YOE。</p>
+<h4
+id="jd-en-4glean-machine-learning-engineer-ai-assistant-autonomous-ai-agents">JD-EN-4：Glean
+— Machine Learning Engineer, AI Assistant &amp; Autonomous AI
+Agents</h4>
+<p>URL：<a
+href="https://job-boards.greenhouse.io/gleanwork/jobs/4605215005"
+class="uri">https://job-boards.greenhouse.io/gleanwork/jobs/4605215005</a>
+地点：SF Bay Area，hybrid 3-4 天/周 薪资：<strong>$240,000 – $300,000
+base</strong></p>
+<blockquote>
+<p>“Build frameworks for LLM-powered agents to use tools and knowledge
+sources effectively.” “Invent new agentic architectures and signals to
+improve reasoning, planning, and personalization.” “Design and optimize
+reinforcement learning and fine-tuning approaches.” “Lead development of
+scalable evaluation, benchmarking, and optimization loops for
+agents.”</p>
+</blockquote>
+<p>要求：2+ years as Staff/Principal + 5+ years AI/ML industry；Python /
+Go / Java / C++。</p>
+<h4
+id="jd-en-5replit-senior-software-engineer-agent-platform">JD-EN-5：Replit
+— Senior Software Engineer, Agent Platform</h4>
+<p>URL：<a
+href="https://jobs.reachcapital.com/companies/replit-2/jobs/65431609-agent-platform-engineer"
+class="uri">https://jobs.reachcapital.com/companies/replit-2/jobs/65431609-agent-platform-engineer</a>
+地点：Foster City, CA hybrid (M/W/F in office) 薪资：<strong>$180K –
+$260K + equity + bonus</strong></p>
+<blockquote>
+<p>“Bridging the gap between the AI team (working on the core Agent
+logic) and the UX team (crafting delightful Agent experiences).”
+“Tackling complex challenges across the full stack, from browser-based
+interfaces to high-performance backends to Linux systems
+engineering.”</p>
+</blockquote>
+<p>要求：5+ YOE backend services；“experience building AI-powered
+tooling or products”；“experience with collaborative editing
+technologies such as OT, CRDTs, or Git”；“experience with event sourcing
+systems”。</p>
+<h4 id="jd-en-6cognition-deployed-engineer-devin">JD-EN-6：Cognition —
+Deployed Engineer (Devin)</h4>
+<p>URL：<a
+href="https://www.glassdoor.com/job-listing/deployed-engineer-cognition-JV_KO0,17_KE18,27.htm"
+class="uri">https://www.glassdoor.com/job-listing/deployed-engineer-cognition-JV_KO0,17_KE18,27.htm</a>
+地点 / 薪资：SF $98K-$165K / Emeryville $120K-$180K / Austin $82K-$137K
+/ Federal SF $152K-$241K</p>
+<blockquote>
+<p>“Deployed Engineers (DEs) are customer-facing technical experts who
+help customers maximize the value they get out of Devin/Windsurf.” “Work
+directly with engineers to understand their workflows, identify
+high-impact use cases, and deploy Devin/Windsurf into real production
+environments, leading demos and pilots, supporting integrations, and
+driving adoption of the Cognition platform.”</p>
+</blockquote>
+<h4 id="jd-en-7vercel-ai-engineer">JD-EN-7：Vercel — AI Engineer</h4>
+<p>URL：<a href="https://vercel.com/careers/ai-engineer-5517523004"
+class="uri">https://vercel.com/careers/ai-engineer-5517523004</a> SF
+base：<strong>$192,000 – $288,000</strong></p>
+<blockquote>
+<p>“Sit at the intersection of machine learning, product development,
+and frontend engineering, working closely with product designers, ML
+scientists, and full-stack engineers to prototype and deploy innovative
+systems.”</p>
+</blockquote>
+<p>要求：5+ YOE；strong programming in Python and
+JavaScript/TypeScript；experience working with or fine-tuning LLMs
+(OpenAI, Hugging Face)；solid understanding of modern frontend (React,
+Tailwind)。</p>
+<h4
+id="jd-en-8sierra-software-engineer-agent-apx-new-grad">JD-EN-8：Sierra
+— Software Engineer, Agent + APX (New Grad)</h4>
+<p>URL：<a
+href="https://jobs.ashbyhq.com/Sierra/b7d1dbcd-ca72-472f-b15e-5b4b0f886be0"
+class="uri">https://jobs.ashbyhq.com/Sierra/b7d1dbcd-ca72-472f-b15e-5b4b0f886be0</a>，APX：<a
+href="https://jobs.ashbyhq.com/sierra/6a75b530-b7bb-4439-bb67-37b4f2b75b96"
+class="uri">https://jobs.ashbyhq.com/sierra/6a75b530-b7bb-4439-bb67-37b4f2b75b96</a></p>
+<blockquote>
+<p>“Agent Engineers at Sierra design and deliver production-grade AI
+agents that are central, mission-critical and drive revenue directly to
+Sierra’s growth.” “APX is an 18-month rotational program that gives new
+graduates in computer science or a related field the opportunity to work
+closely with their customers, building AI agents as both an Agent
+Engineer and an Agent Product Manager.”</p>
+</blockquote>
+<h3 id="langchain-ecosystem-频率统计2026-04-数据">2.2 LangChain
+Ecosystem 频率统计（2026-04 数据）</h3>
+<p>来源：<a
+href="https://agentic-engineering-jobs.com/langchain-job-market-2026"
+class="uri">https://agentic-engineering-jobs.com/langchain-job-market-2026</a></p>
+<table>
+<thead>
+<tr class="header">
+<th>技能</th>
+<th>出现频率</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Python</td>
+<td><strong>93.4%</strong></td>
+<td>通用默认</td>
+</tr>
+<tr class="even">
+<td>LangChain</td>
+<td>34.3%</td>
+<td>全部 agentic 岗位</td>
+</tr>
+<tr class="odd">
+<td>AWS</td>
+<td>34.7%</td>
+<td>云平台 #1</td>
+</tr>
+<tr class="even">
+<td>Docker</td>
+<td>32.4%</td>
+<td>DevOps baseline</td>
+</tr>
+<tr class="odd">
+<td>GCP</td>
+<td>29.1%</td>
+<td>云平台 #2</td>
+</tr>
+<tr class="even">
+<td>Kubernetes</td>
+<td>27.2%</td>
+<td>容器编排</td>
+</tr>
+<tr class="odd">
+<td>Azure</td>
+<td>24.4%</td>
+<td>云平台 #3</td>
+</tr>
+<tr class="even">
+<td>LangGraph</td>
+<td>22.1%</td>
+<td>Agent orchestration</td>
+</tr>
+<tr class="odd">
+<td>Pinecone</td>
+<td>18.8%</td>
+<td>向量库 #1</td>
+</tr>
+<tr class="even">
+<td>FastAPI</td>
+<td>17.4%</td>
+<td>Python 后端</td>
+</tr>
+<tr class="odd">
+<td>TypeScript</td>
+<td>17.4%</td>
+<td>前端 / fullstack</td>
+</tr>
+<tr class="even">
+<td><strong>MCP</strong></td>
+<td><strong>16.9%</strong></td>
+<td><strong>2026 增速最快的单一技能</strong></td>
+</tr>
+<tr class="odd">
+<td>Weaviate</td>
+<td>16.0%</td>
+<td>向量库 #2</td>
+</tr>
+<tr class="even">
+<td>LangSmith</td>
+<td>8.5%</td>
+<td>评估观测</td>
+</tr>
+</tbody>
+</table>
+<h3 id="北美-欧洲薪资对照2026-05">2.3 北美 /
+欧洲薪资对照（2026-05）</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>公司</th>
+<th>岗位</th>
+<th>base</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Anthropic</td>
+<td>FDE Applied AI (US)</td>
+<td>$200K-$300K</td>
+<td>greenhouse.io/anthropic/jobs/4985877008</td>
+</tr>
+<tr class="even">
+<td>Anthropic</td>
+<td>Applied AI Engineer Enterprise Tech (SF/NYC/Seattle)</td>
+<td>$200K-$320K</td>
+<td>greenhouse.io/anthropic/jobs/5057647008</td>
+</tr>
+<tr class="odd">
+<td>Anthropic</td>
+<td>Applied AI Engineer (London)</td>
+<td>£225K-£240K</td>
+<td>greenhouse.io/anthropic/jobs/5116274008</td>
+</tr>
+<tr class="even">
+<td>OpenAI</td>
+<td>Software Engineer (median TC)</td>
+<td>$580K（top reported $1.27M）</td>
+<td>levels.fyi/companies/openai</td>
+</tr>
+<tr class="odd">
+<td>Google DeepMind</td>
+<td>Research Engineer Gemini Post-Training (NYC)</td>
+<td>$215K-$250K base + bonus + equity</td>
+<td>startup.jobs/research-engineer-gemini-post-training-nyc-deepmind-5964742</td>
+</tr>
+<tr class="even">
+<td>Glean</td>
+<td>MLE AI Assistant + Autonomous Agents</td>
+<td>$240K-$300K</td>
+<td>greenhouse.io/gleanwork/jobs/4605215005</td>
+</tr>
+<tr class="odd">
+<td>Vercel</td>
+<td>AI Engineer (SF)</td>
+<td>$192K-$288K</td>
+<td>vercel.com/careers/ai-engineer-5517523004</td>
+</tr>
+<tr class="even">
+<td>Replit</td>
+<td>Senior SWE Agent Platform</td>
+<td>$180K-$260K + equity + bonus</td>
+<td>reachcapital.com/companies/replit-2</td>
+</tr>
+<tr class="odd">
+<td>Cognition</td>
+<td>Deployed Engineer SF</td>
+<td>$98K-$165K</td>
+<td>Glassdoor</td>
+</tr>
+<tr class="even">
+<td>Cognition</td>
+<td>Deployed Engineer Federal SF</td>
+<td>$152K-$241K</td>
+<td>Glassdoor</td>
+</tr>
+<tr class="odd">
+<td>Mistral</td>
+<td>Research Scientist</td>
+<td>€80K-€160K + equity</td>
+<td>eujobs.co/mistral</td>
+</tr>
+<tr class="even">
+<td>Industry</td>
+<td>Prompt Engineer (entry → senior)</td>
+<td>$90K → $250K+</td>
+<td>pecollective.com/blog/prompt-engineering-salary-guide</td>
+</tr>
+</tbody>
+</table>
+<p>LangChain ecosystem：framework-agnostic agent roles 中位 max
+<strong>$290K</strong>；LangChain-only 中位
+<strong>$210K</strong>；Senior+ 平均 top <strong>$264K</strong>。</p>
+<hr />
+<h2 id="高频考察点-top-20综合中外-jd">3. 高频考察点 Top 20（综合中外
+JD）</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>技能 / 知识点</th>
+<th>在哪些公司 / JD 见过</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td><strong>Python 精通</strong>（含 PyTorch / FastAPI）</td>
+<td>几乎全部 JD</td>
+<td>通用默认</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td><strong>生产 LLM 应用经验</strong>（“shipped LLM apps”）</td>
+<td>Anthropic / OpenAI / Glean / HN listings</td>
+<td>有 production track record</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td><strong>LangChain / LangGraph</strong></td>
+<td>腾讯混元、字节、义乌 JD、上市公司 AI Native、湖南林泽、Anthropic
+生态</td>
+<td>主流 agent 框架</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td><strong>RAG（向量库 + 检索增强）</strong></td>
+<td>蚂蚁、字节、腾讯混元、智谱、湖南林泽、义乌、Kimi、Glean、Perplexity、Harvey</td>
+<td>长上下文之外的知识扩展</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td><strong>Tool Calling / Function Calling / 多轮对话管理</strong></td>
+<td>湖南林泽、腾讯混元、字节 Agent 架构师</td>
+<td>Agent 核心能力</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td><strong>Prompt 工程 / 指令微调</strong></td>
+<td>一线大厂高薪贴、智谱、Prompt 工程师独立岗、Anthropic</td>
+<td>从 prompt 到 context engineering</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td><strong>SFT / RLHF / DPO</strong></td>
+<td>蚂蚁、月之暗面、阶跃星辰、DeepSeek、字节豆包、百度、OpenAI
+Applied</td>
+<td>训练栈核心</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td><strong>Multi-Agent / 任务规划 / 工具调用编排</strong></td>
+<td>字节 Agent 架构师、腾讯混元 Agent、蚂蚁 PaaS、Sierra、Glean</td>
+<td>复杂业务必备</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td><strong>顶会论文一作</strong>（NeurIPS / ICML / ACL / CVPR / ICLR /
+KDD）</td>
+<td>字节、腾讯、阿里、阶跃、DeepSeek、智谱、Kimi、DeepMind、Mistral</td>
+<td>算法岗硬筛</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td><strong>ACM / ICPC、NOI / IOI、Kaggle 竞赛奖</strong></td>
+<td>字节、阶跃、DeepSeek、华为天才少年</td>
+<td>算法岗加分</td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td><strong>Docker / K8s / 云原生 / 微服务</strong></td>
+<td>义乌 JD、上市公司 AI Native、上海 Video AIGC、Microsoft、Replit</td>
+<td>部署基础</td>
+</tr>
+<tr class="even">
+<td>12</td>
+<td><strong>向量数据库</strong>（Faiss / Milvus / Chroma / Pinecone /
+Weaviate / Qdrant）</td>
+<td>湖南林泽、义乌、Glean、RAG-heavy 岗</td>
+<td>检索基础设施</td>
+</tr>
+<tr class="odd">
+<td>13</td>
+<td><strong>AutoGen / CrewAI / Dify / Coze 等 Agent 框架</strong></td>
+<td>义乌、字节移动 OS、腾讯混元 Agent</td>
+<td>国内生态</td>
+</tr>
+<tr class="even">
+<td>14</td>
+<td><strong>推理优化 vLLM / SGLang / TensorRT-LLM</strong></td>
+<td>推理工程师、MiniMax 推理优化、HN listings</td>
+<td>自部署</td>
+</tr>
+<tr class="odd">
+<td>15</td>
+<td><strong>模型评测 / Eval / A/B 测试</strong></td>
+<td>腾讯混元评测、智谱、Glean、Anthropic、LangSmith team</td>
+<td>CI/CD gating</td>
+</tr>
+<tr class="even">
+<td>16</td>
+<td><strong>MCP（Model Context Protocol）</strong></td>
+<td>Anthropic 显式、Cognition 暗示、国内 V2EX 讨论</td>
+<td><strong>2026 年最快增长的单一技能</strong></td>
+</tr>
+<tr class="odd">
+<td>17</td>
+<td><strong>AI Coding 工具：Cursor / Claude Code / vibe
+coding</strong></td>
+<td>月之暗面、上市公司 AI Native、义乌 JD</td>
+<td>工程效率工具</td>
+</tr>
+<tr class="even">
+<td>18</td>
+<td><strong>行业垂域</strong>：金融 / 智能客服 / 外呼 / 智能家居 /
+IoT</td>
+<td>蚂蚁 AI Force、湖南林泽、Harvey（法律）</td>
+<td>业务交付</td>
+</tr>
+<tr class="odd">
+<td>19</td>
+<td><strong>C++ / CUDA / GPU 编程</strong></td>
+<td>推理工程师 JD、华为大模型算法、DeepMind</td>
+<td>infra 岗</td>
+</tr>
+<tr class="even">
+<td>20</td>
+<td><strong>英文论文阅读与复现能力</strong></td>
+<td>智谱、Kimi、阶跃星辰、字节豆包、几乎所有研究岗</td>
+<td>算法岗硬要求</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="岗位变种区分">4. 岗位变种区分</h2>
+<h3 id="中国市场-7-类">4.1 中国市场 7 类</h3>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>岗位变种</th>
+<th>核心交付物</th>
+<th>主要要求</th>
+<th>薪资带（北京 / 上海）</th>
+<th>典型公司</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>大模型算法工程师（预训练 / 后训练）</td>
+<td>模型本身效果</td>
+<td>顶会一作 + PyTorch + RLHF/SFT + 千卡训练经验</td>
+<td>应届 SSP 50-80W；社招 100-300W</td>
+<td>DeepSeek、字节豆包 Seed、阿里通义、Kimi、智谱、阶跃</td>
+</tr>
+<tr class="even">
+<td>Agent 应用算法工程师</td>
+<td>业务场景内的 Agent 流程效果</td>
+<td>RAG + Tool Use + 多 Agent 编排 + 评测</td>
+<td>35-60K·15-18 薪</td>
+<td>腾讯混元、蚂蚁 AI Force、智谱、阿里 Qwen-Agent</td>
+</tr>
+<tr class="odd">
+<td>LLM 应用 / 后端开发工程师</td>
+<td>上线服务、并发、可用性</td>
+<td>Python/Go + LangChain + 向量库 + Docker/K8s</td>
+<td>15-35K·13/14 薪</td>
+<td>美团、京东、湖南林泽、义乌中型厂</td>
+</tr>
+<tr class="even">
+<td>Prompt 工程师（独立岗位）</td>
+<td>Prompt 模板 + AIGC 产物</td>
+<td>ChatGPT/Claude 使用经验 + Excel/SQL/Python</td>
+<td>15-30K·13 薪</td>
+<td>中小型 AIGC 公司，<strong>正在快速萎缩</strong></td>
+</tr>
+<tr class="odd">
+<td>大模型推理优化 / Infra 工程师</td>
+<td>推理延迟 / 吞吐</td>
+<td>vLLM/SGLang + CUDA + 算子开发</td>
+<td>30-60K·15 薪</td>
+<td>MiniMax、华为昇腾、字节、阿里 AI Infra</td>
+</tr>
+<tr class="even">
+<td>AI Coding Agent 产品工程师</td>
+<td>内部”用 Cursor/Claude Code 写代码”产线</td>
+<td>全栈 + Cursor/Claude Code 实操 + 0-1 产品力</td>
+<td>25-60K，部分上市公司”3-5 倍效率”作硬指标</td>
+<td>上市公司 AI Native 创新中心、Cursor/Coze 类创业</td>
+</tr>
+<tr class="odd">
+<td>AIGC（视觉 / 视频）工程师</td>
+<td>图 / 视频生成产品效果</td>
+<td>Diffusion + ControlNet + LoRA + ComfyUI 工作流</td>
+<td>7-25K（中小厂）；大厂 30K+</td>
+<td>腾讯混元 AIGC、ComfyUI 工程师、Video AIGC 创业</td>
+</tr>
+</tbody>
+</table>
+<h3 id="北美-欧洲-6-类">4.2 北美 / 欧洲 6 类</h3>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>岗位</th>
+<th>定位</th>
+<th>典型雇主</th>
+<th>薪资</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Research Engineer (RE)</strong></td>
+<td>训模型 / 算法研究</td>
+<td>DeepMind、OpenAI、Anthropic、Mistral</td>
+<td>$215K-$300K base + equity</td>
+</tr>
+<tr class="even">
+<td><strong>Applied AI Engineer</strong></td>
+<td>在模型之上构建应用与参考架构</td>
+<td>Anthropic、Glean、Vercel</td>
+<td>$200K-$320K base</td>
+</tr>
+<tr class="odd">
+<td><strong>Forward Deployed Engineer (FDE)</strong></td>
+<td>嵌入战略客户做 white-glove 部署</td>
+<td>Anthropic、Cognition、Palantir</td>
+<td>$200K-$300K base</td>
+</tr>
+<tr class="even">
+<td><strong>Deployed / Field Engineer</strong></td>
+<td>sales-attached 客户实施</td>
+<td>Cognition (Devin)、Cursor、LangChain</td>
+<td>$98K-$241K</td>
+</tr>
+<tr class="odd">
+<td><strong>MLE / Agent Platform Engineer</strong></td>
+<td>构建 agent 框架 / 平台 / 评估基础设施</td>
+<td>Glean、Replit、Sierra</td>
+<td>$180K-$300K base</td>
+</tr>
+<tr class="even">
+<td><strong>AI Infra Engineer</strong></td>
+<td>vLLM / 推理 / 服务基础设施</td>
+<td>Modal、Together AI、Replicate</td>
+<td>与公司估值挂钩</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="海外-中国对比观察">5. 海外 / 中国对比观察</h2>
+<ol type="1">
+<li><p><strong>薪资差</strong>：北美 Anthropic / OpenAI Agent 工程师
+base + equity 折合人民币年包普遍 200-400 万，中国大厂同等级 70-200
+万；但中国应届 SSP（拼多多 80W、百度 70W、字节
+55W+）在头部已与海外同年级新人接近。</p></li>
+<li><p><strong>技术栈差异</strong>：</p>
+<ul>
+<li>海外 JD 提 <strong>Anthropic SDK / OpenAI SDK / MCP / Claude
+Code</strong> 频率高</li>
+<li>国内更多写 <strong>LangChain / LangGraph / Coze / Dify / 通义千问 /
+文心 / DeepSeek API</strong></li>
+<li><strong>MCP</strong> 在国内 JD 中刚开始零星出现，主要在
+V2EX、知乎工程师讨论中</li>
+</ul></li>
+<li><p><strong>学历偏好</strong>：</p>
+<ul>
+<li>海外更看重产品落地（GitHub、Show HN、Demo）</li>
+<li>中国头部公司仍把”顶会论文 + 大厂实习”作为算法岗硬筛</li>
+<li>应用工程岗在两边趋同</li>
+</ul></li>
+<li><p><strong>工作模式</strong>：</p>
+<ul>
+<li>国内多数 JD 默认 Onsite / 大小周或
+9-9-6（智谱明确”双休、不卷”是亮点）</li>
+<li>海外 hybrid 3 天 in office 是主流（Microsoft AI 2026-01 起改为 4
+天/周）</li>
+<li>远程岗仅在小型创业公司和 Dify、Corust 等出现</li>
+</ul></li>
+<li><p><strong>出海 / 转岗趋势</strong>：Manus 总部迁新加坡后 80
+人国内裁员、40 人留新加坡；这是 2026 年中国 AI Agent
+创业公司”出海保命”的代表性事件，对求职者意味着海外英文沟通能力开始重要。</p></li>
+<li><p><strong>地理薪资</strong>：欧洲 vs 美国 base 差距
+50-100%，但欧洲福利（医保、法定 PTO、育儿假）部分弥补；签证支持率仅
+3.3%（LangChain ecosystem 数据）。</p></li>
+</ol>
+<hr />
+<h2 id="面向求职者的关键建议">6. 面向求职者的关键建议</h2>
+<ol type="1">
+<li><p><strong>MVP 项目</strong>：一份能跑通的 LangChain/LangGraph + RAG
++ Tool Calling 项目（带 GitHub commits）已经是中型厂 AI Agent
+工程师的最低入场门槛。义乌 JD 明确要求”提供 GitHub ID，展示
+contributions”。</p></li>
+<li><p><strong>算法岗 vs 应用岗分流</strong>：算法岗仍是顶会论文 +
+Kaggle/ACM 双重赛道；走应用岗的话，把 Cursor / Claude Code 写代码的”3-5
+倍效率”证据放进简历。</p></li>
+<li><p><strong>薪资谈判</strong>：参照 V2EX 1186466 一线大厂高薪贴的
+6-15W+/月 范围对资深岗喊价，参照 CSDN 156735755 校招分级数据对应届
+SP/SSP 喊价。</p></li>
+<li><p><strong>Prompt 工程师转型</strong>：Prompt
+工程师独立岗位正在消失，建议把 title 改成”LLM 应用工程师 / Agent
+工程师”，并补 Python + 向量库 + Docker。</p></li>
+<li><p><strong>MCP 提前学</strong>：MCP 是 2026
+年增速最快的单一技能，提前掌握能在 6-12 个月内吃到红利。Anthropic
+Applied AI Engineer 已经把 MCP 列为 production 必备。</p></li>
+<li><p><strong>Context Engineering
+趋势</strong>：关注岗位变化中的”上下文工程 / Context
+Engineering”——目前还在阿里云开发者社区与知乎讨论阶段，大概率会在 2026
+下半年成为 JD 中的标准词。</p></li>
+<li><p><strong>海外路径</strong>：如果有英文沟通能力，Anthropic FDE /
+Applied AI Engineer 是当前性价比最高的 senior 岗（$200K-$320K base +
+equity，且公开招聘）；Cognition / Glean / Sierra / Cursor / Replit 是
+mid-stage 不错的选择。</p></li>
+</ol>
+<hr />
+<h2 id="limitations-caveats">Limitations &amp; Caveats</h2>
+<ol type="1">
+<li><strong>BOSS 直聘、智联、拉勾</strong>的 JD
+详情页大多需要登录或动态渲染，本次 WebFetch
+仅能拿到部分（湖南林泽、Prompt
+工程师等），其余通过搜索引擎缓存的摘要交叉验证。</li>
+<li><strong>阿里通义实验室、百度文心、华为盘古</strong>的官方招聘页需要登录或滑动验证，本报告中相关
+JD 引自校招公开转载页和
+CSDN/知乎二手汇编，可信度低于腾讯/字节那几条原文。</li>
+<li><strong>京东 TGT、美团北斗计划、字节 TopSeed</strong>
+等”顶尖人才项目”具体年薪在公开 JD
+中均不明示，仅在新闻稿（财联社、券商中国、虎嗅）中以”百万年薪 / 200 万 /
+300 万”出现，请理解为报道而非 JD。</li>
+<li><strong>OpenAI / HN April 2026 / Sierra Ashby</strong> 三处页面对
+WebFetch 返回 403 或空
+body，相关内容来自搜索摘要二手转述，应当作为参考而非一手原文。</li>
+<li><strong>LangChain ecosystem
+频率数据</strong>来自单一聚合源（agentic-engineering-jobs.com），可能过度代表
+LangChain/LangGraph 相对于全局 agent 岗位的份额，作为方向性参考。</li>
+<li><strong>Manus、零一万物</strong>当前已极度收缩或迁出，相关 JD
+不在本次有效抓取范围。</li>
+</ol>
+<hr />
+<h2 id="bibliography">Bibliography</h2>
+<h3 id="中国市场按引用顺序">中国市场（按引用顺序）</h3>
+<ol type="1">
+<li><a
+href="https://jobs.bytedance.com/experienced/position/7563248386344847621/detail"
+class="uri">https://jobs.bytedance.com/experienced/position/7563248386344847621/detail</a>
+— 字节豆包大语言模型 Agent 应用架构工程师</li>
+<li><a
+href="https://blog.csdn.net/c9yv2cf9i06k2a9e/article/details/145331986"
+class="uri">https://blog.csdn.net/c9yv2cf9i06k2a9e/article/details/145331986</a>
+— 字节豆包大模型搜索增强算法工程师 JD</li>
+<li><a href="https://www.liepin.com/job/1978252587.shtml"
+class="uri">https://www.liepin.com/job/1978252587.shtml</a> — 字节 Agent
+软件架构师-移动 OS（70-100K·15 薪）</li>
+<li><a href="https://jobs.niuqizp.com/job-vm85LaLa5.html"
+class="uri">https://jobs.niuqizp.com/job-vm85LaLa5.html</a> —
+腾讯混元大模型 Agent 开发工程师（深圳）</li>
+<li><a href="https://www.monimianshi.com/job/51362"
+class="uri">https://www.monimianshi.com/job/51362</a> —
+腾讯混元大模型评测算法研究员（北京）</li>
+<li><a
+href="https://blog.csdn.net/c9Yv2cf9I06K2A9E/article/details/135053896"
+class="uri">https://blog.csdn.net/c9Yv2cf9I06K2A9E/article/details/135053896</a>
+— 腾讯混元 AIGC 算法研究员</li>
+<li><a
+href="https://blog.csdn.net/c9yv2cf9i06k2a9e/article/details/137574967"
+class="uri">https://blog.csdn.net/c9yv2cf9i06k2a9e/article/details/137574967</a>
+— 智谱 AI Agent 算法工程师 / 实习生</li>
+<li><a
+href="https://www.superlinear.academy/c/collaborate/kimi-agent-team"
+class="uri">https://www.superlinear.academy/c/collaborate/kimi-agent-team</a>
+— 月之暗面 Kimi Agent Team</li>
+<li><a
+href="https://blog.csdn.net/m0_59162248/article/details/149967708"
+class="uri">https://blog.csdn.net/m0_59162248/article/details/149967708</a>
+— 蚂蚁 AI Force AI-Agent 算法工程师</li>
+<li><a
+href="https://career.nankai.edu.cn/correcruit/content/id/99919.html"
+class="uri">https://career.nankai.edu.cn/correcruit/content/id/99919.html</a>
+— 阶跃星辰 Agent 算法工程师</li>
+<li><a
+href="https://www.chnfund.com/article/AR4bb44e4e-4975-129f-48ed-3a17e29fe9bb"
+class="uri">https://www.chnfund.com/article/AR4bb44e4e-4975-129f-48ed-3a17e29fe9bb</a>
+— DeepSeek 招聘 52 个岗位</li>
+<li><a
+href="https://www.zhaopin.com/jobdetail/CC455023520J40918852615.htm"
+class="uri">https://www.zhaopin.com/jobdetail/CC455023520J40918852615.htm</a>
+— 湖南林泽 LLM 应用工程师</li>
+<li><a href="https://www.v2ex.com/t/1194601"
+class="uri">https://www.v2ex.com/t/1194601</a> — 上市公司 AI Native
+前沿创新中心 5 岗</li>
+<li><a href="https://www.v2ex.com/t/1200716"
+class="uri">https://www.v2ex.com/t/1200716</a> — 浙江义乌 AI Agent
+工程师</li>
+<li><a href="https://www.v2ex.com/t/1186466"
+class="uri">https://www.v2ex.com/t/1186466</a> — 一线大厂高薪
+预训练/Agent/多模态/RL</li>
+<li><a href="https://www.liepin.com/job/1959085873.shtml"
+class="uri">https://www.liepin.com/job/1959085873.shtml</a> — Prompt
+工程师（北京 15-30K）</li>
+<li><a
+href="https://blog.csdn.net/2401_85343303/article/details/156735755"
+class="uri">https://blog.csdn.net/2401_85343303/article/details/156735755</a>
+— 2025 互联网大厂校招薪酬全解析</li>
+<li><a href="https://www.21jingji.com/article/20260417/..."
+class="uri">https://www.21jingji.com/article/20260417/...</a> —
+字节”年薪近亿”挖天才少年</li>
+<li><a href="https://www.stcn.com/article/detail/2602152.html"
+class="uri">https://www.stcn.com/article/detail/2602152.html</a> — Manus
+全球化困于合规与代码</li>
+<li><a href="https://xz.chsi.com.cn/xz/zyts/202505/..."
+class="uri">https://xz.chsi.com.cn/xz/zyts/202505/...</a> — Prompt
+工程师为何遇冷（2025 岗位下降 70%）</li>
+</ol>
+<h3 id="北美-欧洲市场">北美 / 欧洲市场</h3>
+<ol start="21" type="1">
+<li><a href="https://job-boards.greenhouse.io/anthropic/jobs/4985877008"
+class="uri">https://job-boards.greenhouse.io/anthropic/jobs/4985877008</a>
+— Anthropic FDE Applied AI</li>
+<li><a href="https://job-boards.greenhouse.io/anthropic/jobs/5057647008"
+class="uri">https://job-boards.greenhouse.io/anthropic/jobs/5057647008</a>
+— Anthropic Applied AI Engineer Enterprise Tech</li>
+<li><a href="https://job-boards.greenhouse.io/anthropic/jobs/5116274008"
+class="uri">https://job-boards.greenhouse.io/anthropic/jobs/5116274008</a>
+— Anthropic Applied AI Engineer London</li>
+<li><a
+href="https://openai.com/careers/research-engineer-applied-ai-engineering-san-francisco/"
+class="uri">https://openai.com/careers/research-engineer-applied-ai-engineering-san-francisco/</a>
+— OpenAI Research Engineer Applied AI</li>
+<li><a
+href="https://www.levels.fyi/companies/openai/salaries/software-engineer"
+class="uri">https://www.levels.fyi/companies/openai/salaries/software-engineer</a>
+— OpenAI SWE 薪资</li>
+<li><a href="https://job-boards.greenhouse.io/gleanwork/jobs/4605215005"
+class="uri">https://job-boards.greenhouse.io/gleanwork/jobs/4605215005</a>
+— Glean MLE</li>
+<li><a href="https://deepmind.google/careers/"
+class="uri">https://deepmind.google/careers/</a> — DeepMind
+招聘主页</li>
+<li><a
+href="https://startup.jobs/research-engineer-gemini-post-training-nyc-deepmind-5964742"
+class="uri">https://startup.jobs/research-engineer-gemini-post-training-nyc-deepmind-5964742</a>
+— DeepMind Gemini Post-Training NYC</li>
+<li><a href="https://jobs.lever.co/mistral"
+class="uri">https://jobs.lever.co/mistral</a> — Mistral 招聘</li>
+<li><a href="https://sierra.ai/careers"
+class="uri">https://sierra.ai/careers</a> — Sierra 招聘主页</li>
+<li><a
+href="https://jobs.ashbyhq.com/Sierra/b7d1dbcd-ca72-472f-b15e-5b4b0f886be0"
+class="uri">https://jobs.ashbyhq.com/Sierra/b7d1dbcd-ca72-472f-b15e-5b4b0f886be0</a>
+— Sierra Software Engineer Agent</li>
+<li><a href="https://cursor.com/careers"
+class="uri">https://cursor.com/careers</a> — Cursor 招聘主页</li>
+<li><a href="https://cognition.ai/"
+class="uri">https://cognition.ai/</a> — Cognition (Devin) 招聘主页</li>
+<li><a
+href="https://www.glassdoor.com/job-listing/deployed-engineer-cognition-JV_KO0,17_KE18,27.htm"
+class="uri">https://www.glassdoor.com/job-listing/deployed-engineer-cognition-JV_KO0,17_KE18,27.htm</a>
+— Cognition Deployed Engineer</li>
+<li><a href="https://replit.com/careers"
+class="uri">https://replit.com/careers</a> — Replit 招聘</li>
+<li><a
+href="https://jobs.reachcapital.com/companies/replit-2/jobs/65431609-agent-platform-engineer"
+class="uri">https://jobs.reachcapital.com/companies/replit-2/jobs/65431609-agent-platform-engineer</a>
+— Replit Senior SWE Agent Platform</li>
+<li><a href="https://vercel.com/careers/ai-engineer-5517523004"
+class="uri">https://vercel.com/careers/ai-engineer-5517523004</a> —
+Vercel AI Engineer</li>
+<li><a href="https://www.langchain.com/careers"
+class="uri">https://www.langchain.com/careers</a> — LangChain 招聘</li>
+<li><a
+href="https://agentic-engineering-jobs.com/langchain-job-market-2026"
+class="uri">https://agentic-engineering-jobs.com/langchain-job-market-2026</a>
+— LangChain ecosystem 分析</li>
+<li><a href="https://news.ycombinator.com/item?id=47601859"
+class="uri">https://news.ycombinator.com/item?id=47601859</a> — HN “Who
+is Hiring? April 2026”</li>
+<li><a href="https://www.kore1.com/ai-engineer-salary-guide/"
+class="uri">https://www.kore1.com/ai-engineer-salary-guide/</a> — AI
+Engineer 薪资 2026</li>
+<li><a
+href="https://www.secondtalent.com/resources/most-in-demand-ai-engineering-skills-and-salary-ranges/"
+class="uri">https://www.secondtalent.com/resources/most-in-demand-ai-engineering-skills-and-salary-ranges/</a>
+— Top 10 in-demand AI 技能</li>
+<li><a
+href="https://www.eujobs.co/career-guides/mistral-ai-career-guide"
+class="uri">https://www.eujobs.co/career-guides/mistral-ai-career-guide</a>
+— Mistral career guide</li>
+<li><a
+href="https://pecollective.com/blog/prompt-engineering-salary-guide/"
+class="uri">https://pecollective.com/blog/prompt-engineering-salary-guide/</a>
+— Prompt Engineer 薪资 2026</li>
+<li><a
+href="https://www.devopsschool.com/blog/agent-reliability-engineer-role-blueprint-..."
+class="uri">https://www.devopsschool.com/blog/agent-reliability-engineer-role-blueprint-...</a>
+— Agent Reliability Engineer blueprint</li>
+</ol>
+<hr />
+<h2 id="methodology-appendix">Methodology Appendix</h2>
+<ul>
+<li><strong>调研日期</strong>：2026-05-02</li>
+<li><strong>检索路数</strong>：26 路（中文 14 + 英文 12）</li>
+<li><strong>核心覆盖</strong>：BOSS 直聘 / 拉勾 / 51job / 智联 / 牛客 /
+V2EX / 猎聘 / 知乎 / CSDN / 字节官方招聘页 / Greenhouse / Ashby /
+Glassdoor / Levels.fyi / LangChain ecosystem analysis / Hacker News</li>
+<li><strong>派遣 agent</strong>：2 个并行 web-search-agent（中文 1 个 +
+英文 1 个），每个调用 40-70 次 WebSearch / WebFetch</li>
+<li><strong>证据等级标记</strong>：
+<ul>
+<li><strong>A 级（一手原文 verbatim）</strong>：Anthropic
+Greenhouse、腾讯混元、湖南林泽、Glean、Vercel、Replit Reach Capital</li>
+<li><strong>B 级（缓存摘要二手）</strong>：BOSS 直聘 /
+智联（需登录）、阿里通义、百度文心、华为盘古</li>
+<li><strong>C 级（媒体报道转述）</strong>：京东
+TGT、美团北斗、字节”近亿元”挖人</li>
+<li><strong>D 级（聚合统计）</strong>：LangChain ecosystem
+analysis（agentic-engineering-jobs.com）</li>
+</ul></li>
+</ul>
+<nav class="page-pager" id="page-pager" aria-label="文档翻页"></nav>
+
+<footer class="site-foot">
+  <div class="site-foot-inner">
+    <span>AI Agent 求职研究 · 2026-05-02</span>
+    <span class="site-foot-sep">·</span>
+    <span>JD 要求 + 面试题与答案</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  /* ---- 文档翻页 ---- */
+  var pages = [
+    { file: '01_jd_requirements.html',     title: '01 · AI Agent 岗位 JD 要求' },
+    { file: '02_interview_questions.html', title: '02 · 面试题与答案' }
+  ];
+  var here = (location.pathname.split('/').pop() || '01_jd_requirements.html').toLowerCase();
+  var idx = -1;
+  for (var i = 0; i < pages.length; i++) {
+    if (pages[i].file.toLowerCase() === here) { idx = i; break; }
+  }
+  var pager = document.getElementById('page-pager');
+  if (idx < 0) {
+    pager.style.display = 'none';
+  } else {
+    var prev = pages[idx - 1];
+    var next = pages[idx + 1];
+    var html = '';
+    if (prev) {
+      html += '<a class="pager-prev" href="' + prev.file + '">' +
+              '<span class="pager-label">← 上一篇</span>' +
+              '<span class="pager-title">' + prev.title + '</span></a>';
+    } else {
+      html += '<span class="pager-empty"></span>';
+    }
+    if (next) {
+      html += '<a class="pager-next" href="' + next.file + '">' +
+              '<span class="pager-label">下一篇 →</span>' +
+              '<span class="pager-title">' + next.title + '</span></a>';
+    } else {
+      html += '<span class="pager-empty"></span>';
+    }
+    pager.innerHTML = html;
+  }
+
+  /* ---- TOC 当前位置高亮（IntersectionObserver） ---- */
+  var toc = document.getElementById('TOC');
+  if (!toc || !('IntersectionObserver' in window)) return;
+  var links = toc.querySelectorAll('a[href^="#"]');
+  if (!links.length) return;
+
+  var byId = {};
+  var orderedIds = [];
+  links.forEach(function(a){
+    var id = decodeURIComponent((a.getAttribute('href') || '').slice(1));
+    if (!id) return;
+    byId[id] = a;
+    orderedIds.push(id);
+  });
+  var headings = orderedIds
+    .map(function(id){ return document.getElementById(id); })
+    .filter(Boolean);
+  if (!headings.length) return;
+
+  var visible = {};
+  function update() {
+    var firstId = null;
+    for (var i = 0; i < orderedIds.length; i++) {
+      if (visible[orderedIds[i]]) { firstId = orderedIds[i]; break; }
+    }
+    links.forEach(function(a){ a.classList.remove('toc-active'); });
+    if (firstId && byId[firstId]) {
+      var a = byId[firstId];
+      a.classList.add('toc-active');
+      var rect = a.getBoundingClientRect();
+      var box = toc.getBoundingClientRect();
+      if (rect.top < box.top + 40 || rect.bottom > box.bottom - 40) {
+        a.scrollIntoView({ block: 'nearest' });
+      }
+    }
+  }
+
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      visible[e.target.id] = e.isIntersecting;
+    });
+    update();
+  }, { rootMargin: '-12% 0px -70% 0px', threshold: 0 });
+
+  headings.forEach(function(h){ io.observe(h); });
+})();
+</script>
+</body>
+</html>

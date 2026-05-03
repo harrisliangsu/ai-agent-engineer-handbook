@@ -1,0 +1,2353 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>01 提示词工程</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+  type="text/javascript"></script>
+</head>
+<body>
+<header class="site-nav" role="banner">
+  <div class="site-nav-inner">
+    <a href="README.html" class="site-nav-brand">LLM 应用工程演进</a>
+    <nav class="site-nav-links" aria-label="章节导航">
+      <a href="01_prompt_engineering.html"><span class="ch-no">01</span><span class="ch-name">提示词</span></a>
+      <a href="02_context_engineering.html"><span class="ch-no">02</span><span class="ch-name">上下文</span></a>
+      <a href="03_agent_engineering.html"><span class="ch-no">03</span><span class="ch-name">Agent</span></a>
+      <a href="04_harness_engineering.html"><span class="ch-no">04</span><span class="ch-name">驾驭</span></a>
+      <a href="article.html" class="site-nav-extra">综述</a>
+    </nav>
+  </div>
+</header>
+<script>
+(function(){
+  var here = (location.pathname.split('/').pop() || 'README.html').toLowerCase();
+  document.querySelectorAll('.site-nav a').forEach(function(a){
+    if ((a.getAttribute('href') || '').toLowerCase() === here) {
+      a.setAttribute('aria-current', 'page');
+    }
+  });
+})();
+</script>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#提示词工程含-transformer-与-llm-训练-推理基础"
+id="toc-提示词工程含-transformer-与-llm-训练-推理基础">提示词工程：含
+Transformer 与 LLM 训练 / 推理基础</a>
+<ul>
+<li><a href="#executive-summary" id="toc-executive-summary">Executive
+Summary</a></li>
+<li><a href="#起点transformer-与注意力机制"
+id="toc-起点transformer-与注意力机制">1.1 起点：Transformer
+与注意力机制</a>
+<ul>
+<li><a href="#attention-完整公式与-q-k-v-的物理含义"
+id="toc-attention-完整公式与-q-k-v-的物理含义">1.1.1 Attention
+完整公式与 Q / K / V 的物理含义</a></li>
+<li><a href="#multi-head-attention为什么是多头"
+id="toc-multi-head-attention为什么是多头">1.1.2 Multi-Head
+Attention：为什么是”多头”？</a></li>
+<li><a href="#完整-transformer-block-的结构"
+id="toc-完整-transformer-block-的结构">1.1.3 完整 Transformer Block
+的结构</a></li>
+<li><a href="#tokenization模型看到的不是文字是-token"
+id="toc-tokenization模型看到的不是文字是-token">1.1.4
+Tokenization：模型看到的不是文字，是 token</a></li>
+<li><a href="#位置编码从-sinusoidal-到-rope-与-yarn"
+id="toc-位置编码从-sinusoidal-到-rope-与-yarn">1.1.5 位置编码：从
+sinusoidal 到 RoPE 与 YaRN</a></li>
+</ul></li>
+<li><a href="#llm-训练栈预训练-后训练-微调"
+id="toc-llm-训练栈预训练-后训练-微调">1.2 LLM 训练栈：预训练 → 后训练 →
+微调</a>
+<ul>
+<li><a href="#预训练pretraining" id="toc-预训练pretraining">1.2.1
+预训练（Pretraining）</a></li>
+<li><a href="#后训练post-training" id="toc-后训练post-training">1.2.2
+后训练（Post-training）</a></li>
+<li><a href="#任务级微调fine-tuning"
+id="toc-任务级微调fine-tuning">1.2.3 任务级微调（Fine-Tuning）</a></li>
+<li><a href="#数据飞轮合成数据-自我提升2026-训练数据的核心来源"
+id="toc-数据飞轮合成数据-自我提升2026-训练数据的核心来源">1.2.4
+数据飞轮：合成数据 + 自我提升（2026 训练数据的核心来源）</a></li>
+</ul></li>
+<li><a href="#推理栈与解码策略" id="toc-推理栈与解码策略">1.3
+推理栈与解码策略</a></li>
+<li><a href="#提示词工程的经典技术" id="toc-提示词工程的经典技术">1.4
+提示词工程的经典技术</a>
+<ul>
+<li><a href="#零样本-少样本zero-shot-few-shot"
+id="toc-零样本-少样本zero-shot-few-shot">1.4.1 零样本 /
+少样本（Zero-shot / Few-shot）</a></li>
+<li><a href="#chain-of-thoughtcot思维链"
+id="toc-chain-of-thoughtcot思维链">1.4.2
+Chain-of-Thought（CoT，思维链）</a></li>
+<li><a href="#self-consistency" id="toc-self-consistency">1.4.3
+Self-Consistency</a></li>
+<li><a href="#reactreasoning-acting"
+id="toc-reactreasoning-acting">1.4.4 ReAct（Reasoning +
+Acting）</a></li>
+<li><a href="#tree-of-thoughtstot-graph-of-thoughtsgot"
+id="toc-tree-of-thoughtstot-graph-of-thoughtsgot">1.4.5 Tree of
+Thoughts（ToT）/ Graph of Thoughts（GoT）</a></li>
+<li><a href="#self-refine" id="toc-self-refine">1.4.6
+Self-Refine</a></li>
+<li><a href="#reflexion" id="toc-reflexion">1.4.7 Reflexion</a></li>
+<li><a href="#prompt-chaining-decomposition"
+id="toc-prompt-chaining-decomposition">1.4.8 Prompt Chaining /
+Decomposition</a></li>
+<li><a href="#role-prompting-system-prompt"
+id="toc-role-prompting-system-prompt">1.4.9 Role Prompting / System
+Prompt</a></li>
+<li><a href="#模型差异化" id="toc-模型差异化">1.4.10 模型差异化</a></li>
+<li><a href="#可复制的-prompt-模板速查"
+id="toc-可复制的-prompt-模板速查">1.4.11 可复制的 Prompt
+模板速查</a></li>
+<li><a href="#reasoning-models-的-prompt-哲学完全不同"
+id="toc-reasoning-models-的-prompt-哲学完全不同">1.4.12 Reasoning Models
+的 prompt 哲学完全不同</a></li>
+<li><a href="#多模态-prompting图-音-视"
+id="toc-多模态-prompting图-音-视">1.4.13 多模态 prompting：图 / 音 /
+视</a></li>
+</ul></li>
+<li><a href="#自动化与高级提示词" id="toc-自动化与高级提示词">1.5
+自动化与高级提示词</a>
+<ul>
+<li><a href="#为什么需要自动化" id="toc-为什么需要自动化">1.5.1
+为什么需要自动化</a></li>
+<li><a href="#四大流派" id="toc-四大流派">1.5.2 四大流派</a></li>
+<li><a href="#dspy-完整工作流产线级示例"
+id="toc-dspy-完整工作流产线级示例">1.5.3 DSPy
+完整工作流（产线级示例）</a></li>
+<li><a href="#何时用-dspy-vs-手工-prompt"
+id="toc-何时用-dspy-vs-手工-prompt">1.5.4 何时用 DSPy vs 手工
+prompt</a></li>
+<li><a href="#dspy-的产业采用" id="toc-dspy-的产业采用">1.5.5 DSPy
+的产业采用</a></li>
+<li><a href="#github-资源" id="toc-github-资源">1.5.6 GitHub
+资源</a></li>
+</ul></li>
+<li><a href="#评估红队与提示词工程的黄昏"
+id="toc-评估红队与提示词工程的黄昏">1.6
+评估、红队与提示词工程的”黄昏”</a></li>
+<li><a href="#bibliography" id="toc-bibliography">Bibliography</a></li>
+<li><a href="#github-系统化学习资源llm-基础-训练栈专题"
+id="toc-github-系统化学习资源llm-基础-训练栈专题">GitHub
+系统化学习资源（LLM 基础 / 训练栈专题）</a></li>
+<li><a href="#章节交叉引用" id="toc-章节交叉引用">章节交叉引用</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="提示词工程含-transformer-与-llm-训练-推理基础">提示词工程：含
+Transformer 与 LLM 训练 / 推理基础</h1>
+<p><strong>位置</strong>：LLM 应用工程四层演进的第一层（最底层基础）
+<strong>调研日期</strong>：2026-05-01</p>
+<hr />
+<h2 id="executive-summary">Executive Summary</h2>
+<p>提示词工程（Prompt Engineering）是 2022-2023
+年的行业焦点，但要真正讲清它，必须从 <strong>Transformer 架构（2017）→
+LLM 训练栈 → 推理与解码 →
+提示词技术</strong>这条完整链条说起。原因是：当代提示词技术（CoT
+触发推理、ReAct 触发工具调用、模型偏好 XML vs
+JSON）的”为什么有效”全部根植于底层架构与训练方式。</p>
+<p>本章覆盖：</p>
+<ul>
+<li><strong>§1.1</strong> Transformer 架构 9 年演进——从 Vaswani 2017 的
+dense attention 到 2026 年 Flash Attention 4（NVIDIA B200 上 1605
+TFLOPs/s、71% 利用率）</li>
+<li><strong>§1.2</strong> LLM 训练栈三段式 = <strong>预训练 + 后训练 +
+微调</strong>。后训练已从单一 RLHF 演进到模块化的 SFT →
+偏好对齐（DPO/SimPO/KTO）→
+推理强化（GRPO/DAPO/RLVR）。微调按显存预算分四档：Full FT（$50K）→
+LoRA（$10K）→ QLoRA（$1.5K，4090 卡可跑 7B）→ 蒸馏</li>
+<li><strong>§1.3</strong> 推理栈与解码策略——温度、top-p、grammar-guided
+等</li>
+<li><strong>§1.4</strong> 提示词工程经典技术——Few-shot / CoT（GSM8K
+17.9%→56.9%；叠加 self-consistency 后 ~74%）/ Self-Consistency /
+ReAct（ALFWorld +34%）/ ToT / Self-Refine（NeurIPS 2023, +20%）/
+Reflexion / 角色 prompt</li>
+<li><strong>§1.5</strong> 自动化提示词——APE / OPRO / Promptbreeder /
+<strong>DSPy</strong>（2025-2026 进入主流，让 prompt 成为编译产物）</li>
+<li><strong>§1.6</strong> 评估（Promptfoo）、失败模式（OWASP LLM Top
+10）、以及为何”提示词工程的黄昏”在 2024 下半年开始被讨论</li>
+</ul>
+<p>关键转折：<strong>2024-2025
+年起，最值钱的能力从”写好这一句”迁移到”管好整个
+context”</strong>——这是后续 02 上下文工程的开端。</p>
+<hr />
+<h2 id="起点transformer-与注意力机制">1.1 起点：Transformer
+与注意力机制</h2>
+<p>2017 年 Vaswani 等人在 <em>Attention Is All You Need</em> [1] 中提出
+Transformer
+架构，把循环（RNN）和卷积（CNN）从序列建模里拿掉，只留下”注意力”。其核心思想极为朴素：序列里每个
+token 与所有其他 token 通过 Query / Key / Value
+三个矩阵做加权聚合，权重由 softmax(QK^T / √d)
+决定。这种设计的两个直接结果是——<strong>全局可见性</strong>（任何位置都能直接看到任何位置，无需逐步传递）和<strong>完全并行</strong>（不再像
+RNN 那样必须按时间步前向）。</p>
+<h3 id="attention-完整公式与-q-k-v-的物理含义">1.1.1 Attention
+完整公式与 Q / K / V 的物理含义</h3>
+<p>标准的 <strong>Scaled Dot-Product Attention</strong> 数学定义：</p>
+<p><span class="math display">\[
+\text{Attention}(Q, K, V) =
+\text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right) V
+\]</span></p>
+<p>其中 Q、K、V 是同一个输入序列 X（形状
+<code>[seq_len, d_model]</code>）经过三个独立的线性变换得到：</p>
+<p><span class="math display">\[
+Q = X W^Q, \quad K = X W^K, \quad V = X W^V
+\]</span></p>
+<p><code>W^Q</code>、<code>W^K</code>、<code>W^V</code>
+都是可学习参数（形状 <code>[d_model, d_k]</code>，d_k 通常 = d_model /
+num_heads）。</p>
+<p>理解 Q/K/V 最常用的类比是<strong>“图书馆检索”</strong>：</p>
+<ul>
+<li><strong>Query（查询）</strong>：我想找的内容（一本”关于 Transformer
+的书”）</li>
+<li><strong>Key（键）</strong>：每本书的”标签 /
+主题”（书脊上的关键词）</li>
+<li><strong>Value（值）</strong>：书的实际内容（你真正读到的）</li>
+</ul>
+<p>整个过程：用 Q 去”叩问”所有
+K，根据匹配度（点积）算出每本书的”相关度分数”，softmax
+归一化成权重，再用权重去加权所有 V，得到”我应该融合哪些内容”。</p>
+<p>公式中的几个关键设计：</p>
+<ul>
+<li><strong><code>QK^T</code> 矩阵乘</strong>：算所有 query-key
+对的点积，结果是 <code>[seq_len, seq_len]</code> 的”相关度矩阵”，每行 i
+是 token i 对所有其他 token 的相关度</li>
+<li><strong><code>/√d_k</code> 缩放</strong>：防止 d_k
+大时点积值过大、softmax 进入饱和区导致梯度消失。Vaswani
+论文里专门论证过这个细节</li>
+<li><strong><code>softmax</code></strong>：把相关度分数归一化成”注意力权重”（每行加和
+= 1）</li>
+<li><strong>乘 V</strong>：用这些权重加权聚合 V 矩阵</li>
+</ul>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 简化版 PyTorch 实现</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> scaled_dot_product_attention(Q, K, V, mask<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    d_k <span class="op">=</span> Q.size(<span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    scores <span class="op">=</span> torch.matmul(Q, K.transpose(<span class="op">-</span><span class="dv">2</span>, <span class="op">-</span><span class="dv">1</span>)) <span class="op">/</span> math.sqrt(d_k)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> mask <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        scores <span class="op">=</span> scores.masked_fill(mask <span class="op">==</span> <span class="dv">0</span>, <span class="op">-</span><span class="fl">1e9</span>)  <span class="co"># decoder 的 causal mask</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    attention_weights <span class="op">=</span> F.softmax(scores, dim<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    output <span class="op">=</span> torch.matmul(attention_weights, V)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> output, attention_weights</span></code></pre></div>
+<h3 id="multi-head-attention为什么是多头">1.1.2 Multi-Head
+Attention：为什么是”多头”？</h3>
+<p>单头 attention 只能学到一种”关联模式”。Multi-Head Attention 把 Q/K/V
+各自切成 h 份（h 通常 = 8、12、16），每份独立做 attention，最后把 h
+个结果拼接 + 线性投影：</p>
+<p><span class="math display">\[
+\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, ...,
+\text{head}_h) W^O
+\]</span></p>
+<p><span class="math display">\[
+\text{where } \text{head}_i = \text{Attention}(QW_i^Q, KW_i^K, VW_i^V)
+\]</span></p>
+<p>不同 head 学到的注意力模式各不相同——可视化研究（如 Clark 2019
+<em>What Does BERT Look At?</em>）发现：</p>
+<ul>
+<li>有些 head 专门关注”前一个 token”（学短距离依赖）</li>
+<li>有些 head 关注”句法宾语”（连接动词与其宾语）</li>
+<li>有些 head 关注”特殊 token”（[CLS] / [SEP]）</li>
+<li>有些 head 在底层做表层模式，深层 head 做抽象语义</li>
+</ul>
+<p><strong>关键参数对照</strong>（典型 7B 模型）：</p>
+<table>
+<thead>
+<tr class="header">
+<th>参数</th>
+<th>典型值</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>d_model（隐藏维度）</td>
+<td>4096</td>
+</tr>
+<tr class="even">
+<td>num_heads</td>
+<td>32</td>
+</tr>
+<tr class="odd">
+<td>d_k = d_v（每个 head 维度）</td>
+<td>128</td>
+</tr>
+<tr class="even">
+<td>num_layers</td>
+<td>32</td>
+</tr>
+<tr class="odd">
+<td>FFN 中间维度</td>
+<td>11008（约 2.7×d_model）</td>
+</tr>
+<tr class="even">
+<td>总参数量</td>
+<td>≈7 B</td>
+</tr>
+</tbody>
+</table>
+<h3 id="完整-transformer-block-的结构">1.1.3 完整 Transformer Block
+的结构</h3>
+<pre><code>        Input X
+           │
+           ▼
+    ┌──────────────┐
+    │  RMSNorm     │   ← Pre-Norm（现代主流，原论文是 Post-Norm）
+    └──────┬───────┘
+           ▼
+    ┌─────────────────────────┐
+    │  Multi-Head Self-Attn   │   ← 加 RoPE 位置编码、KV cache
+    └──────┬──────────────────┘
+           ▼
+        + X (Residual)
+           │
+           ▼
+    ┌──────────────┐
+    │  RMSNorm     │
+    └──────┬───────┘
+           ▼
+    ┌──────────────────────────┐
+    │  FFN（SwiGLU 激活）      │   ← 现代模型常用 SwiGLU 替代原 ReLU
+    │  W1 → SiLU → ⊙W2 → W3   │
+    └──────┬───────────────────┘
+           ▼
+        + (Residual)
+           │
+           ▼
+        Output</code></pre>
+<p>2017→2026 期间核心架构改进（按重要性）： 1. <strong>Pre-Norm 替代
+Post-Norm</strong>：RMSNorm/LayerNorm 放在 sublayer 前面，训练更稳定 2.
+<strong>RMSNorm 替代 LayerNorm</strong>：去掉 mean centering，只做
+variance normalization，更快更稳 3. <strong>RoPE（Rotary Position
+Embedding）替代 sinusoidal</strong>：相对位置编码，外推性更好 4.
+<strong>SwiGLU 替代 ReLU</strong>：FFN 用 GLU 变体，效果更好 5.
+<strong>GQA（Grouped Query Attention）</strong>：多个 Q head 共享
+K/V，KV cache 缩小、推理更快 6. <strong>MoE（Mixture of
+Experts）</strong>：FFN 拆成多个专家，路由稀疏激活——Mixtral /
+DeepSeek-V3 / GPT-4 等</p>
+<h3 id="tokenization模型看到的不是文字是-token">1.1.4
+Tokenization：模型看到的不是文字，是 token</h3>
+<p>模型不直接处理字符或单词，而是处理
+<strong>token</strong>——介于字和词之间的子词单元。Tokenization
+是把人类文本转 token id 序列的过程，看似工程细节，<strong>但直接决定
+cost、context 长度、跨语言效果、以及一类著名 bug “glitch
+tokens”</strong>。</p>
+<h4 id="三大主流算法">三大主流算法</h4>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>算法</th>
+<th>思路</th>
+<th>代表使用</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>BPE（Byte-Pair Encoding）</strong></td>
+<td>反复合并出现频率最高的字符对，直到达到目标词表大小</td>
+<td>GPT-2/3/4、Llama、Mistral、Qwen、DeepSeek</td>
+</tr>
+<tr class="even">
+<td><strong>BBPE（Byte-level BPE）</strong></td>
+<td>BPE 在字节级别上做（256 bytes 的基础词表），保证对任意 Unicode
+都不爆词表</td>
+<td>GPT-2 起 OpenAI 全系、Llama 3 起、Mistral Tekken</td>
+</tr>
+<tr class="odd">
+<td><strong>SentencePiece（Unigram or BPE）</strong></td>
+<td>不依赖空格预切分，直接从 raw text 训练；是 Google 出品</td>
+<td>T5 / mT5 / Gemma / PaLM / 中日韩 / 多语言模型主流</td>
+</tr>
+<tr class="even">
+<td><strong>WordPiece</strong></td>
+<td>BPE 变种，按互信息合并而非频率</td>
+<td>BERT 系（已不主流）</td>
+</tr>
+</tbody>
+</table>
+<h4 id="为什么中日韩需要特别注意">为什么中日韩需要特别注意</h4>
+<p><strong>BPE
+假设空格是词边界</strong>——这对英语没问题，但中日韩泰这些<strong>不用空格分词的语言会被切得很碎</strong>。例如
+GPT-3 早期对中文的切分：</p>
+<pre><code>&quot;今天天气真好&quot; → [&#39;今&#39;, &#39;天天&#39;, &#39;气&#39;, &#39;真&#39;, &#39;好&#39;]    # 5 个 token，每字约 1 token
+等价英文 &quot;Today&#39;s weather is great&quot; → 4-5 token</code></pre>
+<p>中文 token 化效率比英文低 30-50% 是常态，意味着：</p>
+<ul>
+<li><strong>同样意思的中文 prompt 比英文贵 30-50%</strong></li>
+<li><strong>同样的 context window 装中文比英文少 30-50%</strong></li>
+</ul>
+<p>2024-2026 改进：DeepSeek、Qwen、智谱 等中文优化模型用更大词表（150k
+vs OpenAI 100k）+ 中文优化 SentencePiece，把中文压缩比拉到接近 1:1。</p>
+<h4 id="tiktoken-vs-sentencepiece选哪个">tiktoken vs
+SentencePiece：选哪个</h4>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>工具</th>
+<th>出品</th>
+<th>用途</th>
+<th>训练？</th>
+<th>速度</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>tiktoken</strong>（Rust）</td>
+<td>OpenAI</td>
+<td>编码 / 解码 + 算 token 数</td>
+<td>✗ 仅推理</td>
+<td>最快（3-6× 其他）</td>
+</tr>
+<tr class="even">
+<td><strong>SentencePiece</strong></td>
+<td>Google</td>
+<td>训练 + 编码 + 解码</td>
+<td>✓</td>
+<td>中</td>
+</tr>
+<tr class="odd">
+<td><strong>HuggingFace Tokenizers</strong>（Rust）</td>
+<td>HF</td>
+<td>通用</td>
+<td>✓</td>
+<td>快</td>
+</tr>
+<tr class="even">
+<td><strong>karpathy/minbpe</strong></td>
+<td>Karpathy</td>
+<td>教学纯 Python</td>
+<td>✓</td>
+<td>慢</td>
+</tr>
+</tbody>
+</table>
+<p><strong>实战</strong>：</p>
+<ul>
+<li>算 OpenAI / Anthropic / 任何用 tiktoken 兼容词表模型的 token 数 →
+<code>tiktoken</code></li>
+<li>训练自家专用 tokenizer（如垂直领域、中文优化）→
+<code>SentencePiece</code> 或 <code>HuggingFace Tokenizers</code></li>
+<li>学习算法本质 → karpathy 的 <code>minbpe</code>（300 行 Python）</li>
+</ul>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># tiktoken 算 prompt 的 token 数</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> tiktoken</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>enc <span class="op">=</span> tiktoken.encoding_for_model(<span class="st">&quot;gpt-4o&quot;</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>n_tokens <span class="op">=</span> <span class="bu">len</span>(enc.encode(<span class="st">&quot;你的 prompt 文本&quot;</span>))</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;输入 token 数: </span><span class="sc">{</span>n_tokens<span class="sc">}</span><span class="ss">, 估算 cost: $</span><span class="sc">{</span>n_tokens <span class="op">*</span> <span class="fl">5e-6</span><span class="sc">:.4f}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+<h4 id="glitch-tokenstokenization-的暗坑">Glitch Tokens：tokenization
+的暗坑</h4>
+<p>2023 年发现的 <em>SolidGoldMagikarp</em> 现象：让 ChatGPT 重复
+“SolidGoldMagikarp” 它会输出 “distribute”。原因是：tokenizer
+训练数据里这个用户名出现频繁，得到了一个独立 token
+id；但模型训练数据里几乎没有，导致这个 token 的 embedding
+<strong>近乎随机噪声</strong>——模型看到这个 token 就胡言乱语。</p>
+<p>GlitchMiner 框架（AAAI 2026）系统性扫描 GPT-4 / Llama 2 / Mistral /
+DeepSeek-V3，发现<strong>约 4.3% 词表是 glitch
+tokens</strong>。生产建议：</p>
+<ul>
+<li>用户输入做白名单过滤极端字符 / 罕见 unicode</li>
+<li>关键 prompt 用 tiktoken 解码后人工 review 是否有异常 token</li>
+<li>安全敏感场景禁用 raw text 输入，改 structured input</li>
+</ul>
+<h3 id="位置编码从-sinusoidal-到-rope-与-yarn">1.1.5 位置编码：从
+sinusoidal 到 RoPE 与 YaRN</h3>
+<p>Transformer 是
+<strong>permutation-invariant</strong>——不加位置编码的话，“猫吃鱼”和”鱼吃猫”长得一样。位置编码
+9 年的演进：</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>方法</th>
+<th>原理</th>
+<th>优势</th>
+<th>限制</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Sinusoidal</strong>（原论文 2017）</td>
+<td>给每个位置加一个 sin/cos 向量</td>
+<td>不需要参数</td>
+<td>长度外推差</td>
+</tr>
+<tr class="even">
+<td><strong>Learned Absolute</strong></td>
+<td>每个位置一个可学习向量</td>
+<td>简单</td>
+<td>训练长度即上限</td>
+</tr>
+<tr class="odd">
+<td><strong>ALiBi</strong>（2022）</td>
+<td>不在 input 加，在 attention score 上加线性偏置</td>
+<td>长度外推好</td>
+<td>表达力受限</td>
+</tr>
+<tr class="even">
+<td><strong>RoPE（Rotary Position Embedding）</strong>（Su 2021）</td>
+<td>用旋转矩阵把位置编进 Q/K</td>
+<td><strong>2024-2026 事实标准</strong>，相对位置 + 外推</td>
+<td>直接外推到训练长度 N× 性能掉</td>
+</tr>
+</tbody>
+</table>
+<p><strong>RoPE 数学</strong>（简化）：把位置 m 处的 query/key 向量旋转
+mθ 角度，使得 <code>q_m · k_n</code> 自然依赖于相对位置
+<code>m-n</code>：</p>
+<pre><code>q_m → R(mθ) · q_m
+k_n → R(nθ) · k_n
+attention score = q_m · k_n = q · R((m-n)θ) · k   ← 仅依赖 m-n</code></pre>
+<p>不同维度用不同 θ_i = 10000^(-2i/d)，相当于多频率正余弦。</p>
+<h4 id="长上下文外推rope-不够要扩">长上下文外推：RoPE 不够要扩</h4>
+<p>直接拿 4K 训练的 RoPE 模型跑 32K context
+会崩——位置在训练时没见过。<strong>长上下文扩展的几种主流方法</strong>（按出现顺序）：</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>方法</th>
+<th>思路</th>
+<th>何时用</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Position Interpolation (PI)</strong>（Meta 2023）</td>
+<td>把新长度的位置线性压回训练范围</td>
+<td>简单但损失信息</td>
+</tr>
+<tr class="even">
+<td><strong>NTK-Aware Scaling</strong>（社区 2023）</td>
+<td>高频维度少压、低频维度多压</td>
+<td>不需要重训，hot patch</td>
+</tr>
+<tr class="odd">
+<td><strong>YaRN</strong>（Peng 2023）</td>
+<td>NTK 分块 + temperature 调整 attention</td>
+<td><strong>128K+ context 主流方法</strong></td>
+</tr>
+<tr class="even">
+<td><strong>LongRoPE</strong>（Microsoft 2024）</td>
+<td>进化算法搜不同 dim 的最佳缩放</td>
+<td>极致 2M+ context</td>
+</tr>
+<tr class="odd">
+<td><strong>DCA（Dual Chunk Attention）</strong></td>
+<td>把长 context 分块再融合</td>
+<td>Qwen 长版用</td>
+</tr>
+</tbody>
+</table>
+<p><strong>实战</strong>：基础模型用 4-8K 训练，扩到 128K 用 YaRN，扩到
+1M+ 用 LongRoPE 或 DCA。Llama 3.1 / Qwen 2.5 / DeepSeek-V3
+都是这条路径。Grok-4-fast 等 2026 模型上 2M context，本质都是
+YaRN/LongRoPE 系的演进。</p>
+<p>但 Transformer
+自诞生起就背着一个数学包袱：<strong>标准自注意力对序列长度 N 是 O(N²)
+的时间和显存复杂度</strong>。把上下文窗口从 32K 扩到 128K，计算量并不是
+4 倍，而是 16 倍。这一条数学事实驱动了 2022-2026
+年间数十亿美元的工程投入。</p>
+<p>围绕”如何把 O(N²) 这条墙凿穿”诞生了一系列变体：</p>
+<ul>
+<li><strong>Linear Attention</strong>（Katharopoulos
+2020）通过核函数特征映射 + 矩阵乘法结合律避开显式 attention
+矩阵，把复杂度降到 O(N)</li>
+<li><strong>Sparse Attention</strong>（如 Longformer / BigBird）让每个
+token 只看局部窗口 + 少数全局 token</li>
+<li><strong>Flash Attention</strong>（Dao 2022
+起）不是改算法而是改工程——把 attention 计算用 tiling 拆成能塞进 GPU 片上
+SRAM 的小块，避免把 N×N 矩阵写回 HBM。<strong>Flash Attention 4 在 2026
+年 3 月发布，在 NVIDIA B200 GPU 上达到 1605 TFLOPs/s、71%
+硬件利用率</strong></li>
+<li><strong>Paged Attention</strong>（vLLM 团队
+2023）借用操作系统虚拟内存思想，把 KV cache 切成 16 token
+一块的页，使显存碎片低于 4%</li>
+<li><strong>Local Attention</strong> / <strong>Sliding Window
+Attention</strong> 用于 Mistral / Qwen 等长序列优化</li>
+<li><strong>MoE（Mixture of
+Experts）注意力变体</strong>与稀疏激活路由结合（Mixtral / DeepSeek-V3
+等）</li>
+</ul>
+<p>到 2026 年，这些技术已经不是”二选一”，而是按层 /
+按块混合堆叠：模型底层用 Sliding Window 控成本，关键层用 Full Attention
+保表达力，推理时全部走 Flash + Paged 优化。</p>
+<p><strong>Scaling Laws</strong> 是与 Transformer
+并行演进的另一条主线。Kaplan 等人 2020 年提出参数量 / 数据量 /
+计算量的幂律关系，Hoffmann 等人 2022 年（Chinchilla）修正了”应该用多少
+token 训练多少参数的模型”——结论是过去主流（如 GPT-3）严重
+under-trained。而 2025-2026
+年的关键转折是：<strong>重心从”更多数据”转向”更高质量的数据”</strong>。当
+Common Crawl 已经被吃完、合成数据兴起，定律关注的不再是 token
+数本身，而是 token 的信息密度与多样性。</p>
+<hr />
+<h2 id="llm-训练栈预训练-后训练-微调">1.2 LLM 训练栈：预训练 → 后训练 →
+微调</h2>
+<p>2024-2026 一种常见拆法是把训练栈分为”三段式”——预训练（Pretraining） →
+后训练（Post-training） → 任务级微调（Task-specific
+Fine-tuning）。Sebastian Raschka 在 <em>State of LLMs 2025</em> [22]
+中的点评精准：「12 个月前的标准配方是预训练几万亿 token 然后跑
+RLHF；那条配方已经死了。从 DeepSeek-R1 到 Nemotron 3 Super 到 GPT-5.3
+Codex，过去一年发布的每个主要模型都用了不同的后训练栈。」</p>
+<h3 id="预训练pretraining">1.2.1 预训练（Pretraining）</h3>
+<p>任务非常简单：在巨量语料上做下一个 token 预测（next-token
+prediction），用 cross-entropy loss 反向传播。但工程难度极高：</p>
+<ul>
+<li><strong>数据</strong>：从公开 Web（Common Crawl、C4、RefinedWeb）+
+代码（GitHub、StackOverflow）+ 学术（arXiv、Wikipedia、书籍）+ 多语言 +
+合成数据（蒸馏自更强模型）配比</li>
+<li><strong>配比策略</strong>：高质量数据多过几轮（curriculum
+learning），数学 / 代码 / 推理类数据比例上升</li>
+<li><strong>基础设施</strong>：千卡到万卡 GPU 集群，3D 并行（数据 / 张量
+/ 流水线 / Sequence parallel）、checkpointing、容错恢复</li>
+<li><strong>超参</strong>：BF16 / FP8 混合精度、Lion / AdamW
+优化器、cosine learning rate、warmup</li>
+<li><strong>数据去重 / 去毒 / PII 过滤</strong></li>
+</ul>
+<p>预训练的产物是 <strong>基础模型（base
+model）</strong>——它能续写但不能”对话”，给它”今天天气如何？“它会接着写一段类似贴吧的杂谈，而不是回答你。要让它变成
+ChatGPT 那样能交互的助手，需要后训练。</p>
+<h3 id="后训练post-training">1.2.2 后训练（Post-training）</h3>
+<p>后训练在 2024-2026 年被拆成三个相对正交的阶段
+[23][24]：<strong>SFT（让模型会说话）→ 偏好对齐（让模型说人喜欢的话）→
+推理强化（让模型在可验证任务上更准）</strong>。顺序很重要。</p>
+<p><strong>SFT（Supervised Fine-Tuning，监督微调）</strong></p>
+<p>用人工编写的”指令-回答”对（如 Alpaca / Dolly / OpenAssistant
+风格）对基础模型继续训练，让它学会”指令跟随”和对话格式。SFT
+教模型<strong>怎么说话</strong>——产生结构化输出、遵循 system
+prompt、用合适的礼貌度等。技术上和预训练区别很小，差异主要在数据上。</p>
+<p><strong>RLHF（Reinforcement Learning from Human
+Feedback，基于人类反馈的强化学习）</strong></p>
+<p>OpenAI InstructGPT / ChatGPT 的看家本领。完整流程分三步：</p>
+<pre><code>Step 1: SFT      Base Model + 指令对话数据 → SFT Model（可对话）
+   │
+   ▼
+Step 2: RM 训练   收集 (prompt, chosen, rejected) 偏好对 → 训练 Reward Model
+   │              偏好对来自人类标注：&quot;回答 A 比 B 更好&quot;
+   ▼
+Step 3: PPO       SFT Model 作为 actor，RM 给奖励，用 PPO 优化
+                  目标：max E[r(x,y)] - β·KL(π‖π_ref)</code></pre>
+<p><strong>RLHF 的核心目标函数</strong>：</p>
+<p><span class="math display">\[
+\max_\pi \mathbb{E}_{x \sim D, y \sim \pi(y|x)} \left[ r(x,y) \right] -
+\beta \, D_{KL}\left[ \pi(y|x) \,\|\, \pi_{ref}(y|x) \right]
+\]</span></p>
+<p>读这个公式：</p>
+<ul>
+<li><strong><code>max_π E[r(x,y)]</code></strong>：最大化”奖励模型给当前策略生成的回答打的分”</li>
+<li><strong><code>-β·KL[π || π_ref]</code></strong>：减去当前策略与参考策略（通常是
+SFT 模型）的 KL 散度，乘以系数 β</li>
+</ul>
+<p>KL 项是关键——如果只追求 reward 最大化，模型会”作弊”（reward
+hacking），输出 RM 喜欢但人类不喜欢的乱码。KL 约束保证模型不要偏离 SFT
+太远。β 通常取 0.01-0.1。</p>
+<p>PPO 实现极复杂，需要同时维护 <strong>4 个模型</strong>：</p>
+<table>
+<thead>
+<tr class="header">
+<th>模型</th>
+<th>作用</th>
+<th>是否训练</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Actor</strong>（policy，π）</td>
+<td>当前策略，生成 y</td>
+<td>✓ 训练</td>
+</tr>
+<tr class="even">
+<td><strong>Critic</strong>（value model）</td>
+<td>估计 V(state)，算优势 A</td>
+<td>✓ 训练</td>
+</tr>
+<tr class="odd">
+<td><strong>Reference</strong>（π_ref）</td>
+<td>KL 约束的参考策略</td>
+<td>✗ frozen</td>
+</tr>
+<tr class="even">
+<td><strong>Reward Model</strong>（RM）</td>
+<td>给 (x,y) 打奖励分</td>
+<td>✗ frozen</td>
+</tr>
+</tbody>
+</table>
+<p>7B 模型 RLHF 训练显存爆炸（4 × 14 GB = 56 GB+），训练不稳定（reward
+hacking、KL 失控、value loss 发散），是公认最难调的训练阶段。</p>
+<p><strong>DPO（Direct Preference
+Optimization，直接偏好优化）</strong></p>
+<p>斯坦福 Rafailov 等人 2023 年提出的”无 RL 的 RLHF”。核心洞察：把 RLHF
+的目标函数做闭式重写后，发现<strong>最优策略与 reward
+之间有一个解析关系</strong>——可以直接用偏好对训练原模型，无需奖励模型、无需
+PPO。</p>
+<p><strong>DPO 损失函数</strong>：</p>
+<p><span class="math display">\[
+\mathcal{L}_{DPO}(\pi_\theta; \pi_{ref}) = - \mathbb{E}_{(x, y_c, y_r)
+\sim D} \left[ \log \sigma \left( \beta \log
+\frac{\pi_\theta(y_c|x)}{\pi_{ref}(y_c|x)} - \beta \log
+\frac{\pi_\theta(y_r|x)}{\pi_{ref}(y_r|x)} \right) \right]
+\]</span></p>
+<p>读这个公式（其实非常直观）：</p>
+<ul>
+<li>给定一个偏好对：prompt <code>x</code>、chosen 回答
+<code>y_c</code>、rejected 回答 <code>y_r</code></li>
+<li>计算两个<strong>对数概率比</strong>：当前模型对 chosen 的偏好程度 vs
+参考模型，以及对 rejected 的偏好程度 vs 参考模型</li>
+<li>让两者的差异最大化（chosen 比 rejected 概率高得越多越好）</li>
+<li>包在 sigmoid + log 里，等价于二分类的 logistic loss</li>
+</ul>
+<p>DPO 的几个工程优势：</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>维度</th>
+<th>RLHF (PPO)</th>
+<th>DPO</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>需训练的模型</td>
+<td>actor + critic + RM</td>
+<td>仅 actor</td>
+</tr>
+<tr class="even">
+<td>显存占用</td>
+<td>4 × 模型</td>
+<td>2 × 模型（actor + ref）</td>
+</tr>
+<tr class="odd">
+<td>训练稳定性</td>
+<td>不稳定（reward hacking、KL 失控）</td>
+<td>稳定（普通分类 loss）</td>
+</tr>
+<tr class="even">
+<td>实现复杂度</td>
+<td>上千行 RL 代码</td>
+<td>几十行</td>
+</tr>
+<tr class="odd">
+<td>效果</td>
+<td>强</td>
+<td>与 PPO 相当或更好（Llama 3 等验证）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>2024 年起绝大多数开源模型（Llama 3 / Qwen 2/3 / Mistral /
+Phi）都改用 DPO 或其变体（IPO / KTO / SimPO）替代 PPO</strong>。</p>
+<p>DPO 的变体（关键差异在 loss 形式）：</p>
+<ul>
+<li><strong>IPO</strong>（Identity-PO）：解决 DPO
+在偏好数据极端时过拟合</li>
+<li><strong>KTO</strong>（Kahneman-Tversky）：不需要成对偏好，仅需”好/坏”二元标注</li>
+<li><strong>SimPO</strong>：去掉参考模型 π_ref（等价于
+β=∞），更省显存</li>
+<li><strong>CPO</strong>（Contrastive Preference Optimization）：偏好 +
+SFT loss 联合优化</li>
+</ul>
+<p><strong>GRPO（Group Relative Policy Optimization）</strong></p>
+<p>DeepSeek 团队 2024 年提出，是 R1 系列爆火背后的核心算法
+[22][23]。<strong>GRPO 砍掉了 PPO 的 critic 网络</strong>（PPO
+训练不稳定的主要来源就是 critic 难训），改用”组内相对优势”。</p>
+<p><strong>GRPO 流程</strong>：</p>
+<pre><code>对每个 prompt x：
+  1. 用当前 policy π_θ 采样 K 个回答 {y_1, y_2, ..., y_K}（K 通常 8-64）
+  2. 用奖励函数 r(·) 给每个回答打分 → {r_1, r_2, ..., r_K}
+  3. 计算组内归一化优势：
+        A_i = (r_i - mean(r)) / std(r)
+  4. 用 PPO 风格的 clipped surrogate loss 更新策略</code></pre>
+<p><strong>GRPO 损失</strong>（与 PPO 几乎一致，但优势 A_i 不同）：</p>
+<p><span class="math display">\[
+\mathcal{L}_{GRPO}(\theta) = \mathbb{E} \left[ \min\left( \rho_i A_i, \,
+\text{clip}(\rho_i, 1-\epsilon, 1+\epsilon) A_i \right) \right] - \beta
+\, D_{KL}[\pi_\theta \| \pi_{ref}]
+\]</span></p>
+<p>其中 <code>ρ_i = π_θ(y_i|x) / π_θ_old(y_i|x)</code> 是 importance
+ratio。</p>
+<p><strong>GRPO 的关键创新</strong>：</p>
+<ol type="1">
+<li><strong>去 critic</strong>：不需要训 value
+network，省显存、省调参</li>
+<li><strong>组内归一化</strong>：让”什么是好回答”完全由 group
+内相对比较决定，避免 reward 绝对值飘移</li>
+<li><strong>天然适配 RLVR</strong>：奖励可以是 0/1（程序验证），无需训
+reward model</li>
+</ol>
+<p><strong>RLVR（Reinforcement Learning with Verifiable
+Rewards）</strong></p>
+<p>GRPO 通常和 RLVR 配套——奖励信号不是来自人类偏好或 reward
+model，而是来自 <strong>可程序化验证的信号</strong>：</p>
+<ul>
+<li>数学题：跑算式验证答案</li>
+<li>代码：跑单元测试看通过率</li>
+<li>形式化推理：用定理证明器检查</li>
+<li>工具调用：看函数调用是否合法</li>
+</ul>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># RLVR + GRPO 伪代码</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> prompt <span class="kw">in</span> math_problems:</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    responses <span class="op">=</span> [policy.sample(prompt) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(K)]  <span class="co"># 采 K 个</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    rewards <span class="op">=</span> [verify_math(prompt, r) <span class="cf">for</span> r <span class="kw">in</span> responses]  <span class="co"># 程序验证 → 0 or 1</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    advantages <span class="op">=</span> (rewards <span class="op">-</span> mean(rewards)) <span class="op">/</span> std(rewards)  <span class="co"># 组内归一化</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    loss <span class="op">=</span> grpo_loss(responses, advantages, policy, ref_policy)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    loss.backward()</span></code></pre></div>
+<p><strong>为什么 GRPO + RLVR 把推理能力推到新高度</strong>：传统 RLHF
+的奖励来自 RM（学到的偏好近似），RM 容易被 hack；RLVR
+奖励来自硬验证器（不可 hack）。这让 DeepSeek-R1、OpenAI o1、Qwen-QwQ
+等推理模型在数学 / 代码 / 形式化任务上突飞猛进。</p>
+<p><strong>三者横向对比</strong>（实战选型）：</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>算法</th>
+<th>数据需求</th>
+<th>训练稳定性</th>
+<th>显存</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>PPO (RLHF)</strong></td>
+<td>偏好对 + RM</td>
+<td>难</td>
+<td>高（4 模型）</td>
+<td>历史路径，大厂仍用</td>
+</tr>
+<tr class="even">
+<td><strong>DPO</strong></td>
+<td>偏好对</td>
+<td>稳</td>
+<td>中（2 模型）</td>
+<td>通用对齐，开源主流</td>
+</tr>
+<tr class="odd">
+<td><strong>GRPO + RLVR</strong></td>
+<td>可验证任务</td>
+<td>较稳</td>
+<td>中</td>
+<td>数学 / 代码 / 推理强化</td>
+</tr>
+</tbody>
+</table>
+<p>一种常见路径：<strong>SFT → DPO 做通用对齐 → GRPO/RLVR
+做推理强化</strong>（参考 Raschka [22]、HuggingFace TRL
+文档）。注意：各家具体栈差异很大——Raschka
+自己也强调”配方已死，每个主要模型都用了不同的后训练栈”，本节给的是”一种”配方而非业界标准。</p>
+<p><strong>RLAIF（Reinforcement Learning from AI Feedback，基于 AI
+反馈的强化学习）</strong></p>
+<p>Anthropic 2022 年 <em>Constitutional AI</em>
+论文里首次系统化：用更强的 LLM
+代替人类标注偏好对，大幅压低数据成本。<strong>2025-2026 年 RLAIF
+已成为通用做法</strong>——基础模型对齐用
+RLAIF，关键安全场景用人类反馈做最后一道把关。</p>
+<p><strong>RLVR（Reinforcement Learning with Verifiable
+Rewards，基于可验证奖励的强化学习）</strong></p>
+<p>2025 下半年起在 OpenAI o1 / DeepSeek-R1
+上爆红。核心思想：在数学题、代码、单元测试等”答案可被程序自动验证”的任务上，奖励信号不来自人类偏好或奖励模型，而来自硬编码的验证器（运行单元测试、对比标准答案）。这避免了奖励模型的”作弊”（reward
+hacking）问题，把推理能力推到新高度。<strong>GRPO + RLVR 是 R1
+的黄金组合</strong>。</p>
+<p><strong>DAPO</strong>（Decoupled Clip and Dynamic Sampling Policy
+Optimization）等 2026 年新算法继续在 GRPO
+基础上做工程优化（动态采样、分层 clip）。</p>
+<p>后训练栈的完整图景：</p>
+<pre><code>Base Model (next-token predict only)
+        │
+        ▼ SFT  (instruction-following, format)
+        │
+        ▼ Preference Optimization  (DPO / SimPO / KTO / RLAIF)
+        │
+        ▼ Reasoning RL  (GRPO / DAPO / RLVR)
+        │
+        ▼
+    Production-Ready Model</code></pre>
+<h3 id="任务级微调fine-tuning">1.2.3 任务级微调（Fine-Tuning）</h3>
+<p>如果你拿到的不是”训练新基础模型”的资源，而是”在已有开源模型上做领域适配”，那么
+fine-tuning 才是你的工具。这里有个关键的成本分水岭 [25]：</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>方法</th>
+<th>7B 模型显存</th>
+<th>硬件成本</th>
+<th>质量保留</th>
+<th>适用</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Full Fine-Tune</strong></td>
+<td>100-120 GB</td>
+<td>$50K（H100）</td>
+<td>100%（基线）</td>
+<td>延迟敏感 + 最高精度</td>
+</tr>
+<tr class="even">
+<td><strong>LoRA</strong></td>
+<td>~25 GB</td>
+<td>$10K（A100）</td>
+<td>95-98%</td>
+<td>快速实验 + 多 adapter</td>
+</tr>
+<tr class="odd">
+<td><strong>QLoRA</strong></td>
+<td>~6 GB</td>
+<td>$1.5K（RTX 4090）</td>
+<td>80-90%</td>
+<td>VRAM 极限 + 多客户隔离</td>
+</tr>
+<tr class="even">
+<td><strong>Distillation</strong></td>
+<td>视 student</td>
+<td>中</td>
+<td>视任务</td>
+<td>推理时延 / 成本极致</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>LoRA</strong>（Low-Rank Adaptation，Hu 等
+2021）只在权重矩阵旁边加一对低秩矩阵 A·B，原权重冻结，仅训练 0.2-0.3%
+的参数。适合需要给不同客户 / 任务 / 场景维护多个轻量 adapter
+的场景，切换 adapter 只需要换一个几百 MB 的小文件</li>
+<li><strong>QLoRA</strong>（Dettmers 2023）= 4-bit 量化原模型 +
+LoRA。把基础模型的常驻显存从 ~26 GB（fp16，7B）压到 ~4
+GB，让单张消费级显卡（4090、3090）就能跑 7B 模型的微调。质量损失约
+5-10%</li>
+<li><strong>PEFT</strong>（Parameter-Efficient
+Fine-Tuning）是个伞型术语，涵盖 LoRA、QLoRA、Prefix Tuning、Prompt
+Tuning、Adapter Tuning、IA³ 等。HuggingFace 的 <code>peft</code>
+库是事实标准</li>
+<li><strong>蒸馏（Knowledge Distillation）</strong>
+走另一条路：用大模型（teacher）生成大量数据，训练小模型（student）模仿大模型。代价是
+student 通常达不到 teacher 的 ceiling，但推理成本可能降一个数量级。Qwen
+2.5 系列、Phi 系列大量使用蒸馏</li>
+</ul>
+<p>实践指引 [25]：「如果产品需要极低延迟和最高准确率，做 full
+fine-tune；如果需要快速实验、多变体、按客户单独 adapter，用
+LoRA；如果模型很大且 VRAM 受限，用 QLoRA。」</p>
+<h3 id="数据飞轮合成数据-自我提升2026-训练数据的核心来源">1.2.4
+数据飞轮：合成数据 + 自我提升（2026 训练数据的核心来源）</h3>
+<p>公开互联网数据基本被吃完（Common Crawl + Wikipedia + arXiv + GitHub
+都已 ingest），<strong>2025-2026 年新模型几乎都靠合成数据 (synthetic
+data) + 数据飞轮 (data flywheel)</strong>。</p>
+<h4 id="三种合成数据来源">三种合成数据来源</h4>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>类型</th>
+<th>方法</th>
+<th>代表</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>强模型蒸馏</strong></td>
+<td>用 GPT-4 / Claude Opus 生成大量 instruction-response 对训小模型</td>
+<td>Alpaca / WizardLM / Phi 系列 / DeepSeek-V3</td>
+</tr>
+<tr class="even">
+<td><strong>Self-Instruct</strong></td>
+<td>让模型自己生成 instruction + response，迭代扩充数据集</td>
+<td>Self-Instruct / Evol-Instruct</td>
+</tr>
+<tr class="odd">
+<td><strong>Verifier-filtered</strong></td>
+<td>生成 N 个候选，用程序验证器（数学 solver / 单元测试 / 代码
+linter）筛通过的</td>
+<td>DeepSeek-R1 训练核心；STaR / ReST</td>
+</tr>
+</tbody>
+</table>
+<p><strong>典型蒸馏代码</strong>（用 Opus 给小模型造数据）：</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_training_data(seed_prompts, target_size<span class="op">=</span><span class="dv">10_000</span>):</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;用 Claude Opus 生成 instruction-response 对&quot;&quot;&quot;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    data <span class="op">=</span> []</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> seed <span class="kw">in</span> seed_prompts:</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 生成多样化变体</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>        variations <span class="op">=</span> opus.invoke(<span class="ss">f&quot;&quot;&quot;</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="ss">            为下面任务生成 5 个不同表述的指令：</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="ss">            原指令：</span><span class="sc">{</span>seed<span class="sc">}</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="ss">        &quot;&quot;&quot;</span>).split(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> v <span class="kw">in</span> variations:</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>            response <span class="op">=</span> opus.invoke(v)  <span class="co"># 用 Opus 生成&quot;标准答案&quot;</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>            <span class="co"># 质量过滤</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> quality_score(v, response) <span class="op">&gt;</span> <span class="fl">0.8</span>:</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>                data.append({<span class="st">&quot;instruction&quot;</span>: v, <span class="st">&quot;response&quot;</span>: response})</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">len</span>(data) <span class="op">&gt;=</span> target_size: <span class="cf">break</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> data</span></code></pre></div>
+<h4 id="数据飞轮生产-数据-模型-生产">数据飞轮：生产 → 数据 → 模型 →
+生产</h4>
+<p>2026 年最强模型（DeepSeek-R1 / Claude / GPT-5 系）都跑这个闭环：</p>
+<pre><code>   ┌──────────────────┐
+   │ 部署模型到生产   │
+   │（覆盖真实用户）  │
+   └────────┬─────────┘
+            │
+            ▼
+   ┌──────────────────┐
+   │ 收集真实交互数据 │
+   │ + 用户反馈       │ ← 来自 thumbs up/down / latency / cost
+   └────────┬─────────┘
+            │
+            ▼
+   ┌──────────────────┐
+   │ 自动筛选高价值   │
+   │ trace（成功 +    │ ← LLM-as-judge / verifier
+   │ 多样 + 高难度）  │
+   └────────┬─────────┘
+            │
+            ▼
+   ┌──────────────────┐
+   │ 合成数据增强     │ ← Self-instruct 扩 10×
+   │ + LLM 改写       │
+   └────────┬─────────┘
+            │
+            ▼
+   ┌──────────────────┐
+   │ 后训练（DPO/GRPO）│
+   │ 出新模型版本     │
+   └────────┬─────────┘
+            │
+            └─────────────► 回到部署</code></pre>
+<p><strong>飞轮越转越快的原理</strong>：</p>
+<ol type="1">
+<li>部署 → 用户产生真实需求分布</li>
+<li>真实分布 → 训练数据贴近实际使用</li>
+<li>训练后模型对真实分布表现更好</li>
+<li>表现更好 → 更多用户 / 更多数据</li>
+<li>…</li>
+</ol>
+<p><strong>对比一次性训练 + 部署</strong>：</p>
+<table>
+<thead>
+<tr class="header">
+<th>模式</th>
+<th>数据来源</th>
+<th>演化速度</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>一次性训练</td>
+<td>公开 web</td>
+<td>训完即冻</td>
+</tr>
+<tr class="even">
+<td>数据飞轮</td>
+<td>真实用户 + 合成增强</td>
+<td>每周 / 每月 fine-tune 一次</td>
+</tr>
+</tbody>
+</table>
+<h4 id="工程实践要点">工程实践要点</h4>
+<ul>
+<li><strong>隐私先行</strong>：用户数据进训练集前必须 PII 脱敏 +
+同意条款（GDPR / CCPA）</li>
+<li><strong>质量过滤 &gt; 数据量</strong>：1 万高质量样本 &gt; 100
+万低质量</li>
+<li><strong>多样性约束</strong>：避免模型坍塌到狭窄分布（用 embedding
+聚类 + 跨 cluster 采样）</li>
+<li><strong>Active Learning</strong>：优先标注 /
+训练模型当前最不擅长的样本（用 entropy 或 LLM-as-judge 找 hard
+cases）</li>
+<li><strong>Fine-tune 周期</strong>：典型 4-8 周一次 base model
+升级，1-2 周一次 LoRA adapter 升级</li>
+</ul>
+<h4 id="注意模型坍塌-model-collapse">注意：模型坍塌 (Model
+Collapse)</h4>
+<p><strong>仅用合成数据训练的模型会逐代退化</strong>——多样性塌缩 +
+罕见事件遗忘 + 错误放大。Shumailov 等人 <em>Nature</em> 2024
+论文系统证明：纯合成数据训练 3-5 代后，模型质量崩溃。</p>
+<p>对策：</p>
+<ul>
+<li>真实数据 + 合成数据<strong>混合</strong>（典型比例 30% 真实 + 70%
+合成）</li>
+<li>每代保留”种子”真实数据（不淘汰）</li>
+<li>用强 verifier / 人类标注过滤合成数据</li>
+</ul>
+<hr />
+<h2 id="推理栈与解码策略">1.3 推理栈与解码策略</h2>
+<p>模型训完上线，“用什么策略从 logits 里采样下一个
+token”决定了输出质感：</p>
+<ul>
+<li><strong>Greedy / Argmax</strong>：永远选概率最高的
+token。结果稳定但容易陷入重复（“the the the…”）</li>
+<li><strong>Beam Search</strong>：维护 top-K
+个候选序列。机器翻译里好用，对话里偏机械</li>
+<li><strong>Top-K Sampling</strong>：从概率最高的 K 个里随机采。K=40
+是常见值</li>
+<li><strong>Top-P / Nucleus Sampling</strong>（Holtzman
+2019）：从累积概率到 P 的最小集合里采。P=0.9 是常见值，比 top-K
+更自适应</li>
+<li><strong>Temperature</strong>：对 logits 除以温度 T 后再
+softmax。T&lt;1 偏保守（接近 greedy），T&gt;1 偏发散，T=0 等价
+greedy</li>
+<li><strong>Min-P Sampling</strong>（2024）：相对阈值采样，比 top-p
+更稳健地处理高 confidence 分布</li>
+<li><strong>Repetition Penalty / Frequency Penalty / Presence
+Penalty</strong>：抑制重复 token</li>
+</ul>
+<p>工程上现在的事实标准是
+<code>temperature=0.7 + top_p=0.95</code>（OpenAI / Anthropic
+的默认）。<strong>要做创意生成调高 T，要做严格 JSON 提取调到 T=0 + 配合
+grammar-guided generation</strong>（如 Outlines、Guidance、Llama.cpp 的
+GBNF）。</p>
+<p><strong>Speculative Decoding</strong>（详见 <a
+href="./04_harness_engineering.md">04_harness_engineering.md</a>
+§3.9.2）和 <strong>Prefix Caching</strong>
+等推理服务器层优化也属于推理栈但偏服务部署，本章只述及解码策略层面。</p>
+<hr />
+<h2 id="提示词工程的经典技术">1.4 提示词工程的经典技术</h2>
+<p>提示词工程的”经典时代”基本可以用一张技术图谱概括 [28][29][30]：</p>
+<h3 id="零样本-少样本zero-shot-few-shot">1.4.1 零样本 /
+少样本（Zero-shot / Few-shot）</h3>
+<p>直接问 vs 给几个例子。Brown 等人 2020 年的 GPT-3 论文发现 few-shot
+能让小模型逼近大模型 fine-tuned 后的水平——这是”上下文学习（in-context
+learning）“概念的诞生。<strong>2026 年 few-shot 仍是 80% 任务的最强
+baseline</strong>。</p>
+<h3 id="chain-of-thoughtcot思维链">1.4.2
+Chain-of-Thought（CoT，思维链）</h3>
+<p>Wei 等人 2022 年提出。让模型先写”思考过程”再写答案，大幅提升数学 /
+推理任务准确率。简单触发词 “Let’s think step by step.” <strong>在 GSM8K
+上 PaLM-540B 从 17.9% 提升到 56.9%（CoT 单独）；叠加 self-consistency
+后到 74%+</strong> [Wei et al. 2022]。CoT
+的核心机制：把原本要在前向传播里一次完成的复杂推理，分摊到多个 token
+的生成上，等价于动态扩展计算量。</p>
+<h3 id="self-consistency">1.4.3 Self-Consistency</h3>
+<p>Wang 等人 2022 年。同一个 CoT prompt 采样 N 次（高
+temperature），最后投票选最常出现的答案。在数学 / 编程上又把 CoT 提升
+5-10 个百分点，代价是 N 倍 token 成本。</p>
+<h3 id="reactreasoning-acting">1.4.4 ReAct（Reasoning + Acting）</h3>
+<p>Yao 等人 2022 年
+[4]。把思考（Thought）和行动（Action）交错：模型先想”我现在该查什么”，然后调用工具（搜索
+/ 计算器 / API），观察结果（Observation），再继续想下一步。<strong>在
+ALFWorld 交互式任务上比 imitation learning + RL 高 34%
+绝对成功率</strong>，在 WebShop 上高 10%。<strong>ReAct 是后来所有 Agent
+架构的祖父</strong>——LangGraph 的 react agent template、AutoGen 的
+conversable agent、CrewAI 的 task agent，本质都是 ReAct
+的工程化变体。详见 <a
+href="./03_agent_engineering.md">03_agent_engineering.md</a> §2。</p>
+<h3 id="tree-of-thoughtstot-graph-of-thoughtsgot">1.4.5 Tree of
+Thoughts（ToT）/ Graph of Thoughts（GoT）</h3>
+<p>Yao 2023 / Besta 2023。CoT 是单条思考链，ToT
+把每一步展开成多个分支，用 BFS/DFS + 启发式打分搜索整棵推理树。GoT
+进一步把树推广为
+DAG，允许节点合并（“我这两条思路其实指向同一个答案”）。代价是 token
+成本数倍到十倍，仅在数学推理 /
+规划等”答案稀疏但路径多”的任务有性价比。</p>
+<h3 id="self-refine">1.4.6 Self-Refine</h3>
+<p>Madaan 等人 NeurIPS 2023
+[3]。同一个模型扮演三个角色：generator（生成初稿）→ critic（自我评判）→
+reviser（重写）。<strong>在 7 个任务上平均提升 20%</strong>（GPT-3.5 /
+GPT-4 都验证过）。这是后来 Reflexion、CRITIC、Constitutional AI
+等”自我改进”路径的原型。</p>
+<h3 id="reflexion">1.4.7 Reflexion</h3>
+<p>Shinn 等人 2023。Self-Refine 是单轮自我改进，Reflexion
+把自我反思写入”长期记忆”——如果某次任务失败，把失败原因总结成一段反思，附在下次同类任务的
+prompt 里。等价于让 agent 从经验里学习。</p>
+<h3 id="prompt-chaining-decomposition">1.4.8 Prompt Chaining /
+Decomposition</h3>
+<p>复杂任务拆成多步骤的
+prompt，每步输出喂给下一步（即”workflow”模式）。LangChain、LlamaIndex、Semantic
+Kernel 大量这套。优点是可调试、可观测；缺点是步骤间信息可能丢失。</p>
+<h3 id="role-prompting-system-prompt">1.4.9 Role Prompting / System
+Prompt</h3>
+<p>“You are an expert Python developer. …” 给模型注入身份与场景。Claude
+系列对 system prompt 的遵循度普遍高于 GPT 系列，所以社区有”Claude
+提示工程偏 XML 标签 + 强 system prompt”的共识 [29]。</p>
+<h3 id="模型差异化">1.4.10 模型差异化</h3>
+<p>2026 年的提示词工程已经从”通用最佳实践”分化为”模型特异性最佳实践”
+[29][30]：</p>
+<ul>
+<li><strong>Claude（Anthropic）</strong>：偏好 XML
+标签（<code>&lt;context&gt;...&lt;/context&gt;</code>、<code>&lt;instructions&gt;...&lt;/instructions&gt;</code>），长
+system prompt，多步推理任务直接说 “think step by step”</li>
+<li><strong>GPT 系列（OpenAI）</strong>：偏好简洁的 JSON
+schema，function calling 结构化，markdown 友好</li>
+<li><strong>Gemini</strong>：多模态原生，对图像 + 文本混合 prompt
+支持最好</li>
+<li><strong>DeepSeek-R1 / o1 / 思考模型</strong>：不要再加 CoT
+触发词（模型自带），直接给问题；temperature 偏低</li>
+</ul>
+<h3 id="可复制的-prompt-模板速查">1.4.11 可复制的 Prompt 模板速查</h3>
+<p>下面是上面 10 种技术的 production-ready 模板，复制即可用。</p>
+<h4 id="模板-a零样本-角色-输出格式最通用基础模板">模板 A：零样本 + 角色
++ 输出格式（最通用基础模板）</h4>
+<pre><code>你是一名{角色描述}。
+
+## 任务
+{清晰的任务描述}
+
+## 上下文
+{相关背景，按重要性排列}
+
+## 约束
+- {约束 1，例如：仅用提供的资料}
+- {约束 2，例如：不超过 200 字}
+- {约束 3，例如：用中文回答}
+
+## 输出格式
+{Markdown / JSON schema / 段落}
+
+## 输入
+{user_input}</code></pre>
+<h4 id="模板-bfew-shot带-n-个示例">模板 B：Few-shot（带 N 个示例）</h4>
+<pre><code>你的任务是把英文产品名翻译成中文，保持品牌名不译。
+
+## 示例
+英文：iPhone 16 Pro Max
+中文：iPhone 16 Pro Max
+
+英文：MacBook Air with M4 chip
+中文：搭载 M4 芯片的 MacBook Air
+
+英文：Apple Vision Pro Headset
+中文：Apple Vision Pro 头显
+
+## 输入
+英文：{input}
+中文：</code></pre>
+<p><strong>关键点</strong>：示例顺序无关紧要，但<strong>最相似于待解题的示例放最近</strong>召回最高（few-shot
+也有 lost-in-the-middle）。</p>
+<h4 id="模板-cchain-of-thoughtcot">模板 C：Chain-of-Thought（CoT）</h4>
+<pre><code>请逐步推理后给出答案。
+
+问题：{question}
+
+请按以下格式：
+1. 理解问题：{重述问题}
+2. 拆分子问题：{列出需要解决的子问题}
+3. 逐个推理：{每个子问题的思考}
+4. 综合：{把子结论组合成最终答案}
+5. 答案：{最终结论}</code></pre>
+<p>简化版（不需要结构化思考）：</p>
+<pre><code>{question}
+
+Let&#39;s think step by step.</code></pre>
+<h4 id="模板-dself-consistency单-prompt-n-次采样投票">模板
+D：Self-Consistency（单 prompt + N 次采样投票）</h4>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 采样代码层</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> self_consistency_answer(question, n<span class="op">=</span><span class="dv">5</span>, temperature<span class="op">=</span><span class="fl">0.7</span>):</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    answers <span class="op">=</span> []</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n):</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>        response <span class="op">=</span> llm.invoke(</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>            prompt<span class="op">=</span><span class="ss">f&quot;</span><span class="sc">{</span>question<span class="sc">}</span><span class="ch">\n\n</span><span class="ss">Let&#39;s think step by step.&quot;</span>,</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>            temperature<span class="op">=</span>temperature,</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 用 regex 或 LLM 抽取最终答案</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>        final <span class="op">=</span> extract_final_answer(response)</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>        answers.append(final)</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> Counter(answers).most_common(<span class="dv">1</span>)[<span class="dv">0</span>][<span class="dv">0</span>]  <span class="co"># 投票</span></span></code></pre></div>
+<h4 id="模板-ereactthought-action-observation-循环">模板
+E：ReAct（Thought-Action-Observation 循环）</h4>
+<pre><code>你可以使用以下工具：
+{tool_descriptions, e.g.}
+- search(query: str) -&gt; str: 网页搜索
+- calculator(expr: str) -&gt; float: 计算
+- read_file(path: str) -&gt; str: 读文件
+
+每一步必须按以下格式：
+Thought: {你的推理}
+Action: {tool_name}
+Action Input: {JSON 形式的参数}
+Observation: {工具返回的结果}
+（重复 Thought/Action/Observation 直到能回答）
+Thought: 我现在能回答了
+Final Answer: {最终回答}
+
+问题：{question}
+
+Thought:</code></pre>
+<h4 id="模板-fself-refine生成-评判-修订">模板
+F：Self-Refine（生成-评判-修订）</h4>
+<pre><code># Step 1: Generator
+请回答以下问题：{question}
+
+# Step 2: Critic（用上一步输出做输入）
+评估以下回答的质量。指出 3 个具体问题：
+- 是否准确？
+- 是否完整？
+- 是否清晰？
+
+回答：
+&quot;&quot;&quot;
+{step1_output}
+&quot;&quot;&quot;
+
+请按 JSON 输出：{&quot;issues&quot;: [&quot;...&quot;, &quot;...&quot;, &quot;...&quot;]}
+
+# Step 3: Reviser
+根据下列反馈，重写上一步回答：
+
+原回答：{step1_output}
+反馈：{step2_output}
+
+重写后的回答：</code></pre>
+<h4 id="模板-g结构化输出json-schema-约束">模板 G：结构化输出（JSON
+Schema 约束）</h4>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># OpenAI Structured Output</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydantic <span class="im">import</span> BaseModel</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> typing <span class="im">import</span> Literal</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Sentiment(BaseModel):</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    label: Literal[<span class="st">&quot;positive&quot;</span>, <span class="st">&quot;negative&quot;</span>, <span class="st">&quot;neutral&quot;</span>]</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    confidence: <span class="bu">float</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    reasoning: <span class="bu">str</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> client.beta.chat.completions.parse(</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span><span class="st">&quot;gpt-4o-2024-08-06&quot;</span>,</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    messages<span class="op">=</span>[{<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: <span class="ss">f&quot;分析情感：</span><span class="sc">{</span>text<span class="sc">}</span><span class="ss">&quot;</span>}],</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    response_format<span class="op">=</span>Sentiment,</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>result: Sentiment <span class="op">=</span> response.choices[<span class="dv">0</span>].message.parsed</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Anthropic 用 XML</span></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>prompt <span class="op">=</span> <span class="ss">f&quot;&quot;&quot;分析下面文本的情感，按 XML 输出：</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a><span class="ss">&lt;text&gt;</span><span class="sc">{</span>text<span class="sc">}</span><span class="ss">&lt;/text&gt;</span></span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a><span class="ss">&lt;output&gt;</span></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a><span class="ss">  &lt;label&gt;positive | negative | neutral&lt;/label&gt;</span></span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a><span class="ss">  &lt;confidence&gt;0.0 到 1.0&lt;/confidence&gt;</span></span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a><span class="ss">  &lt;reasoning&gt;简要理由&lt;/reasoning&gt;</span></span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a><span class="ss">&lt;/output&gt;&quot;&quot;&quot;</span></span></code></pre></div>
+<h4 id="模板-htree-of-thoughts多路径搜索">模板
+H：Tree-of-Thoughts（多路径搜索）</h4>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> tot_solve(problem, depth<span class="op">=</span><span class="dv">3</span>, breadth<span class="op">=</span><span class="dv">3</span>):</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;简化版 ToT：每步 generate B 个候选，evaluate 选 top-1 继续。&quot;&quot;&quot;</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    state <span class="op">=</span> problem</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> d <span class="kw">in</span> <span class="bu">range</span>(depth):</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Generate B 个候选下一步</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>        candidates <span class="op">=</span> []</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(breadth):</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>            cand <span class="op">=</span> llm.invoke(</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>                <span class="ss">f&quot;问题：</span><span class="sc">{</span>problem<span class="sc">}</span><span class="ch">\n</span><span class="ss">当前状态：</span><span class="sc">{</span>state<span class="sc">}</span><span class="ch">\n</span><span class="ss">生成下一步推理：&quot;</span>,</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>                temperature<span class="op">=</span><span class="fl">0.8</span>,</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>            candidates.append(cand)</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Evaluate</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>        best <span class="op">=</span> llm.invoke(</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>            <span class="ss">f&quot;问题：</span><span class="sc">{</span>problem<span class="sc">}</span><span class="ch">\n</span><span class="ss">以下 </span><span class="sc">{</span>breadth<span class="sc">}</span><span class="ss"> 个候选下一步推理，&quot;</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>            <span class="ss">f&quot;哪一个最有希望解出问题？只回答数字 1-</span><span class="sc">{</span>breadth<span class="sc">}</span><span class="ss">：</span><span class="ch">\n</span><span class="ss">&quot;</span> <span class="op">+</span></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>.join(<span class="ss">f&quot;</span><span class="sc">{</span>i<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">. </span><span class="sc">{</span>c<span class="sc">}</span><span class="ss">&quot;</span> <span class="cf">for</span> i, c <span class="kw">in</span> <span class="bu">enumerate</span>(candidates))</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>        state <span class="op">=</span> candidates[<span class="bu">int</span>(best) <span class="op">-</span> <span class="dv">1</span>]</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> state  <span class="co"># 最终推理路径</span></span></code></pre></div>
+<h4 id="模板-ireflexion跨任务长期反思">模板
+I：Reflexion（跨任务长期反思）</h4>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ReflexionAgent:</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.lessons_learned <span class="op">=</span> []   <span class="co"># 跨任务的反思笔记</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> attempt(<span class="va">self</span>, task):</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>        <span class="co"># 把过去的反思注入新 prompt</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>        prompt <span class="op">=</span> <span class="ss">f&quot;&quot;&quot;</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="ss">任务：</span><span class="sc">{</span>task<span class="sc">}</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="ss"># 我从过去任务总结的经验</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="sc">{</span><span class="bu">chr</span>(<span class="dv">10</span>)<span class="sc">.</span>join(<span class="ss">f&#39;- </span><span class="sc">{</span>l<span class="sc">}</span><span class="ss">&#39;</span> <span class="cf">for</span> l <span class="kw">in</span> <span class="va">self</span>.lessons_learned[<span class="op">-</span><span class="dv">10</span>:])<span class="sc">}</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a><span class="ss">请完成任务，注意避开过去的错误。</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a><span class="ss">&quot;&quot;&quot;</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>        result <span class="op">=</span> llm.invoke(prompt)</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>        success <span class="op">=</span> evaluator.check(task, result)</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> success:</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>            <span class="co"># 反思失败原因</span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>            reflection <span class="op">=</span> llm.invoke(<span class="ss">f&quot;&quot;&quot;</span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a><span class="ss">任务：</span><span class="sc">{</span>task<span class="sc">}</span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a><span class="ss">我的回答：</span><span class="sc">{</span>result<span class="sc">}</span></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a><span class="ss">失败原因分析（写一句话给未来的我看）：</span></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a><span class="ss">&quot;&quot;&quot;</span>)</span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.lessons_learned.append(reflection)</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> result</span></code></pre></div>
+<h4 id="模板-j模型差异化同一任务三种写法">模板
+J：模型差异化（同一任务三种写法）</h4>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>任务</th>
+<th>Claude（XML）</th>
+<th>GPT-4（JSON）</th>
+<th>Gemini（多模态友好）</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>简单分类</strong></td>
+<td><code>&lt;input&gt;...&lt;/input&gt;\n&lt;output&gt;label&lt;/output&gt;</code></td>
+<td><code>Output JSON: {"label": "..."}</code></td>
+<td>同 GPT</td>
+</tr>
+<tr class="even">
+<td><strong>多步推理</strong></td>
+<td><code>&lt;thinking&gt;步骤&lt;/thinking&gt;&lt;answer&gt;X&lt;/answer&gt;</code></td>
+<td><code>Step 1: ... Step 2: ... Final: X</code></td>
+<td>同</td>
+</tr>
+<tr class="odd">
+<td><strong>代码生成</strong></td>
+<td><code>&lt;requirements&gt;...&lt;/requirements&gt;\n&lt;code&gt;</code></td>
+<td><code>```python\n...</code></td>
+<td>同 GPT</td>
+</tr>
+<tr class="even">
+<td><strong>图像 + 文本</strong></td>
+<td>图像 + <code>&lt;task&gt;分析&lt;/task&gt;</code></td>
+<td>同</td>
+<td>直接 multimodal API</td>
+</tr>
+</tbody>
+</table>
+<h4 id="实战写好-prompt-的-7-条戒律">实战：写好 Prompt 的 7 条戒律</h4>
+<ol type="1">
+<li><strong>明确角色 / 视角</strong>：「你是一名 X
+专家」开场，比模糊指令好</li>
+<li><strong>示范优于解释</strong>：给 1-3 个 few-shot 比写 5
+段规则有效</li>
+<li><strong>拆分长任务</strong>：复杂任务用 prompt chaining 而非塞给单个
+prompt</li>
+<li><strong>限制输出</strong>：明确长度、格式、风格、禁止项</li>
+<li><strong>拒绝回答的兜底</strong>：「如果不确定，回答”我不知道”而不是猜测」</li>
+<li><strong>A/B 测试</strong>：用 Promptfoo 跑 20+
+测试用例，不要凭直觉</li>
+<li><strong>版本化</strong>：prompt 入 git，每次改动都记 changelog</li>
+</ol>
+<h3 id="reasoning-models-的-prompt-哲学完全不同">1.4.12 Reasoning Models
+的 prompt 哲学完全不同</h3>
+<p>2024 年 9 月 OpenAI 发布 <strong>o1</strong> 开启 “reasoning model”
+范式。2025-2026 年 DeepSeek-R1 / Claude 3.7+ extended thinking / Gemini
+2.5 thinking / GPT-5 reasoning 全面跟进。这类模型在生成可见 token
+之前会先生成大量<strong>内部推理 token</strong>（2K-30K hidden
+tokens），相当于把 CoT 内化为模型自身能力。</p>
+<h4 id="关键差异">关键差异</h4>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>维度</th>
+<th>传统 LLM（GPT-4o / Claude Sonnet 4.5）</th>
+<th>Reasoning Model（o1 / R1 / Claude 4.5 thinking / R2）</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>内部推理</td>
+<td>没有，依赖你的 prompt 触发 CoT</td>
+<td><strong>自动生成 2K-30K thinking tokens</strong></td>
+</tr>
+<tr class="even">
+<td><code>temperature</code></td>
+<td>0.7 常见</td>
+<td><strong>0</strong> 或忽略（很多模型不支持）</td>
+</tr>
+<tr class="odd">
+<td>CoT 触发词</td>
+<td>“think step by step” 必加</td>
+<td><strong>不要加</strong>——模型已自带，加了反而干扰</td>
+</tr>
+<tr class="even">
+<td>Few-shot</td>
+<td>几乎必备</td>
+<td><strong>少用甚至不用</strong>——few-shot 反而分散推理</td>
+</tr>
+<tr class="odd">
+<td>系统 prompt</td>
+<td>长 / 详细</td>
+<td><strong>短 / 直接</strong>——告诉它”做什么”即可</td>
+</tr>
+<tr class="even">
+<td>延迟</td>
+<td>秒级</td>
+<td>30 秒 - 数分钟</td>
+</tr>
+<tr class="odd">
+<td>Token 成本</td>
+<td>实付 = 看到的</td>
+<td><strong>实付 = 看到的 + 隐藏的 thinking</strong>（10-100×）</td>
+</tr>
+<tr class="even">
+<td>适用</td>
+<td>大多数任务</td>
+<td>数学 / 代码 / 复杂推理 / 规划</td>
+</tr>
+</tbody>
+</table>
+<h4 id="反范式reasoning-model-的少即是多">反范式：reasoning model
+的”少即是多”</h4>
+<p>OpenAI o1 的官方 prompt 指南直接说：</p>
+<blockquote>
+<p>不要用 chain-of-thought prompting。让模型自己思考。 不要用 few-shot
+examples 除非任务非常 niche。 写 prompt
+时直接给目标和约束，越简单越好。</p>
+</blockquote>
+<p>DeepSeek-R1 的 <code>&lt;think&gt;</code>
+标签是显式的（其他模型隐藏），可以让你<strong>看到</strong>它在想什么，但<strong>不要</strong>自己拼
+<code>&lt;think&gt;</code> 进 prompt（会干扰）。</p>
+<h4 id="何时用-reasoning-model">何时用 reasoning model</h4>
+<ul>
+<li>✅ 用：数学题、代码
+debug、复杂规划、多步推理、需要”想清楚”的任务</li>
+<li>❌ 不用：简单 chat、内容生成、需要快速响应（&gt;5s
+用户跑掉）、预算敏感</li>
+<li>⚠️ Hybrid：Anthropic 的 <em>extended thinking</em> 可以<strong>按
+budget 控制</strong>——给 1024 tokens thinking budget
+适合中等推理任务，给 16384+ 适合复杂数学</li>
+</ul>
+<h4 id="hybrid-reasoning2026-主流">Hybrid Reasoning：2026 主流</h4>
+<p>Claude Sonnet 4.5+ / Gemini 2.5+ / GPT-5 都做成
+<strong>hybrid</strong>：默认快速回答，需要深度时启用
+thinking。代码：</p>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Anthropic extended thinking</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> client.messages.create(</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span><span class="st">&quot;claude-sonnet-4-6&quot;</span>,</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    max_tokens<span class="op">=</span><span class="dv">8192</span>,</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    thinking<span class="op">=</span>{<span class="st">&quot;type&quot;</span>: <span class="st">&quot;enabled&quot;</span>, <span class="st">&quot;budget_tokens&quot;</span>: <span class="dv">4096</span>},  <span class="co"># ★ 按需启用</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    messages<span class="op">=</span>[{<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: <span class="st">&quot;证明费马小定理&quot;</span>}],</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 同一模型不开 thinking 跑普通 chat</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> client.messages.create(</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span><span class="st">&quot;claude-sonnet-4-6&quot;</span>,</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>    max_tokens<span class="op">=</span><span class="dv">1024</span>,</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 不设 thinking → 走快速路径</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>    messages<span class="op">=</span>[{<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: <span class="st">&quot;今天的天气怎么样？&quot;</span>}],</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p><strong>实战经济学</strong>：reasoning model 在 2025-2026
+已经”商品化”——开源 reasoning 模型（Kimi K2 / Qwen3 / GLM-5 等）在每百万
+token 的价格区间（具体 input/output
+见各家官网定价页）已大幅低于第一代闭源 reasoning 模型（如 o1-pro /
+o3-pro）。“为质量付十倍价钱”的论点在很多场景已不成立，但具体倍率因模型档次和任务难度差异很大。</p>
+<h3 id="多模态-prompting图-音-视">1.4.13 多模态 prompting：图 / 音 /
+视</h3>
+<p>2024-2026 年主流模型几乎全多模态原生（vision 必备，audio/video
+渐次跟进）。多模态 prompting 不是文本 prompt
+加张图就完事，有自己的最佳实践。</p>
+<h4 id="各家原生支持矩阵2026-04">各家原生支持矩阵（2026-04）</h4>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>模型</th>
+<th>图像</th>
+<th>PDF</th>
+<th>音频</th>
+<th>视频</th>
+<th>强项</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Claude Opus 4.7 / Sonnet 4.6</strong></td>
+<td>✓</td>
+<td><strong>✓ 业界最强</strong></td>
+<td>✗</td>
+<td>✗</td>
+<td>长 PDF / 多页文档推理</td>
+</tr>
+<tr class="even">
+<td><strong>GPT-5 / GPT-4o</strong></td>
+<td>✓</td>
+<td>✓</td>
+<td><strong>✓ 原生</strong></td>
+<td>帧级</td>
+<td>截图 / chart / 音频</td>
+</tr>
+<tr class="odd">
+<td><strong>Gemini 3.1 Pro</strong></td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td><strong>✓ 1 小时视频</strong></td>
+<td>视频是一等公民</td>
+</tr>
+<tr class="even">
+<td><strong>DeepSeek-V4 Vision</strong></td>
+<td>✓</td>
+<td>中</td>
+<td>✗</td>
+<td>✗</td>
+<td>中文场景</td>
+</tr>
+<tr class="odd">
+<td><strong>Qwen 3.5 Vision</strong></td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>中</td>
+<td>中文 + 性价比</td>
+</tr>
+</tbody>
+</table>
+<h4 id="多模态-prompt-的-4-条要点">多模态 prompt 的 4 条要点</h4>
+<p><strong>1. 媒体放在 prompt 前面</strong></p>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ✅ 推荐：媒体 → 文本指令</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>messages <span class="op">=</span> [{<span class="st">&quot;role&quot;</span>: <span class="st">&quot;user&quot;</span>, <span class="st">&quot;content&quot;</span>: [</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    {<span class="st">&quot;type&quot;</span>: <span class="st">&quot;image&quot;</span>, <span class="st">&quot;source&quot;</span>: {<span class="st">&quot;type&quot;</span>: <span class="st">&quot;base64&quot;</span>, <span class="st">&quot;media_type&quot;</span>: <span class="st">&quot;image/png&quot;</span>,</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">&quot;data&quot;</span>: image_b64}},</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    {<span class="st">&quot;type&quot;</span>: <span class="st">&quot;text&quot;</span>, <span class="st">&quot;text&quot;</span>: <span class="st">&quot;这张架构图里 PostgreSQL 实例数是多少？请数清楚。&quot;</span>},</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>]}]</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="co"># ❌ 避免：文本在前会让模型先建立期望，影响视觉解读</span></span></code></pre></div>
+<p><strong>2. 多图时给每张图编号</strong></p>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>content <span class="op">=</span> [</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    {<span class="st">&quot;type&quot;</span>: <span class="st">&quot;text&quot;</span>, <span class="st">&quot;text&quot;</span>: <span class="st">&quot;下面给你 3 张图，分别标号 A / B / C：&quot;</span>},</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    {<span class="st">&quot;type&quot;</span>: <span class="st">&quot;text&quot;</span>, <span class="st">&quot;text&quot;</span>: <span class="st">&quot;Image A:&quot;</span>},</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    {<span class="st">&quot;type&quot;</span>: <span class="st">&quot;image&quot;</span>, ...},</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    {<span class="st">&quot;type&quot;</span>: <span class="st">&quot;text&quot;</span>, <span class="st">&quot;text&quot;</span>: <span class="st">&quot;Image B:&quot;</span>},</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    {<span class="st">&quot;type&quot;</span>: <span class="st">&quot;image&quot;</span>, ...},</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    {<span class="st">&quot;type&quot;</span>: <span class="st">&quot;text&quot;</span>, <span class="st">&quot;text&quot;</span>: <span class="st">&quot;Image C:&quot;</span>},</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>    {<span class="st">&quot;type&quot;</span>: <span class="st">&quot;image&quot;</span>, ...},</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    {<span class="st">&quot;type&quot;</span>: <span class="st">&quot;text&quot;</span>, <span class="st">&quot;text&quot;</span>: <span class="st">&quot;请回答：A 和 C 哪个亮度更高？&quot;</span>},</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>]</span></code></pre></div>
+<p><strong>3. 任务模型选择</strong></p>
+<blockquote>
+<p>不要一个模型干所有多模态。<strong>异构是对的</strong>：合同走
+Claude、截图 / 音频走 GPT、视频走 Gemini。</p>
+</blockquote>
+<p>实战分流：</p>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> route_multimodal(task):</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> task.has_video: <span class="cf">return</span> gemini</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> task.has_audio: <span class="cf">return</span> gpt5</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> task.is_pdf <span class="kw">and</span> task.pages <span class="op">&gt;</span> <span class="dv">50</span>: <span class="cf">return</span> claude</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> task.is_screenshot: <span class="cf">return</span> gpt5</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> claude  <span class="co"># default</span></span></code></pre></div>
+<p><strong>4. 视频处理的 GPT-5 模式：抽帧 + 文本描述</strong></p>
+<p>GPT-5 不接收 video 直接输入，要<strong>自己抽帧 + 用 vision 描述每帧
++ 拼起来</strong>：</p>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> cv2</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> process_video_with_gpt5(video_path, fps_sample<span class="op">=</span><span class="dv">1</span>):</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    cap <span class="op">=</span> cv2.VideoCapture(video_path)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    frame_descriptions <span class="op">=</span> []</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>        ret, frame <span class="op">=</span> cap.read()</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> ret: <span class="cf">break</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> frame_idx <span class="op">%</span> fps_sample <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>            desc <span class="op">=</span> gpt5_vision(frame, prompt<span class="op">=</span><span class="st">&quot;一句话描述这一帧&quot;</span>)</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>            frame_descriptions.append(<span class="ss">f&quot;[</span><span class="sc">{</span>frame_idx<span class="op">/</span>fps<span class="sc">:.1f}</span><span class="ss">s] </span><span class="sc">{</span>desc<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> llm.invoke(<span class="ss">f&quot;视频帧描述：</span><span class="ch">\n</span><span class="sc">{</span><span class="bu">chr</span>(<span class="dv">10</span>)<span class="sc">.</span>join(frame_descriptions)<span class="sc">}</span><span class="ch">\n\n</span><span class="ss">请综合说明视频内容&quot;</span>)</span></code></pre></div>
+<p>Gemini 直接收 video URL / bytes，省掉抽帧，长视频内置 token efficient
+编码。</p>
+<h4 id="多模态的-pii-与隐私">多模态的 PII 与隐私</h4>
+<p>图像 / 视频里可能含人脸 / 车牌 / 屏幕截图里的密码——上传给 third-party
+API 前必须处理：</p>
+<ul>
+<li>人脸打码：MediaPipe / dlib</li>
+<li>屏幕截图自动 redact：自己 mask 已知敏感区域 / 用 OCR 检测后
+mask</li>
+<li>视频会议录像必须脱敏后再喂 LLM</li>
+</ul>
+<hr />
+<h2 id="自动化与高级提示词">1.5 自动化与高级提示词</h2>
+<h3 id="为什么需要自动化">1.5.1 为什么需要自动化</h3>
+<p>人工写 prompt 终究有上限：</p>
+<ul>
+<li><strong>空间太大</strong>：一个任务可能有数百种 prompt
+写法，人不可能手工 A/B 全部</li>
+<li><strong>模型升级即失效</strong>：换 GPT-4o → GPT-5 后，最优 prompt
+经常不一样</li>
+<li><strong>Few-shot 选样难</strong>：从 1000 个候选 example 里挑哪 5 个
+demo，组合数爆炸</li>
+<li><strong>指令措辞敏感</strong>：“think step by step” vs “reason
+carefully” 准确率可能差 5-10%</li>
+</ul>
+<p>2023 年起涌现”<strong>让 LLM 自己写 prompt</strong>”的方向，统称
+<strong>automated prompt optimization</strong>。</p>
+<h3 id="四大流派">1.5.2 四大流派</h3>
+<h4 id="apeautomatic-prompt-engineer-zhou-2023">APE（Automatic Prompt
+Engineer）— Zhou 2023</h4>
+<p>最朴素：</p>
+<pre><code>1. 用 LLM 生成 N 个候选 prompt
+2. 在 dev set 上跑每个候选 → 打分
+3. 选 top-K → 让 LLM 看了它们后再生成 N 个新候选
+4. 迭代直到收敛</code></pre>
+<p>效果：在多个 NLP 任务上比人工 prompt 高 10-20%。开创了”prompt
+优化”作为问题。</p>
+<h4
+id="oprooptimization-by-prompting-yang-2023-google">OPRO（Optimization
+by PROmpting）— Yang 2023, Google</h4>
+<p><strong>让 LLM 直接担任优化器</strong>。每轮告诉 LLM：</p>
+<pre><code>过去这些 prompt 拿到这些分数：
+  prompt 1: &quot;Let&#39;s think step by step.&quot; → 78%
+  prompt 2: &quot;Take a deep breath and work step by step.&quot; → 80.2%   ← OPRO 发现的真实 prompt
+  prompt 3: ...
+请提出一个能拿更高分的新 prompt。</code></pre>
+<p>OPRO 在 GSM8K 上发现了”Take a deep breath…“这条比”think step by
+step”更高的指令——一条经典 LLM 自我发现案例。</p>
+<h4 id="promptbreeder-fernando-2023-deepmind">Promptbreeder — Fernando
+2023, DeepMind</h4>
+<p><strong>APE + 进化算法</strong>：维护一个 prompt
+种群，每轮做：突变（让 LLM 改写）+ 选择（按 dev 分数） +
+交叉（合并两个高分 prompt 的部分）。在数学推理任务上超过人工最优。</p>
+<h4 id="dspy-stanford-2023事实主流">DSPy — Stanford
+2023（事实主流）</h4>
+<p>把 prompt 工程<strong>当作编译问题</strong>——你写”程序”（Module +
+Signature），DSPy 编译器自动选最优 demo 和指令。<strong>核心抽象 3
+个</strong>：</p>
+<ol type="1">
+<li><strong>Signature</strong>：声明输入输出（“question -&gt;
+answer”）</li>
+<li><strong>Module</strong>：可组合的程序单元（<code>dspy.Predict</code>、<code>dspy.ChainOfThought</code>、<code>dspy.ReAct</code>）</li>
+<li><strong>Optimizer</strong>（teleprompter）：用训练集 + metric
+自动优化 module 内的 prompt</li>
+</ol>
+<h3 id="dspy-完整工作流产线级示例">1.5.3 DSPy
+完整工作流（产线级示例）</h3>
+<h4 id="基础概念示例">基础概念示例</h4>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> dspy</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 配置 LM（任何 LiteLLM 支持的 provider）</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>lm <span class="op">=</span> dspy.LM(<span class="st">&quot;anthropic/claude-sonnet-4-6&quot;</span>)</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>dspy.configure(lm<span class="op">=</span>lm)</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. 定义 Signature（声明 input → output 类型）</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> GenerateAnswer(dspy.Signature):</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">&quot;&quot;&quot;根据上下文回答问题，引用 source。&quot;&quot;&quot;</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>    context: <span class="bu">str</span> <span class="op">=</span> dspy.InputField(desc<span class="op">=</span><span class="st">&quot;可能包含答案的相关段落&quot;</span>)</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>    question: <span class="bu">str</span> <span class="op">=</span> dspy.InputField()</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>    answer: <span class="bu">str</span> <span class="op">=</span> dspy.OutputField(desc<span class="op">=</span><span class="st">&quot;简洁、引用 source 的回答&quot;</span>)</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. 定义 Module（你的&quot;程序&quot;）</span></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> RAG(dspy.Module):</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, num_passages<span class="op">=</span><span class="dv">3</span>):</span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.retrieve <span class="op">=</span> dspy.Retrieve(k<span class="op">=</span>num_passages)</span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.generate_answer <span class="op">=</span> dspy.ChainOfThought(GenerateAnswer)</span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, question):</span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>        context <span class="op">=</span> <span class="va">self</span>.retrieve(question).passages</span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>        prediction <span class="op">=</span> <span class="va">self</span>.generate_answer(context<span class="op">=</span>context, question<span class="op">=</span>question)</span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> dspy.Prediction(context<span class="op">=</span>context, answer<span class="op">=</span>prediction.answer)</span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. 直接跑（用 default prompt，不优化）</span></span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a>rag <span class="op">=</span> RAG()</span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> rag(question<span class="op">=</span><span class="st">&quot;2026 年 SWE-bench 头部模型？&quot;</span>)</span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(result.answer)</span></code></pre></div>
+<h4 id="用-bootstrapfewshot-优化">用 BootstrapFewShot 优化</h4>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> dspy.teleprompt <span class="im">import</span> BootstrapFewShot</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> dspy.evaluate <span class="im">import</span> answer_exact_match</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 准备训练集（30-100 条 (question, answer) 即可）</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>trainset <span class="op">=</span> [</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>    dspy.Example(question<span class="op">=</span><span class="st">&quot;...&quot;</span>, answer<span class="op">=</span><span class="st">&quot;...&quot;</span>).with_inputs(<span class="st">&quot;question&quot;</span>)</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> q, a <span class="kw">in</span> your_qa_pairs</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Optimizer：bootstrap few-shot demos</span></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>optimizer <span class="op">=</span> BootstrapFewShot(</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>    metric<span class="op">=</span>answer_exact_match,    <span class="co"># 你的评估函数</span></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>    max_bootstrapped_demos<span class="op">=</span><span class="dv">4</span>,     <span class="co"># 自动生成的 demo 数</span></span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>    max_labeled_demos<span class="op">=</span><span class="dv">4</span>,          <span class="co"># 从 trainset 直接采的 demo 数</span></span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Compile：DSPy 自动选 demo 让 metric 最大化</span></span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>compiled_rag <span class="op">=</span> optimizer.<span class="bu">compile</span>(student<span class="op">=</span>RAG(), trainset<span class="op">=</span>trainset)</span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 编译后的 module 在 prompt 里自动嵌入了选出的 demo</span></span>
+<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> compiled_rag(question<span class="op">=</span><span class="st">&quot;...&quot;</span>)</span></code></pre></div>
+<p><code>BootstrapFewShot</code> 内部的算法：</p>
+<ol type="1">
+<li>对每条 trainset 用初始 RAG 跑一遍，收集中间步骤（context、CoT
+reasoning）作为候选 demo</li>
+<li>跑 metric 过滤——只保留通过 metric 的 demo</li>
+<li>把这些 demo 嵌进未来调用的 prompt</li>
+</ol>
+<h4 id="用-miprov2-联合优化指令-demo">用 MIPROv2 联合优化指令 +
+demo</h4>
+<div class="sourceCode" id="cb31"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> dspy.teleprompt <span class="im">import</span> MIPROv2</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="co"># MIPROv2 是 DSPy 当前最强 optimizer</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 同时优化「指令措辞」和「few-shot 选样」用 Bayesian Optimization</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>teleprompter <span class="op">=</span> MIPROv2(</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>    metric<span class="op">=</span>answer_exact_match,</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>    auto<span class="op">=</span><span class="st">&quot;medium&quot;</span>,   <span class="co"># &quot;light&quot; / &quot;medium&quot; / &quot;heavy&quot; 控制搜索预算</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>    num_threads<span class="op">=</span><span class="dv">8</span>,</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>optimized_rag <span class="op">=</span> teleprompter.<span class="bu">compile</span>(</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>    student<span class="op">=</span>RAG(),</span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>    trainset<span class="op">=</span>trainset,    <span class="co"># 100+ 条</span></span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>    valset<span class="op">=</span>valset,        <span class="co"># 评估集</span></span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>    requires_permission_to_run<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a><span class="co"># 保存 / 加载</span></span>
+<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a>optimized_rag.save(<span class="st">&quot;./optimized_rag.json&quot;</span>)</span>
+<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a><span class="co"># 后续直接 load</span></span>
+<span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a>new_rag <span class="op">=</span> RAG()</span>
+<span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a>new_rag.load(<span class="st">&quot;./optimized_rag.json&quot;</span>)</span></code></pre></div>
+<p><code>MIPROv2</code> 内部是<strong>两阶段 Bayesian
+Optimization</strong>：</p>
+<ul>
+<li>阶段 1：Bootstrap 候选 demos（同 BootstrapFewShot）</li>
+<li>阶段 2：用 Bayesian Optimization 在「指令措辞 × demo
+组合」搜索空间里找最优配置</li>
+</ul>
+<p>实证：MIPROv2 在多任务上比 BootstrapFewShot 再高 5-15%。是 2025-2026
+年 DSPy 默认 optimizer。</p>
+<h4 id="其他-dspy-optimizer">其他 DSPy Optimizer</h4>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Optimizer</th>
+<th>特点</th>
+<th>适合</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>BootstrapFewShot</code></td>
+<td>仅 bootstrap demo</td>
+<td>入门 / 数据少</td>
+</tr>
+<tr class="even">
+<td><code>BootstrapFewShotWithRandomSearch</code></td>
+<td>bootstrap + 多次随机 demo 选样</td>
+<td>计算预算多</td>
+</tr>
+<tr class="odd">
+<td><code>MIPROv2</code></td>
+<td>指令 + demo 联合优化（Bayesian）</td>
+<td><strong>生产推荐</strong></td>
+</tr>
+<tr class="even">
+<td><code>COPRO</code></td>
+<td>仅优化指令措辞</td>
+<td>已有好 demo</td>
+</tr>
+<tr class="odd">
+<td><code>KNNFewShot</code></td>
+<td>检索式 demo 选样（每个 query 选最相似的 demo）</td>
+<td>任务多样</td>
+</tr>
+<tr class="even">
+<td><code>BootstrapFinetune</code></td>
+<td>用 bootstrapped demo 微调小模型</td>
+<td>想蒸馏到便宜模型</td>
+</tr>
+<tr class="odd">
+<td><code>SIMBA</code>（2025 新）</td>
+<td>stochastic introspective 优化</td>
+<td>大模型微调式</td>
+</tr>
+</tbody>
+</table>
+<h3 id="何时用-dspy-vs-手工-prompt">1.5.4 何时用 DSPy vs 手工
+prompt</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>场景</th>
+<th>推荐</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>一次性脚本 / Demo</td>
+<td>手工 prompt（直接）</td>
+</tr>
+<tr class="even">
+<td>已有 baseline，想再提 5-15%</td>
+<td><strong>DSPy MIPROv2</strong></td>
+</tr>
+<tr class="odd">
+<td>频繁切换模型（OpenAI → Anthropic → 开源）</td>
+<td><strong>DSPy</strong>（重新 compile 即可）</td>
+</tr>
+<tr class="even">
+<td>有 100+ 标注数据 + 客观 metric</td>
+<td><strong>DSPy</strong>（数据是燃料）</td>
+</tr>
+<tr class="odd">
+<td>完全主观任务（写诗 / 讲笑话）</td>
+<td>手工（DSPy 的 metric 难定义）</td>
+</tr>
+<tr class="even">
+<td>Multi-step 复杂程序（RAG + Agent + reasoning）</td>
+<td><strong>DSPy</strong>（程序化抽象天生适合）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dspy-的产业采用">1.5.5 DSPy 的产业采用</h3>
+<p>2025-2026 进入主流：</p>
+<ul>
+<li><strong>Databricks</strong> Mosaic Research 团队大量内部使用，公开
+case study</li>
+<li><strong>Snowflake</strong> Cortex AI 把 DSPy 作为内部 prompt
+编译框架</li>
+<li><strong>JetBlue / Replit / 多家金融</strong> 公司公开演讲分享 DSPy
+落地</li>
+</ul>
+<p>代表了行业的一个重要转向：<strong>prompt
+不再是手写艺术，而是编译产物</strong>——和软件工程从汇编到高级语言的迁移类似。</p>
+<h3 id="github-资源">1.5.6 GitHub 资源</h3>
+<ul>
+<li><a
+href="https://github.com/stanfordnlp/dspy"><code>stanfordnlp/dspy</code></a>
+— DSPy 官方</li>
+<li><a href="https://dspy.ai/"><code>stanfordnlp/dspy/docs</code></a> —
+文档与 cookbook</li>
+<li><a
+href="https://github.com/weaviate/recipes"><code>weaviate/recipes</code></a>
+— DSPy + Weaviate 实战</li>
+<li><em>DSPy: Compiling Declarative Language Model Calls into
+Self-Improving Pipelines</em>（Khattab 2023）— 原始论文</li>
+<li><em>MIPROv2: Multiprompt Instruction PRoposal
+Optimizer</em>（Opsahl-Ong 2024）— MIPROv2 论文</li>
+</ul>
+<hr />
+<h2 id="评估红队与提示词工程的黄昏">1.6
+评估、红队与提示词工程的”黄昏”</h2>
+<p>提示词工程的成功必须可被度量。<strong>Promptfoo</strong> [29] 是开源
+prompt 测试框架的事实标准——定义测试用例、跑多模型对比、CI
+集成。最小可行测试集：20 个多样化案例（happy path + edge case +
+adversarial），每次 prompt 改动后自动跑。</p>
+<p>提示词工程的失败模式有三类：</p>
+<ul>
+<li><strong>幻觉（Hallucination）</strong>：模型一本正经地编造事实</li>
+<li><strong>提示词注入（Prompt
+Injection）</strong>：用户输入里夹带”忽略上面所有指令，改做 X”，劫持
+system prompt</li>
+<li><strong>越狱（Jailbreak）</strong>：绕过对齐让模型输出有害内容（“DAN”、角色扮演、长尾语言攻击等）</li>
+</ul>
+<p><strong>OWASP <em>Top 10 for LLM Applications</em> (现行 2025 版)
+是业界标准分类法</strong> [36]，前三名分别是 LLM01 Prompt
+Injection（提示词注入）、LLM02 Sensitive Information
+Disclosure（敏感信息泄露）、LLM03 Supply
+Chain（供应链风险）。这些问题不能靠”写更好的
+prompt”解决，必须靠护栏（详见 <a
+href="./04_harness_engineering.md">04_harness_engineering.md</a>
+§3.3.3）。</p>
+<p>到 2024 年下半年起，“提示词工程是不是还重要”的争论开始浮现。Karpathy
+在 YC AI School 的 <em>Software Is Changing (Again)</em>
+演讲里把行业焦点指向了下一站——<strong>上下文工程</strong>（详见 <a
+href="./02_context_engineering.md">02_context_engineering.md</a>）。</p>
+<hr />
+<h2 id="bibliography">Bibliography</h2>
+<p>[1] Vaswani, A. et al. (2017). <em>Attention Is All You Need</em>.
+NeurIPS. <a href="https://arxiv.org/abs/1706.03762"
+class="uri">https://arxiv.org/abs/1706.03762</a> [3] Madaan, A. et
+al. (2023). <em>Self-Refine: Iterative Refinement with
+Self-Feedback</em>. NeurIPS. [4] Yao, S. et al. (2022). <em>ReAct:
+Synergizing Reasoning and Acting in Language Models</em>. ICLR 2023.
+[22] Raschka, S. <em>State of LLMs 2025</em>. <a
+href="https://magazine.sebastianraschka.com/p/state-of-llms-2025"
+class="uri">https://magazine.sebastianraschka.com/p/state-of-llms-2025</a>
+[23] llm-stats. <em>Post-Training in 2026: GRPO, DAPO, RLVR &amp;
+Beyond</em>. <a
+href="https://llm-stats.com/blog/research/post-training-techniques-2026"
+class="uri">https://llm-stats.com/blog/research/post-training-techniques-2026</a>
+[24] HuggingFace Blog. <em>Guide to RL Post-Training: PPO, DPO,
+GRPO</em>. [25] Introl. <em>Fine-Tuning Infrastructure: LoRA, QLoRA,
+PEFT at Scale</em>. [26] Hu, E. et al. (2021). <em>LoRA: Low-Rank
+Adaptation of Large Language Models</em>. [27] Dettmers, T. et
+al. (2023). <em>QLoRA: Efficient Finetuning of Quantized LLMs</em>. [28]
+PromptingGuide.ai. <a href="https://www.promptingguide.ai"
+class="uri">https://www.promptingguide.ai</a> [29] Pillitteri, P.
+<em>Prompt Engineering 2026: Frameworks That Actually Work</em>. <a
+href="https://pasqualepillitteri.it/en/news/1090/prompt-engineering-2026-frameworks-complete-guide"
+class="uri">https://pasqualepillitteri.it/en/news/1090/prompt-engineering-2026-frameworks-complete-guide</a>
+[30] BrightCoding. <em>Prompt Engineering Guide</em>. [36] NVIDIA NeMo
+Guardrails Documentation. <a
+href="https://docs.nvidia.com/nemo/guardrails/latest/index.html"
+class="uri">https://docs.nvidia.com/nemo/guardrails/latest/index.html</a></p>
+<p>补充阅读： - Wei et al. (2022). <em>Chain-of-Thought Prompting
+Elicits Reasoning in Large Language Models</em>. NeurIPS. - Wang et
+al. (2022). <em>Self-Consistency Improves Chain of Thought
+Reasoning</em>. - Yao et al. (2023). <em>Tree of Thoughts</em>. -
+Khattab et al. (2023). <em>DSPy: Compiling Declarative Language Model
+Calls</em>. - Anthropic Prompting Docs. <a
+href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview"
+class="uri">https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview</a></p>
+<hr />
+<h2 id="github-系统化学习资源llm-基础-训练栈专题">GitHub
+系统化学习资源（LLM 基础 / 训练栈专题）</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>资源</th>
+<th>类型</th>
+<th>推荐用法</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a
+href="https://github.com/karpathy/nn-zero-to-hero"><code>karpathy/nn-zero-to-hero</code></a></td>
+<td>视频 + 代码课程</td>
+<td>从 backprop 一步步到 GPT-2，<strong>任何人入门 LLM
+的最优起点</strong></td>
+</tr>
+<tr class="even">
+<td><a
+href="https://github.com/karpathy/build-nanogpt"><code>karpathy/build-nanogpt</code></a></td>
+<td>视频 + 代码</td>
+<td>从空文件复现 GPT-2（124M），1 小时 ~$10。每个 commit 原子化，可 diff
+跟读</td>
+</tr>
+<tr class="odd">
+<td><a
+href="https://github.com/karpathy/nanoGPT"><code>karpathy/nanoGPT</code></a></td>
+<td>简洁实现</td>
+<td>中等规模 GPT 训练 / 微调的最简代码（~300 行）</td>
+</tr>
+<tr class="even">
+<td><a
+href="https://github.com/rasbt/LLMs-from-scratch"><code>rasbt/LLMs-from-scratch</code></a></td>
+<td>Manning 配套书</td>
+<td>Sebastian Raschka <em>Build a Large Language Model (From
+Scratch)</em> 全代码，章节对应清晰</td>
+</tr>
+<tr class="odd">
+<td><a
+href="https://github.com/Hannibal046/Awesome-LLM"><code>Hannibal046/Awesome-LLM</code></a></td>
+<td>awesome list</td>
+<td>LLM 综合资源入口</td>
+</tr>
+<tr class="even">
+<td><a href="https://stanford-cs324.github.io/winter2022/">Stanford
+CS324</a></td>
+<td>大学课程</td>
+<td>LLM 全景课程（modeling / theory / ethics / systems）讲义可读</td>
+</tr>
+<tr class="odd">
+<td><a href="https://web.stanford.edu/class/cs25/">Stanford
+CS25</a></td>
+<td>邀请系列讲座</td>
+<td>Transformers 主题前沿讲座，Karpathy / Hinton 等都讲过</td>
+</tr>
+<tr class="even">
+<td><a
+href="https://github.com/huggingface/peft"><code>huggingface/peft</code></a></td>
+<td>LoRA / QLoRA / IA³ 实现</td>
+<td>微调事实标准库</td>
+</tr>
+<tr class="odd">
+<td><a
+href="https://github.com/huggingface/trl"><code>huggingface/trl</code></a></td>
+<td>RLHF / DPO / GRPO 实现</td>
+<td>HuggingFace 后训练框架（PPOTrainer / DPOTrainer / GRPOTrainer
+全有）</td>
+</tr>
+<tr class="even">
+<td><a
+href="https://github.com/unslothai/unsloth"><code>unslothai/unsloth</code></a></td>
+<td>高效微调</td>
+<td>单卡 4090 上跑 Llama 70B QLoRA、~2× 速度、~70% 显存</td>
+</tr>
+<tr class="odd">
+<td><a
+href="https://github.com/OpenRLHF/OpenRLHF"><code>OpenRLHF/OpenRLHF</code></a></td>
+<td>工业级 RLHF</td>
+<td>DPO / PPO / GRPO 多卡分布式实现</td>
+</tr>
+<tr class="even">
+<td><a
+href="https://github.com/huggingface/transformers"><code>HuggingFace transformers</code></a></td>
+<td>模型库</td>
+<td>一切的基础</td>
+</tr>
+<tr class="odd">
+<td><a
+href="https://github.com/pytorch/torchtune"><code>pytorch/torchtune</code></a></td>
+<td>PyTorch 官方 fine-tune</td>
+<td>简洁、原生 PyTorch、适合”想看清每个 step”的工程师</td>
+</tr>
+</tbody>
+</table>
+<p><strong>论文必读清单</strong>： - 2017 — <em>Attention Is All You
+Need</em> (Vaswani) - 2020 — <em>Scaling Laws for Neural Language
+Models</em> (Kaplan, OpenAI) - 2022 — <em>Chain-of-Thought
+Prompting</em> (Wei) / <em>InstructGPT/RLHF</em> (Ouyang) /
+<em>ReAct</em> (Yao) - 2022 — <em>Training Compute-Optimal LLMs</em>
+(Hoffmann, Chinchilla) - 2023 — <em>DPO</em> (Rafailov) / <em>LoRA</em>
+(Hu) / <em>QLoRA</em> (Dettmers) / <em>Self-Refine</em> (Madaan) - 2024
+— <em>RLHF Book</em> (Nathan Lambert，在线) / <em>DSPy</em> /
+<em>Mixtral / GQA</em> - 2025 — <em>DeepSeek-R1 Technical
+Report</em>（GRPO + RLVR 系统化）</p>
+<hr />
+<h2 id="章节交叉引用">章节交叉引用</h2>
+<ul>
+<li>想理解 ReAct 如何成为现代 Agent 基础 → <a
+href="./03_agent_engineering.md">03_agent_engineering.md</a> §2
+范式演进</li>
+<li>想理解长上下文 / RAG / 记忆如何延展提示词工程 → <a
+href="./02_context_engineering.md">02_context_engineering.md</a></li>
+<li>想看 Prompt 安全护栏在生产里的部署 → <a
+href="./04_harness_engineering.md">04_harness_engineering.md</a>
+§3.3.3</li>
+</ul>
+<nav class="page-pager" id="page-pager" aria-label="章节翻页"></nav>
+
+<footer class="site-foot">
+  <div class="site-foot-inner">
+    <span>LLM 应用工程的四层演进 · 系列文档</span>
+    <span class="site-foot-sep">·</span>
+    <span>调研日期 2026-05-01</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  /* ---- 章节翻页（顺序：README → 01 → 02 → 03 → 04） ---- */
+  var pages = [
+    { file: 'README.html',                  title: '总览' },
+    { file: '01_prompt_engineering.html',   title: '01 · 提示词工程' },
+    { file: '02_context_engineering.html',  title: '02 · 上下文工程' },
+    { file: '03_agent_engineering.html',    title: '03 · Agent 工程' },
+    { file: '04_harness_engineering.html',  title: '04 · 驾驭工程' }
+  ];
+  var here = (location.pathname.split('/').pop() || 'README.html').toLowerCase();
+  var idx = -1;
+  for (var i = 0; i < pages.length; i++) {
+    if (pages[i].file.toLowerCase() === here) { idx = i; break; }
+  }
+  var pager = document.getElementById('page-pager');
+  if (idx < 0) {
+    pager.style.display = 'none';
+  } else {
+    var prev = pages[idx - 1];
+    var next = pages[idx + 1];
+    var html = '';
+    if (prev) {
+      html += '<a class="pager-prev" href="' + prev.file + '">' +
+              '<span class="pager-label">← 上一篇</span>' +
+              '<span class="pager-title">' + prev.title + '</span></a>';
+    } else {
+      html += '<span class="pager-empty"></span>';
+    }
+    if (next) {
+      html += '<a class="pager-next" href="' + next.file + '">' +
+              '<span class="pager-label">下一篇 →</span>' +
+              '<span class="pager-title">' + next.title + '</span></a>';
+    } else {
+      html += '<span class="pager-empty"></span>';
+    }
+    pager.innerHTML = html;
+  }
+
+  /* ---- TOC 当前位置高亮（IntersectionObserver） ---- */
+  var toc = document.getElementById('TOC');
+  if (!toc || !('IntersectionObserver' in window)) return;
+  var links = toc.querySelectorAll('a[href^="#"]');
+  if (!links.length) return;
+
+  var byId = {};
+  var orderedIds = [];
+  links.forEach(function(a){
+    var id = decodeURIComponent((a.getAttribute('href') || '').slice(1));
+    if (!id) return;
+    byId[id] = a;
+    orderedIds.push(id);
+  });
+  var headings = orderedIds
+    .map(function(id){ return document.getElementById(id); })
+    .filter(Boolean);
+  if (!headings.length) return;
+
+  var visible = {};
+  function update() {
+    var firstId = null;
+    for (var i = 0; i < orderedIds.length; i++) {
+      if (visible[orderedIds[i]]) { firstId = orderedIds[i]; break; }
+    }
+    links.forEach(function(a){ a.classList.remove('toc-active'); });
+    if (firstId && byId[firstId]) {
+      var a = byId[firstId];
+      a.classList.add('toc-active');
+      /* 让激活项保持在视野内 */
+      var rect = a.getBoundingClientRect();
+      var box = toc.getBoundingClientRect();
+      if (rect.top < box.top + 40 || rect.bottom > box.bottom - 40) {
+        a.scrollIntoView({ block: 'nearest' });
+      }
+    }
+  }
+
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      visible[e.target.id] = e.isIntersecting;
+    });
+    update();
+  }, { rootMargin: '-12% 0px -70% 0px', threshold: 0 });
+
+  headings.forEach(function(h){ io.observe(h); });
+})();
+</script>
+</body>
+</html>

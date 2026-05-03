@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>LLM 应用工程演进 · 系列总览</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {  background-color: #f8f8f8; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ef2929; } /* Alert */
+    code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #204a87; } /* Attribute */
+    code span.bn { color: #0000cf; } /* BaseN */
+    code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4e9a06; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #8f5902; font-style: italic; } /* Comment */
+    code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+    code span.dt { color: #204a87; } /* DataType */
+    code span.dv { color: #0000cf; } /* DecVal */
+    code span.er { color: #a40000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #0000cf; } /* Float */
+    code span.fu { color: #204a87; font-weight: bold; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+    code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+    code span.ot { color: #8f5902; } /* Other */
+    code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+    code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+    code span.ss { color: #4e9a06; } /* SpecialString */
+    code span.st { color: #4e9a06; } /* String */
+    code span.va { color: #000000; } /* Variable */
+    code span.vs { color: #4e9a06; } /* VerbatimString */
+    code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header class="site-nav" role="banner">
+  <div class="site-nav-inner">
+    <a href="README.html" class="site-nav-brand">LLM 应用工程演进</a>
+    <nav class="site-nav-links" aria-label="章节导航">
+      <a href="01_prompt_engineering.html"><span class="ch-no">01</span><span class="ch-name">提示词</span></a>
+      <a href="02_context_engineering.html"><span class="ch-no">02</span><span class="ch-name">上下文</span></a>
+      <a href="03_agent_engineering.html"><span class="ch-no">03</span><span class="ch-name">Agent</span></a>
+      <a href="04_harness_engineering.html"><span class="ch-no">04</span><span class="ch-name">驾驭</span></a>
+      <a href="article.html" class="site-nav-extra">综述</a>
+    </nav>
+  </div>
+</header>
+<script>
+(function(){
+  var here = (location.pathname.split('/').pop() || 'README.html').toLowerCase();
+  document.querySelectorAll('.site-nav a').forEach(function(a){
+    if ((a.getAttribute('href') || '').toLowerCase() === here) {
+      a.setAttribute('aria-current', 'page');
+    }
+  });
+})();
+</script>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#llm-应用工程的四层演进-系列文档"
+id="toc-llm-应用工程的四层演进-系列文档">LLM 应用工程的四层演进 ·
+系列文档</a>
+<ul>
+<li><a href="#这是什么" id="toc-这是什么">这是什么</a></li>
+<li><a href="#阅读地图" id="toc-阅读地图">阅读地图</a></li>
+<li><a href="#文件清单" id="toc-文件清单">文件清单</a></li>
+<li><a href="#推荐阅读顺序" id="toc-推荐阅读顺序">推荐阅读顺序</a></li>
+<li><a href="#版本演进" id="toc-版本演进">版本演进</a>
+<ul>
+<li><a href="#v3-在-v2-基础上的关键深化"
+id="toc-v3-在-v2-基础上的关键深化">v3 在 v2 基础上的关键深化</a></li>
+<li><a href="#与-v1合并版的差异" id="toc-与-v1合并版的差异">与
+v1（合并版）的差异</a></li>
+</ul></li>
+<li><a href="#核心引用源精选"
+id="toc-核心引用源精选">核心引用源（精选）</a></li>
+<li><a href="#复现命令" id="toc-复现命令">复现命令</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="llm-应用工程的四层演进-系列文档">LLM 应用工程的四层演进 ·
+系列文档</h1>
+<p><strong>调研日期</strong>：2026-05-01 ·
+<strong>修订</strong>：2026-05-01（v3，每章节深化：公式 + 代码 +
+实战配置 + GitHub 系统教程）</p>
+<h2 id="这是什么">这是什么</h2>
+<p>一组围绕”如何把 LLM
+真正在生产环境跑起来”的系统性技术综述，按工程抽象层从低到高组织。每一层是独立学科，但生产系统四层缺一不可。</p>
+<h2 id="阅读地图">阅读地图</h2>
+<pre><code>01_prompt_engineering.md      → 单次 LLM 调用怎么写
+              ↓
+02_context_engineering.md     → 模型推理这一刻能看到什么
+              ↓
+03_agent_engineering.md       → 如何让 LLM 自主完成多步任务（goal → loop → memory）
+              ↓
+04_harness_engineering.md     → agent 在什么环境里运行、出错时如何不再犯同样的错</code></pre>
+<h2 id="文件清单">文件清单</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>文件</th>
+<th>内容</th>
+<th>篇幅</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>README.md</code></td>
+<td>本文件，目录与阅读建议</td>
+<td>小</td>
+</tr>
+<tr class="even">
+<td><code>01_prompt_engineering.md</code></td>
+<td>Transformer / 注意力 / 训练栈（预训练 / SFT / DPO / GRPO / RLAIF /
+RLVR / LoRA / QLoRA / 蒸馏）/ 解码策略 / CoT / ReAct / ToT / Self-Refine
+/ 自动化 prompt / 评估与失败模式</td>
+<td>~10 K 中文字</td>
+</tr>
+<tr class="odd">
+<td><code>02_context_engineering.md</code></td>
+<td>定义起源 / 长上下文物理学 / Lost-in-the-Middle / RULER / RAG
+全栈选型（解析→切分→嵌入→向量库→检索→重排→改写→GraphRAG / Self-RAG /
+CRAG / Agentic RAG / 多模态）/ 记忆系统四强对比 / 上下文管理策略 / MCP /
+A2A</td>
+<td>~13 K 中文字</td>
+</tr>
+<tr class="even">
+<td><code>03_agent_engineering.md</code> ⭐</td>
+<td>Agent 定义与坐标系 / 范式演进 / 四层架构 / 类型分类 / 10
+个主流框架矩阵 / 多 agent 协作 5 种模式 / 评估基准（SWE-bench / GAIA /
+WebArena / OSWorld 2026 排名）/ 真实产品案例（Claude Code / Cursor /
+Devin / Manus / Computer Use）/ 失败模式与真实事故（Amazon Kiro / Replit
+/ Loop of Death）/ 安全权限模型</td>
+<td>~12 K 中文字</td>
+</tr>
+<tr class="odd">
+<td><code>04_harness_engineering.md</code></td>
+<td>起源（Hashimoto 2026-02 命名）/ 两条核心法则（强约束 + 自愈循环）/
+四大支柱（上下文架构 / Agent 专业化 / 持久化记忆 / 结构化执行）/
+§3.3.1-§3.3.3 harness 强约束的直接实现（MCP / 沙箱 / 护栏）/
+完整生产栈架构图 / 成熟度模型 L0-L4 / 综合演进叙事 / 三类场景选型清单 /
+限制 / 参考文献全集 / 方法论</td>
+<td>~13 K 中文字</td>
+</tr>
+<tr class="even">
+<td><code>article.md</code></td>
+<td>v1 合并版（4 文件未拆分前的原稿，保留为参考）</td>
+<td>~30 K 中文字</td>
+</tr>
+<tr class="odd">
+<td><code>run_manifest.json</code></td>
+<td>调研元数据：query / mode / search 路数 / claim 验证表</td>
+<td>小</td>
+</tr>
+<tr class="even">
+<td><code>sources.jsonl</code></td>
+<td>引用源注册表（45 条）</td>
+<td>小</td>
+</tr>
+</tbody>
+</table>
+<h2 id="推荐阅读顺序">推荐阅读顺序</h2>
+<p><strong>完整通读</strong>：01 → 02 → 03 → 04（按抽象层从低到高，4
+层叠加）</p>
+<p><strong>按角色挑选</strong>： - <strong>AI
+产品经理</strong>：03（Agent 类型、产品案例）→ 02（RAG 选型）→
+04（生产栈） - <strong>后端工程师准备转 AI</strong>：01（基础）→
+02（RAG）→ 03（框架）→ 04（observability/eval） -
+<strong>算法工程师</strong>：01.2 训练栈 → 02 上下文工程全章 → 03
+评估基准 → 04.3.4 推理服务器 - <strong>DevOps / 平台工程师</strong>：04
+全章 → 03.10 安全权限 → 02.7 MCP 协议 -
+<strong>创业者评估技术栈</strong>：04 的”创业 MVP” recommendations → 03
+的框架选型 → 02 的记忆系统选型</p>
+<h2 id="版本演进">版本演进</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>版本</th>
+<th>日期</th>
+<th>变化</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>v1</strong></td>
+<td>2026-05-01 17:30</td>
+<td>原稿 3 大篇合并版（<code>article.md</code>），约 30 K 中文字</td>
+</tr>
+<tr class="even">
+<td><strong>v2</strong></td>
+<td>2026-05-01 19:00</td>
+<td>按章节拆分为 4 个独立文档 + 新增 Agent
+工程章节（含真实事故、benchmark、安全权限），约 48 K 中文字</td>
+</tr>
+<tr class="odd">
+<td><strong>v3</strong></td>
+<td>2026-05-01 后续</td>
+<td><strong>每章节深化</strong>（用户反馈”系统化不够”）：加公式、代码、实战配置、GitHub
+系统教程，约 75 K 中文字</td>
+</tr>
+</tbody>
+</table>
+<h3 id="v3-在-v2-基础上的关键深化">v3 在 v2 基础上的关键深化</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>章节</th>
+<th>v3 新增</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>01 提示词工程</strong></td>
+<td>Attention 完整数学公式（<code>softmax(QK^T/√d_k)V</code> +
+Multi-Head 公式 + PyTorch 代码）/ Q-K-V 图书馆类比 / Transformer Block
+完整流程图（Pre-Norm + RMSNorm + RoPE + SwiGLU + GQA + MoE）/ RLHF
+目标函数（含 4 模型表）/ DPO 损失函数完整推导 / GRPO + RLVR 流程与代码 /
+DPO 变体（IPO/KTO/SimPO/CPO）/ 三算法横向对比表 / <strong>新 GitHub
+系统教程小节</strong>（karpathy nn-zero-to-hero / build-nanogpt /
+Sebastian Raschka LLMs-from-scratch / HuggingFace TRL / unsloth 等 13 项
++ 论文必读清单）</td>
+</tr>
+<tr class="even">
+<td><strong>02 上下文工程</strong></td>
+<td>RAG 完整 pipeline 100 行 Python
+代码骨架（解析→切分→嵌入→混合检索→改写→重排→生成）/ <strong>新 GitHub
+RAG 资源小节</strong>（NirDiamant RAG_Techniques / RAGFlow / LightRAG /
+Awesome-RAG 等 8 项）</td>
+</tr>
+<tr class="odd">
+<td><strong>03 Agent 工程</strong></td>
+<td><strong>Anthropic 6 大 composable patterns
+完整详解</strong>（Augmented LLM / Prompt Chaining / Routing /
+Parallelization / Orchestrator-Workers / Evaluator-Optimizer /
+Agents，每个含图示 + 场景 + 选型）+ patterns 选型决策树 /
+三大主流框架（LangGraph + CrewAI + OpenAI Agents SDK）“Hello World”
+代码对比 + 哲学对比表 / <strong>完整 100 行端到端 Agent
+案例</strong>（带 RAG + 记忆 + 4 道 Loop of Death 闸门 + checkpoint +
+observability）/ <strong>新 GitHub Agent 资源小节</strong>（microsoft AI
+agents for beginners / agent-framework / hello-agents 42K⭐ / Anthropic
+文章 / 8 个主流框架等 12 项 + 论文必读）</td>
+</tr>
+<tr class="even">
+<td><strong>04 驾驭工程</strong></td>
+<td><strong>两条法则 + 四大支柱方法论</strong> + harness
+强约束直接实现（MCP / 沙箱 / 护栏）+ §3.9 附录的 4 类相关基础设施（LLM
+网关 / 推理 / 观测 / 评估，明确标注非 harness）+
+<strong>配置示例集</strong>：LiteLLM <code>config.yaml</code>（routing +
+fallback + caching） / vLLM 与 SGLang 启动命令对比 / Langfuse
+三种接入姿势 / Promptfoo <code>promptfooconfig.yaml</code>（CI gating）
+/ RAGAS Python 评测 / NeMo Guardrails Colang / E2B 沙箱 / MCP Server
+最小实现 / Pre-commit hook（强约束）/ Evaluator-Optimizer（自愈循环）/
+Harness 成熟度模型 L0-L4 / <strong>新 GitHub
+驾驭层资源小节</strong>（按支撑设施 7 类分类，30+ 项）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="与-v1合并版的差异">与 v1（合并版）的差异</h3>
+<table>
+<thead>
+<tr class="header">
+<th>变化</th>
+<th>v1（<code>article.md</code>）</th>
+<th>v2 / v3（4 文件）</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>章节数</td>
+<td>3 大篇</td>
+<td>4 大篇</td>
+</tr>
+<tr class="even">
+<td>Agent 内容</td>
+<td>散落在各章</td>
+<td>独立成章</td>
+</tr>
+<tr class="odd">
+<td>真实事故案例</td>
+<td>未涵盖</td>
+<td>新增（Amazon Kiro / Replit / Loop of Death）</td>
+</tr>
+<tr class="even">
+<td>公式与代码</td>
+<td>仅描述</td>
+<td>v3 完整公式 + 可运行代码</td>
+</tr>
+<tr class="odd">
+<td>实战配置</td>
+<td>仅描述</td>
+<td>v3 每组件 yaml/python 示例</td>
+</tr>
+<tr class="even">
+<td>GitHub 资源</td>
+<td>极少</td>
+<td>v3 50+ 个分类资源</td>
+</tr>
+<tr class="odd">
+<td>总字数</td>
+<td>~30 K</td>
+<td>v2 ~48 K → v3 ~75 K</td>
+</tr>
+</tbody>
+</table>
+<h2 id="核心引用源精选">核心引用源（精选）</h2>
+<ul>
+<li>Karpathy：<em>Software Is Changing (Again)</em>（context engineering
+词源）</li>
+<li>Anthropic：<em>Effective Context Engineering for AI Agents</em></li>
+<li>Mitchell Hashimoto / Augment Code：<em>Harness Engineering for AI
+Coding Agents</em>（harness engineering 命名）</li>
+<li>Vaswani 等 (2017)：<em>Attention Is All You Need</em></li>
+<li>Liu 等 (2024)：<em>Lost in the Middle</em>（TACL）</li>
+<li>Asai 等 (2023)：<em>Self-RAG</em></li>
+<li>Yao 等 (2022)：<em>ReAct</em></li>
+<li>Madaan 等 (2023)：<em>Self-Refine</em>（NeurIPS）</li>
+<li>Packer 等 (2023)：<em>MemGPT</em></li>
+<li>Sebastian Raschka：<em>State of LLMs 2025</em></li>
+<li>llm-stats：<em>Post-Training in 2026: GRPO, DAPO, RLVR &amp;
+Beyond</em></li>
+<li>Berkeley RDI：<em>How We Broke Top AI Agent
+Benchmarks</em>（benchmark 可信度审计）</li>
+</ul>
+<p>完整 45 条见各章节末尾的 Bibliography 与
+<code>sources.jsonl</code>。</p>
+<h2 id="复现命令">复现命令</h2>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-la</span> ~/Documents/Prompt_Context_Harness_Engineering_Article_20260501/</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">wc</span> <span class="at">-m</span> ~/Documents/Prompt_Context_Harness_Engineering_Article_20260501/0<span class="pp">[</span><span class="ss">1</span><span class="pp">-</span><span class="ss">4</span><span class="pp">]</span>_<span class="pp">*</span>.md</span></code></pre></div>
+<nav class="page-pager" id="page-pager" aria-label="章节翻页"></nav>
+
+<footer class="site-foot">
+  <div class="site-foot-inner">
+    <span>LLM 应用工程的四层演进 · 系列文档</span>
+    <span class="site-foot-sep">·</span>
+    <span>调研日期 2026-05-01</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  /* ---- 章节翻页（顺序：README → 01 → 02 → 03 → 04） ---- */
+  var pages = [
+    { file: 'README.html',                  title: '总览' },
+    { file: '01_prompt_engineering.html',   title: '01 · 提示词工程' },
+    { file: '02_context_engineering.html',  title: '02 · 上下文工程' },
+    { file: '03_agent_engineering.html',    title: '03 · Agent 工程' },
+    { file: '04_harness_engineering.html',  title: '04 · 驾驭工程' }
+  ];
+  var here = (location.pathname.split('/').pop() || 'README.html').toLowerCase();
+  var idx = -1;
+  for (var i = 0; i < pages.length; i++) {
+    if (pages[i].file.toLowerCase() === here) { idx = i; break; }
+  }
+  var pager = document.getElementById('page-pager');
+  if (idx < 0) {
+    pager.style.display = 'none';
+  } else {
+    var prev = pages[idx - 1];
+    var next = pages[idx + 1];
+    var html = '';
+    if (prev) {
+      html += '<a class="pager-prev" href="' + prev.file + '">' +
+              '<span class="pager-label">← 上一篇</span>' +
+              '<span class="pager-title">' + prev.title + '</span></a>';
+    } else {
+      html += '<span class="pager-empty"></span>';
+    }
+    if (next) {
+      html += '<a class="pager-next" href="' + next.file + '">' +
+              '<span class="pager-label">下一篇 →</span>' +
+              '<span class="pager-title">' + next.title + '</span></a>';
+    } else {
+      html += '<span class="pager-empty"></span>';
+    }
+    pager.innerHTML = html;
+  }
+
+  /* ---- TOC 当前位置高亮（IntersectionObserver） ---- */
+  var toc = document.getElementById('TOC');
+  if (!toc || !('IntersectionObserver' in window)) return;
+  var links = toc.querySelectorAll('a[href^="#"]');
+  if (!links.length) return;
+
+  var byId = {};
+  var orderedIds = [];
+  links.forEach(function(a){
+    var id = decodeURIComponent((a.getAttribute('href') || '').slice(1));
+    if (!id) return;
+    byId[id] = a;
+    orderedIds.push(id);
+  });
+  var headings = orderedIds
+    .map(function(id){ return document.getElementById(id); })
+    .filter(Boolean);
+  if (!headings.length) return;
+
+  var visible = {};
+  function update() {
+    var firstId = null;
+    for (var i = 0; i < orderedIds.length; i++) {
+      if (visible[orderedIds[i]]) { firstId = orderedIds[i]; break; }
+    }
+    links.forEach(function(a){ a.classList.remove('toc-active'); });
+    if (firstId && byId[firstId]) {
+      var a = byId[firstId];
+      a.classList.add('toc-active');
+      /* 让激活项保持在视野内 */
+      var rect = a.getBoundingClientRect();
+      var box = toc.getBoundingClientRect();
+      if (rect.top < box.top + 40 || rect.bottom > box.bottom - 40) {
+        a.scrollIntoView({ block: 'nearest' });
+      }
+    }
+  }
+
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      visible[e.target.id] = e.isIntersecting;
+    });
+    update();
+  }, { rootMargin: '-12% 0px -70% 0px', threshold: 0 });
+
+  headings.forEach(function(h){ io.observe(h); });
+})();
+</script>
+</body>
+</html>
