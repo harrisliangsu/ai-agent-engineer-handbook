@@ -6,7 +6,7 @@
 
 ## 本目录两份核心研究
 
-### [01-jd-requirements.md](./01-jd-requirements.md) — AI Agent 岗位 JD 要求研究
+### [jd-requirements.md](./jd-requirements.md) — AI Agent 岗位 JD 要求研究
 
 **调研日期**：2026-05-02
 
@@ -22,7 +22,7 @@
 - **岗位变种**：中国 7 类 + 北美 6 类区分（含薪资带）
 - **海外 / 中国对比观察**
 
-### [02-interview-questions.md](./02-interview-questions.md) — 86 道面试题与答案
+### [interview-questions.md](./interview-questions.md) — 86 道面试题与答案
 
 **10 大分类**，每题 ⭐ 难度分级 + 200-500 字技术答案 + 一手论文/官方文档 URL：
 
@@ -46,14 +46,14 @@
 `html/` 目录有渲染后的网页版（带左侧浮动 TOC + 文档间切换 + 滚动高亮）。本地浏览：
 
 ```bash
-cd 02-job-search/html
+cd interview-prep/html
 python3 -m http.server 8000
-# 浏览器打开 http://localhost:8000/01_jd_requirements.html
+# 浏览器打开 http://localhost:8000/jd-requirements.html
 ```
 
 ---
 
 ## 配套阅读
 
-- 想深化技术答案的"为什么"：[../01-llm-engineering-series/](../01-llm-engineering-series/) 是配套的四层工程深度长文系列
+- 想深化技术答案的"为什么"：[../engineering-foundations/](../engineering-foundations/) 是配套的四层工程深度长文系列
 - 顶层导览：[../README.md](../README.md)

@@ -2082,6 +2082,6 @@ memory.add(messages=result["messages"], user_id="u_abc")
 
 ## 章节交叉引用
 
-- 想深入 ReAct 提示词模板与 CoT → 见 [01_prompt_engineering.md](./01_prompt_engineering.md) §1.4
-- 想深入 RAG 与记忆系统的工程细节 → 见 [02_context_engineering.md](./02_context_engineering.md) §2.4 / §2.5
-- 想深入工具集成 / 沙箱 / 护栏（harness 强约束的直接实现） → 见 [04_harness_engineering.md](./04_harness_engineering.md) §3.3.1-§3.3.3；想看 observability / 评估（相关但非 harness 的支撑设施） → 见 §3.9.3-§3.9.4
+- 想深入 ReAct 提示词模板与 CoT → 见 [prompt-engineering.md](./prompt-engineering.md) §1.4
+- 想深入 RAG 与记忆系统的工程细节 → 见 [context-engineering.md](./context-engineering.md) §2.4 / §2.5
+- 想深入工具集成 / 沙箱 / 护栏（harness 强约束的直接实现） → 见 [harness-engineering.md](./harness-engineering.md) §3.3.1-§3.3.3；想看 observability / 评估（相关但非 harness 的支撑设施） → 见 §3.9.3-§3.9.4

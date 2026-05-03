@@ -26,20 +26,18 @@
 <body>
 <header class="site-nav" role="banner">
   <div class="site-nav-inner">
-    <a href="01_jd_requirements.html" class="site-nav-brand">AI Agent 求职研究</a>
+    <a href="jd-requirements.html" class="site-nav-brand">AI Agent 求职研究</a>
     <nav class="site-nav-links" aria-label="文档导航">
-      <a href="01_jd_requirements.html"><span class="ch-no">01</span><span class="ch-name">JD 要求</span></a>
-      <a href="02_interview_questions.html"><span class="ch-no">02</span><span class="ch-name">面试题与答案</span></a>
+      <a href="jd-requirements.html"><span class="ch-no">01</span><span class="ch-name">JD 要求</span></a>
+      <a href="interview-questions.html"><span class="ch-no">02</span><span class="ch-name">面试题与答案</span></a>
     </nav>
   </div>
 </header>
 <script>
 (function(){
-  var here = (location.pathname.split('/').pop() || '01_jd_requirements.html').toLowerCase();
+  var here = (location.pathname.split('/').pop() || 'jd-requirements.html').toLowerCase();
   document.querySelectorAll('.site-nav a').forEach(function(a){
-    if ((a.getAttribute('href') || '').toLowerCase() === here) {
-      a.setAttribute('aria-current', 'page');
-    }
+    if ((a.getAttribute('href') || '').toLowerCase() === here) a.setAttribute('aria-current', 'page');
   });
 })();
 </script>
@@ -1321,84 +1319,48 @@ analysis（agentic-engineering-jobs.com）</li>
 
 <script>
 (function(){
-  /* ---- 文档翻页 ---- */
   var pages = [
-    { file: '01_jd_requirements.html',     title: '01 · AI Agent 岗位 JD 要求' },
-    { file: '02_interview_questions.html', title: '02 · 面试题与答案' }
+    { file: 'jd-requirements.html',     title: '01 · AI Agent 岗位 JD 要求' },
+    { file: 'interview-questions.html', title: '02 · 面试题与答案' }
   ];
-  var here = (location.pathname.split('/').pop() || '01_jd_requirements.html').toLowerCase();
+  var here = (location.pathname.split('/').pop() || 'jd-requirements.html').toLowerCase();
   var idx = -1;
-  for (var i = 0; i < pages.length; i++) {
-    if (pages[i].file.toLowerCase() === here) { idx = i; break; }
-  }
+  for (var i = 0; i < pages.length; i++) { if (pages[i].file.toLowerCase() === here) { idx = i; break; } }
   var pager = document.getElementById('page-pager');
-  if (idx < 0) {
-    pager.style.display = 'none';
-  } else {
-    var prev = pages[idx - 1];
-    var next = pages[idx + 1];
-    var html = '';
-    if (prev) {
-      html += '<a class="pager-prev" href="' + prev.file + '">' +
-              '<span class="pager-label">← 上一篇</span>' +
-              '<span class="pager-title">' + prev.title + '</span></a>';
-    } else {
-      html += '<span class="pager-empty"></span>';
-    }
-    if (next) {
-      html += '<a class="pager-next" href="' + next.file + '">' +
-              '<span class="pager-label">下一篇 →</span>' +
-              '<span class="pager-title">' + next.title + '</span></a>';
-    } else {
-      html += '<span class="pager-empty"></span>';
-    }
+  if (idx < 0) { pager.style.display = 'none'; }
+  else {
+    var prev = pages[idx - 1], next = pages[idx + 1], html = '';
+    if (prev) html += '<a class="pager-prev" href="' + prev.file + '"><span class="pager-label">← 上一篇</span><span class="pager-title">' + prev.title + '</span></a>';
+    else html += '<span class="pager-empty"></span>';
+    if (next) html += '<a class="pager-next" href="' + next.file + '"><span class="pager-label">下一篇 →</span><span class="pager-title">' + next.title + '</span></a>';
+    else html += '<span class="pager-empty"></span>';
     pager.innerHTML = html;
   }
 
-  /* ---- TOC 当前位置高亮（IntersectionObserver） ---- */
   var toc = document.getElementById('TOC');
   if (!toc || !('IntersectionObserver' in window)) return;
   var links = toc.querySelectorAll('a[href^="#"]');
   if (!links.length) return;
-
-  var byId = {};
-  var orderedIds = [];
+  var byId = {}, orderedIds = [];
   links.forEach(function(a){
     var id = decodeURIComponent((a.getAttribute('href') || '').slice(1));
     if (!id) return;
-    byId[id] = a;
-    orderedIds.push(id);
+    byId[id] = a; orderedIds.push(id);
   });
-  var headings = orderedIds
-    .map(function(id){ return document.getElementById(id); })
-    .filter(Boolean);
+  var headings = orderedIds.map(function(id){ return document.getElementById(id); }).filter(Boolean);
   if (!headings.length) return;
-
   var visible = {};
   function update() {
     var firstId = null;
-    for (var i = 0; i < orderedIds.length; i++) {
-      if (visible[orderedIds[i]]) { firstId = orderedIds[i]; break; }
-    }
+    for (var i = 0; i < orderedIds.length; i++) { if (visible[orderedIds[i]]) { firstId = orderedIds[i]; break; } }
     links.forEach(function(a){ a.classList.remove('toc-active'); });
     if (firstId && byId[firstId]) {
-      var a = byId[firstId];
-      a.classList.add('toc-active');
-      var rect = a.getBoundingClientRect();
-      var box = toc.getBoundingClientRect();
-      if (rect.top < box.top + 40 || rect.bottom > box.bottom - 40) {
-        a.scrollIntoView({ block: 'nearest' });
-      }
+      var a = byId[firstId]; a.classList.add('toc-active');
+      var rect = a.getBoundingClientRect(), box = toc.getBoundingClientRect();
+      if (rect.top < box.top + 40 || rect.bottom > box.bottom - 40) a.scrollIntoView({ block: 'nearest' });
     }
   }
-
-  var io = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      visible[e.target.id] = e.isIntersecting;
-    });
-    update();
-  }, { rootMargin: '-12% 0px -70% 0px', threshold: 0 });
-
+  var io = new IntersectionObserver(function(entries){ entries.forEach(function(e){ visible[e.target.id] = e.isIntersecting; }); update(); }, { rootMargin: '-12% 0px -70% 0px', threshold: 0 });
   headings.forEach(function(h){ io.observe(h); });
 })();
 </script>

@@ -575,7 +575,7 @@ def generate_training_data(seed_prompts, target_size=10_000):
 
 工程上现在的事实标准是 `temperature=0.7 + top_p=0.95`（OpenAI / Anthropic 的默认）。**要做创意生成调高 T，要做严格 JSON 提取调到 T=0 + 配合 grammar-guided generation**（如 Outlines、Guidance、Llama.cpp 的 GBNF）。
 
-**Speculative Decoding**（详见 [04_harness_engineering.md](./04_harness_engineering.md) §3.9.2）和 **Prefix Caching** 等推理服务器层优化也属于推理栈但偏服务部署，本章只述及解码策略层面。
+**Speculative Decoding**（详见 [harness-engineering.md](./harness-engineering.md) §3.9.2）和 **Prefix Caching** 等推理服务器层优化也属于推理栈但偏服务部署，本章只述及解码策略层面。
 
 ---
 
@@ -597,7 +597,7 @@ Wang 等人 2022 年。同一个 CoT prompt 采样 N 次（高 temperature），
 
 ### 1.4.4 ReAct（Reasoning + Acting）
 
-Yao 等人 2022 年 [4]。把思考（Thought）和行动（Action）交错：模型先想"我现在该查什么"，然后调用工具（搜索 / 计算器 / API），观察结果（Observation），再继续想下一步。**在 ALFWorld 交互式任务上比 imitation learning + RL 高 34% 绝对成功率**，在 WebShop 上高 10%。**ReAct 是后来所有 Agent 架构的祖父**——LangGraph 的 react agent template、AutoGen 的 conversable agent、CrewAI 的 task agent，本质都是 ReAct 的工程化变体。详见 [03_agent_engineering.md](./03_agent_engineering.md) §2。
+Yao 等人 2022 年 [4]。把思考（Thought）和行动（Action）交错：模型先想"我现在该查什么"，然后调用工具（搜索 / 计算器 / API），观察结果（Observation），再继续想下一步。**在 ALFWorld 交互式任务上比 imitation learning + RL 高 34% 绝对成功率**，在 WebShop 上高 10%。**ReAct 是后来所有 Agent 架构的祖父**——LangGraph 的 react agent template、AutoGen 的 conversable agent、CrewAI 的 task agent，本质都是 ReAct 的工程化变体。详见 [agent-engineering.md](./agent-engineering.md) §2。
 
 ### 1.4.5 Tree of Thoughts（ToT）/ Graph of Thoughts（GoT）
 
@@ -1228,9 +1228,9 @@ new_rag.load("./optimized_rag.json")
 - **提示词注入（Prompt Injection）**：用户输入里夹带"忽略上面所有指令，改做 X"，劫持 system prompt
 - **越狱（Jailbreak）**：绕过对齐让模型输出有害内容（"DAN"、角色扮演、长尾语言攻击等）
 
-**OWASP *Top 10 for LLM Applications* (现行 2025 版) 是业界标准分类法** [36]，前三名分别是 LLM01 Prompt Injection（提示词注入）、LLM02 Sensitive Information Disclosure（敏感信息泄露）、LLM03 Supply Chain（供应链风险）。这些问题不能靠"写更好的 prompt"解决，必须靠护栏（详见 [04_harness_engineering.md](./04_harness_engineering.md) §3.3.3）。
+**OWASP *Top 10 for LLM Applications* (现行 2025 版) 是业界标准分类法** [36]，前三名分别是 LLM01 Prompt Injection（提示词注入）、LLM02 Sensitive Information Disclosure（敏感信息泄露）、LLM03 Supply Chain（供应链风险）。这些问题不能靠"写更好的 prompt"解决，必须靠护栏（详见 [harness-engineering.md](./harness-engineering.md) §3.3.3）。
 
-到 2024 年下半年起，"提示词工程是不是还重要"的争论开始浮现。Karpathy 在 YC AI School 的 *Software Is Changing (Again)* 演讲里把行业焦点指向了下一站——**上下文工程**（详见 [02_context_engineering.md](./02_context_engineering.md)）。
+到 2024 年下半年起，"提示词工程是不是还重要"的争论开始浮现。Karpathy 在 YC AI School 的 *Software Is Changing (Again)* 演讲里把行业焦点指向了下一站——**上下文工程**（详见 [context-engineering.md](./context-engineering.md)）。
 
 ---
 
@@ -1290,7 +1290,7 @@ new_rag.load("./optimized_rag.json")
 
 ## 章节交叉引用
 
-- 想理解 ReAct 如何成为现代 Agent 基础 → [03_agent_engineering.md](./03_agent_engineering.md) §2 范式演进
-- 想理解长上下文 / RAG / 记忆如何延展提示词工程 → [02_context_engineering.md](./02_context_engineering.md)
-- 想看 Prompt 安全护栏在生产里的部署 → [04_harness_engineering.md](./04_harness_engineering.md) §3.3.3
+- 想理解 ReAct 如何成为现代 Agent 基础 → [agent-engineering.md](./agent-engineering.md) §2 范式演进
+- 想理解长上下文 / RAG / 记忆如何延展提示词工程 → [context-engineering.md](./context-engineering.md)
+- 想看 Prompt 安全护栏在生产里的部署 → [harness-engineering.md](./harness-engineering.md) §3.3.3
 

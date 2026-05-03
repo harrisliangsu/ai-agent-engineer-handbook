@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>03 Agent 工程</title>
+  <title>Agent 工程：从 ReAct 到自主系统</title>
   <style>
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
@@ -91,11 +91,11 @@
   <div class="site-nav-inner">
     <a href="README.html" class="site-nav-brand">LLM 应用工程演进</a>
     <nav class="site-nav-links" aria-label="章节导航">
-      <a href="01_prompt_engineering.html"><span class="ch-no">01</span><span class="ch-name">提示词</span></a>
-      <a href="02_context_engineering.html"><span class="ch-no">02</span><span class="ch-name">上下文</span></a>
-      <a href="03_agent_engineering.html"><span class="ch-no">03</span><span class="ch-name">Agent</span></a>
-      <a href="04_harness_engineering.html"><span class="ch-no">04</span><span class="ch-name">驾驭</span></a>
-      <a href="article.html" class="site-nav-extra">综述</a>
+      <a href="prompt-engineering.html"><span class="ch-no">01</span><span class="ch-name">提示词</span></a>
+      <a href="context-engineering.html"><span class="ch-no">02</span><span class="ch-name">上下文</span></a>
+      <a href="agent-engineering.html"><span class="ch-no">03</span><span class="ch-name">Agent</span></a>
+      <a href="harness-engineering.html"><span class="ch-no">04</span><span class="ch-name">驾驭</span></a>
+      <a href="overview.html" class="site-nav-extra">综述</a>
     </nav>
   </div>
 </header>
@@ -3069,12 +3069,12 @@ Code</em> (arxiv 2604.14228)</p>
 <h2 id="章节交叉引用">章节交叉引用</h2>
 <ul>
 <li>想深入 ReAct 提示词模板与 CoT → 见 <a
-href="./01_prompt_engineering.md">01_prompt_engineering.md</a> §1.4</li>
+href="./prompt-engineering.md">prompt-engineering.md</a> §1.4</li>
 <li>想深入 RAG 与记忆系统的工程细节 → 见 <a
-href="./02_context_engineering.md">02_context_engineering.md</a> §2.4 /
+href="./context-engineering.md">context-engineering.md</a> §2.4 /
 §2.5</li>
 <li>想深入工具集成 / 沙箱 / 护栏（harness 强约束的直接实现） → 见 <a
-href="./04_harness_engineering.md">04_harness_engineering.md</a>
+href="./harness-engineering.md">harness-engineering.md</a>
 §3.3.1-§3.3.3；想看 observability / 评估（相关但非 harness 的支撑设施）
 → 见 §3.9.3-§3.9.4</li>
 </ul>
@@ -3090,13 +3090,13 @@ href="./04_harness_engineering.md">04_harness_engineering.md</a>
 
 <script>
 (function(){
-  /* ---- 章节翻页（顺序：README → 01 → 02 → 03 → 04） ---- */
   var pages = [
     { file: 'README.html',                  title: '总览' },
-    { file: '01_prompt_engineering.html',   title: '01 · 提示词工程' },
-    { file: '02_context_engineering.html',  title: '02 · 上下文工程' },
-    { file: '03_agent_engineering.html',    title: '03 · Agent 工程' },
-    { file: '04_harness_engineering.html',  title: '04 · 驾驭工程' }
+    { file: 'prompt-engineering.html',      title: '01 · 提示词工程' },
+    { file: 'context-engineering.html',     title: '02 · 上下文工程' },
+    { file: 'agent-engineering.html',       title: '03 · Agent 工程' },
+    { file: 'harness-engineering.html',     title: '04 · 驾驭工程' },
+    { file: 'overview.html',                title: '综述' }
   ];
   var here = (location.pathname.split('/').pop() || 'README.html').toLowerCase();
   var idx = -1;
@@ -3104,74 +3104,40 @@ href="./04_harness_engineering.md">04_harness_engineering.md</a>
     if (pages[i].file.toLowerCase() === here) { idx = i; break; }
   }
   var pager = document.getElementById('page-pager');
-  if (idx < 0) {
-    pager.style.display = 'none';
-  } else {
-    var prev = pages[idx - 1];
-    var next = pages[idx + 1];
-    var html = '';
-    if (prev) {
-      html += '<a class="pager-prev" href="' + prev.file + '">' +
-              '<span class="pager-label">← 上一篇</span>' +
-              '<span class="pager-title">' + prev.title + '</span></a>';
-    } else {
-      html += '<span class="pager-empty"></span>';
-    }
-    if (next) {
-      html += '<a class="pager-next" href="' + next.file + '">' +
-              '<span class="pager-label">下一篇 →</span>' +
-              '<span class="pager-title">' + next.title + '</span></a>';
-    } else {
-      html += '<span class="pager-empty"></span>';
-    }
+  if (idx < 0) { pager.style.display = 'none'; }
+  else {
+    var prev = pages[idx - 1], next = pages[idx + 1], html = '';
+    if (prev) html += '<a class="pager-prev" href="' + prev.file + '"><span class="pager-label">← 上一篇</span><span class="pager-title">' + prev.title + '</span></a>';
+    else html += '<span class="pager-empty"></span>';
+    if (next) html += '<a class="pager-next" href="' + next.file + '"><span class="pager-label">下一篇 →</span><span class="pager-title">' + next.title + '</span></a>';
+    else html += '<span class="pager-empty"></span>';
     pager.innerHTML = html;
   }
 
-  /* ---- TOC 当前位置高亮（IntersectionObserver） ---- */
   var toc = document.getElementById('TOC');
   if (!toc || !('IntersectionObserver' in window)) return;
   var links = toc.querySelectorAll('a[href^="#"]');
   if (!links.length) return;
-
-  var byId = {};
-  var orderedIds = [];
+  var byId = {}, orderedIds = [];
   links.forEach(function(a){
     var id = decodeURIComponent((a.getAttribute('href') || '').slice(1));
     if (!id) return;
-    byId[id] = a;
-    orderedIds.push(id);
+    byId[id] = a; orderedIds.push(id);
   });
-  var headings = orderedIds
-    .map(function(id){ return document.getElementById(id); })
-    .filter(Boolean);
+  var headings = orderedIds.map(function(id){ return document.getElementById(id); }).filter(Boolean);
   if (!headings.length) return;
-
   var visible = {};
   function update() {
     var firstId = null;
-    for (var i = 0; i < orderedIds.length; i++) {
-      if (visible[orderedIds[i]]) { firstId = orderedIds[i]; break; }
-    }
+    for (var i = 0; i < orderedIds.length; i++) { if (visible[orderedIds[i]]) { firstId = orderedIds[i]; break; } }
     links.forEach(function(a){ a.classList.remove('toc-active'); });
     if (firstId && byId[firstId]) {
-      var a = byId[firstId];
-      a.classList.add('toc-active');
-      /* 让激活项保持在视野内 */
-      var rect = a.getBoundingClientRect();
-      var box = toc.getBoundingClientRect();
-      if (rect.top < box.top + 40 || rect.bottom > box.bottom - 40) {
-        a.scrollIntoView({ block: 'nearest' });
-      }
+      var a = byId[firstId]; a.classList.add('toc-active');
+      var rect = a.getBoundingClientRect(), box = toc.getBoundingClientRect();
+      if (rect.top < box.top + 40 || rect.bottom > box.bottom - 40) a.scrollIntoView({ block: 'nearest' });
     }
   }
-
-  var io = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      visible[e.target.id] = e.isIntersecting;
-    });
-    update();
-  }, { rootMargin: '-12% 0px -70% 0px', threshold: 0 });
-
+  var io = new IntersectionObserver(function(entries){ entries.forEach(function(e){ visible[e.target.id] = e.isIntersecting; }); update(); }, { rootMargin: '-12% 0px -70% 0px', threshold: 0 });
   headings.forEach(function(h){ io.observe(h); });
 })();
 </script>

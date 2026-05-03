@@ -13,19 +13,19 @@
 
 ```
 ai-agent-engineer-handbook/
-├── 01-llm-engineering-series/   ← 知识：LLM 应用工程的四层演进
-│   ├── 01-prompt-engineering.md     # 提示词工程
-│   ├── 02-context-engineering.md    # 上下文工程
-│   ├── 03-agent-engineering.md      # Agent 工程
-│   ├── 04-harness-engineering.md    # 驾驭工程
+├── engineering-foundations/   ← 知识：LLM 应用工程的四层演进
+│   ├── prompt-engineering.md     # 提示词工程
+│   ├── context-engineering.md    # 上下文工程
+│   ├── agent-engineering.md      # Agent 工程
+│   ├── harness-engineering.md    # 驾驭工程
 │   ├── overview.md                  # 综述（v1 合并版）
 │   ├── README.md                    # 系列阅读指南
 │   ├── sources.jsonl                # 全部一手来源清单
 │   └── html/                        # 渲染后的网页版（含左侧 TOC + 章节切换）
 │
-└── 02-job-search/               ← 实战：求职 JD + 面试题
-    ├── 01-jd-requirements.md        # AI Agent 岗位 JD 要求研究（中外大厂真实 JD 拆解）
-    ├── 02-interview-questions.md    # 86 道高质量面试题与答案（10 大分类）
+└── interview-prep/               ← 实战：求职 JD + 面试题
+    ├── jd-requirements.md        # AI Agent 岗位 JD 要求研究（中外大厂真实 JD 拆解）
+    ├── interview-questions.md    # 86 道高质量面试题与答案（10 大分类）
     └── html/                        # 渲染后的网页版
 ```
 
@@ -43,7 +43,7 @@ ai-agent-engineer-handbook/
 | **04 驾驭工程** | Hashimoto harness 工程命名 / 两条法则（强约束 + 自愈循环）+ 四大支柱 / 成熟度模型 L0-L4 / 熵管理 | ~134 KB |
 | **overview** | v1 合并版（保留作历史参考） | ~73 KB |
 
-**入口**：从 [`01-llm-engineering-series/README.md`](./01-llm-engineering-series/README.md) 开始；HTML 版本在 [`01-llm-engineering-series/html/`](./01-llm-engineering-series/html/) 下打开 `01_prompt_engineering.html` 即可（左侧浮动 TOC + 顶部章节切换）。
+**入口**：从 [`engineering-foundations/README.md`](./engineering-foundations/README.md) 开始；HTML 版本在 [`engineering-foundations/html/`](./engineering-foundations/html/) 下打开 `prompt-engineering.html` 即可（左侧浮动 TOC + 顶部章节切换）。
 
 ### 系列特点
 
@@ -55,7 +55,7 @@ ai-agent-engineer-handbook/
 
 ## 第二部分：求职实战（JD + 面试题）
 
-### 02-1 AI Agent 岗位 JD 要求研究（[`01-jd-requirements.md`](./02-job-search/01-jd-requirements.md)）
+### 02-1 AI Agent 岗位 JD 要求研究（[`jd-requirements.md`](./interview-prep/jd-requirements.md)）
 
 - **中国市场**：字节豆包 / 阿里通义 / 腾讯混元 / 月之暗面 Kimi / 智谱 GLM / DeepSeek / MiniMax / 阶跃星辰 / 蚂蚁 AI Force ……14 条带原文 verbatim 的真实 JD 摘录
 - **北美 / 欧洲市场**：Anthropic / OpenAI / Google DeepMind / Glean / Vercel / Replit / Sierra / Cognition (Devin) / Cursor / Mistral / Harvey / Perplexity ……8 条完整 JD + 薪资带
@@ -63,7 +63,7 @@ ai-agent-engineer-handbook/
 - **薪资数据**：从应届 SSP 到资深架构师，按地点和级别分级
 - **来源**：BOSS 直聘 / 拉勾 / 51job / 智联 / 牛客 / V2EX / 猎聘 / Greenhouse / Ashby / Glassdoor / Levels.fyi / Hacker News / LangChain ecosystem analysis 等 45+ 来源
 
-### 02-2 面试题与答案（[`02-interview-questions.md`](./02-job-search/02-interview-questions.md)）
+### 02-2 面试题与答案（[`interview-questions.md`](./interview-prep/interview-questions.md)）
 
 **86 道题，10 大分类**，每题：⭐ 难度分级 + 200-500 字技术答案 + 一手论文/官方文档来源 URL：
 
@@ -86,11 +86,11 @@ ai-agent-engineer-handbook/
 
 | 你是谁 | 推荐顺序 |
 |---|---|
-| **应届生 / 在校生**（求职准备） | `02-job-search/01-jd-requirements` 看市场 → 02 面试题分类 A/B/C/D 重点刷 → 反向去 `01` 系列对应章节深化 |
-| **1-3 年中级工程师**（转 AI 方向） | `01` 系列从 02 上下文工程开始读 → 03 Agent 工程 → 02 面试题 D/E/F 全刷 → G 选 1-2 题白板练 |
-| **3-5 年资深 / Staff** | `01` 系列 04 驾驭工程通读 → 02 面试题 E/G/H/I/J 重点（Staff 的差异在系统设计 + 行为题）|
-| **架构师 / 技术决策者** | `01` 系列 04 驾驭工程的"两条法则 + 四大支柱"+ 成熟度模型 L0-L4 + 02 面试题 G 系统设计全部 |
-| **招聘方 / 面试官** | `02-job-search/01-jd-requirements` 校准岗位标准 → `02-interview-questions` 按分类难度出题 |
+| **应届生 / 在校生**（求职准备） | `interview-prep/jd-requirements` 看市场 → `interview-prep/interview-questions` 分类 A/B/C/D 重点刷 → 反向去 `engineering-foundations/` 对应章节深化 |
+| **1-3 年中级工程师**（转 AI 方向） | `engineering-foundations/context-engineering` 起读 → `agent-engineering` → `interview-prep/interview-questions` D/E/F 全刷 → G 选 1-2 题白板练 |
+| **3-5 年资深 / Staff** | `engineering-foundations/harness-engineering` 通读 → `interview-prep/interview-questions` E/G/H/I/J 重点（Staff 的差异在系统设计 + 行为题）|
+| **架构师 / 技术决策者** | `engineering-foundations/harness-engineering` 的"两条法则 + 四大支柱"+ 成熟度模型 L0-L4 + `interview-prep/interview-questions` G 系统设计全部 |
+| **招聘方 / 面试官** | `interview-prep/jd-requirements` 校准岗位标准 → `interview-prep/interview-questions` 按分类难度出题 |
 
 ---
 
@@ -101,12 +101,12 @@ ai-agent-engineer-handbook/
 **HTML 版**（带左侧浮动 TOC + 章节切换 + 滚动高亮）：
 ```bash
 # 在本地 clone 后用 Python 起个静态服务器
-cd ai-agent-engineer-handbook/01-llm-engineering-series/html
+cd ai-agent-engineer-handbook/engineering-foundations/html
 python3 -m http.server 8000
 # 浏览器打开 http://localhost:8000
 ```
 
-或者直接双击 `html/01_prompt_engineering.html` 用浏览器打开。
+或者直接双击 `html/prompt-engineering.html` 用浏览器打开。
 
 ---
 

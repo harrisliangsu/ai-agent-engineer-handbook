@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>01 提示词工程</title>
+  <title>提示词工程（Prompt Engineering）</title>
   <style>
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
@@ -95,11 +95,11 @@
   <div class="site-nav-inner">
     <a href="README.html" class="site-nav-brand">LLM 应用工程演进</a>
     <nav class="site-nav-links" aria-label="章节导航">
-      <a href="01_prompt_engineering.html"><span class="ch-no">01</span><span class="ch-name">提示词</span></a>
-      <a href="02_context_engineering.html"><span class="ch-no">02</span><span class="ch-name">上下文</span></a>
-      <a href="03_agent_engineering.html"><span class="ch-no">03</span><span class="ch-name">Agent</span></a>
-      <a href="04_harness_engineering.html"><span class="ch-no">04</span><span class="ch-name">驾驭</span></a>
-      <a href="article.html" class="site-nav-extra">综述</a>
+      <a href="prompt-engineering.html"><span class="ch-no">01</span><span class="ch-name">提示词</span></a>
+      <a href="context-engineering.html"><span class="ch-no">02</span><span class="ch-name">上下文</span></a>
+      <a href="agent-engineering.html"><span class="ch-no">03</span><span class="ch-name">Agent</span></a>
+      <a href="harness-engineering.html"><span class="ch-no">04</span><span class="ch-name">驾驭</span></a>
+      <a href="overview.html" class="site-nav-extra">综述</a>
     </nav>
   </div>
 </header>
@@ -1226,8 +1226,8 @@ Penalty</strong>：抑制重复 token</li>
 grammar-guided generation</strong>（如 Outlines、Guidance、Llama.cpp 的
 GBNF）。</p>
 <p><strong>Speculative Decoding</strong>（详见 <a
-href="./04_harness_engineering.md">04_harness_engineering.md</a>
-§3.9.2）和 <strong>Prefix Caching</strong>
+href="./harness-engineering.md">harness-engineering.md</a> §3.9.2）和
+<strong>Prefix Caching</strong>
 等推理服务器层优化也属于推理栈但偏服务部署，本章只述及解码策略层面。</p>
 <hr />
 <h2 id="提示词工程的经典技术">1.4 提示词工程的经典技术</h2>
@@ -1259,7 +1259,7 @@ ALFWorld 交互式任务上比 imitation learning + RL 高 34%
 架构的祖父</strong>——LangGraph 的 react agent template、AutoGen 的
 conversable agent、CrewAI 的 task agent，本质都是 ReAct
 的工程化变体。详见 <a
-href="./03_agent_engineering.md">03_agent_engineering.md</a> §2。</p>
+href="./agent-engineering.md">agent-engineering.md</a> §2。</p>
 <h3 id="tree-of-thoughtstot-graph-of-thoughtsgot">1.4.5 Tree of
 Thoughts（ToT）/ Graph of Thoughts（GoT）</h3>
 <p>Yao 2023 / Besta 2023。CoT 是单条思考链，ToT
@@ -2086,12 +2086,12 @@ Injection（提示词注入）、LLM02 Sensitive Information
 Disclosure（敏感信息泄露）、LLM03 Supply
 Chain（供应链风险）。这些问题不能靠”写更好的
 prompt”解决，必须靠护栏（详见 <a
-href="./04_harness_engineering.md">04_harness_engineering.md</a>
+href="./harness-engineering.md">harness-engineering.md</a>
 §3.3.3）。</p>
 <p>到 2024 年下半年起，“提示词工程是不是还重要”的争论开始浮现。Karpathy
 在 YC AI School 的 <em>Software Is Changing (Again)</em>
 演讲里把行业焦点指向了下一站——<strong>上下文工程</strong>（详见 <a
-href="./02_context_engineering.md">02_context_engineering.md</a>）。</p>
+href="./context-engineering.md">context-engineering.md</a>）。</p>
 <hr />
 <h2 id="bibliography">Bibliography</h2>
 <p>[1] Vaswani, A. et al. (2017). <em>Attention Is All You Need</em>.
@@ -2244,13 +2244,11 @@ Report</em>（GRPO + RLVR 系统化）</p>
 <h2 id="章节交叉引用">章节交叉引用</h2>
 <ul>
 <li>想理解 ReAct 如何成为现代 Agent 基础 → <a
-href="./03_agent_engineering.md">03_agent_engineering.md</a> §2
-范式演进</li>
+href="./agent-engineering.md">agent-engineering.md</a> §2 范式演进</li>
 <li>想理解长上下文 / RAG / 记忆如何延展提示词工程 → <a
-href="./02_context_engineering.md">02_context_engineering.md</a></li>
+href="./context-engineering.md">context-engineering.md</a></li>
 <li>想看 Prompt 安全护栏在生产里的部署 → <a
-href="./04_harness_engineering.md">04_harness_engineering.md</a>
-§3.3.3</li>
+href="./harness-engineering.md">harness-engineering.md</a> §3.3.3</li>
 </ul>
 <nav class="page-pager" id="page-pager" aria-label="章节翻页"></nav>
 
@@ -2264,13 +2262,13 @@ href="./04_harness_engineering.md">04_harness_engineering.md</a>
 
 <script>
 (function(){
-  /* ---- 章节翻页（顺序：README → 01 → 02 → 03 → 04） ---- */
   var pages = [
     { file: 'README.html',                  title: '总览' },
-    { file: '01_prompt_engineering.html',   title: '01 · 提示词工程' },
-    { file: '02_context_engineering.html',  title: '02 · 上下文工程' },
-    { file: '03_agent_engineering.html',    title: '03 · Agent 工程' },
-    { file: '04_harness_engineering.html',  title: '04 · 驾驭工程' }
+    { file: 'prompt-engineering.html',      title: '01 · 提示词工程' },
+    { file: 'context-engineering.html',     title: '02 · 上下文工程' },
+    { file: 'agent-engineering.html',       title: '03 · Agent 工程' },
+    { file: 'harness-engineering.html',     title: '04 · 驾驭工程' },
+    { file: 'overview.html',                title: '综述' }
   ];
   var here = (location.pathname.split('/').pop() || 'README.html').toLowerCase();
   var idx = -1;
@@ -2278,74 +2276,40 @@ href="./04_harness_engineering.md">04_harness_engineering.md</a>
     if (pages[i].file.toLowerCase() === here) { idx = i; break; }
   }
   var pager = document.getElementById('page-pager');
-  if (idx < 0) {
-    pager.style.display = 'none';
-  } else {
-    var prev = pages[idx - 1];
-    var next = pages[idx + 1];
-    var html = '';
-    if (prev) {
-      html += '<a class="pager-prev" href="' + prev.file + '">' +
-              '<span class="pager-label">← 上一篇</span>' +
-              '<span class="pager-title">' + prev.title + '</span></a>';
-    } else {
-      html += '<span class="pager-empty"></span>';
-    }
-    if (next) {
-      html += '<a class="pager-next" href="' + next.file + '">' +
-              '<span class="pager-label">下一篇 →</span>' +
-              '<span class="pager-title">' + next.title + '</span></a>';
-    } else {
-      html += '<span class="pager-empty"></span>';
-    }
+  if (idx < 0) { pager.style.display = 'none'; }
+  else {
+    var prev = pages[idx - 1], next = pages[idx + 1], html = '';
+    if (prev) html += '<a class="pager-prev" href="' + prev.file + '"><span class="pager-label">← 上一篇</span><span class="pager-title">' + prev.title + '</span></a>';
+    else html += '<span class="pager-empty"></span>';
+    if (next) html += '<a class="pager-next" href="' + next.file + '"><span class="pager-label">下一篇 →</span><span class="pager-title">' + next.title + '</span></a>';
+    else html += '<span class="pager-empty"></span>';
     pager.innerHTML = html;
   }
 
-  /* ---- TOC 当前位置高亮（IntersectionObserver） ---- */
   var toc = document.getElementById('TOC');
   if (!toc || !('IntersectionObserver' in window)) return;
   var links = toc.querySelectorAll('a[href^="#"]');
   if (!links.length) return;
-
-  var byId = {};
-  var orderedIds = [];
+  var byId = {}, orderedIds = [];
   links.forEach(function(a){
     var id = decodeURIComponent((a.getAttribute('href') || '').slice(1));
     if (!id) return;
-    byId[id] = a;
-    orderedIds.push(id);
+    byId[id] = a; orderedIds.push(id);
   });
-  var headings = orderedIds
-    .map(function(id){ return document.getElementById(id); })
-    .filter(Boolean);
+  var headings = orderedIds.map(function(id){ return document.getElementById(id); }).filter(Boolean);
   if (!headings.length) return;
-
   var visible = {};
   function update() {
     var firstId = null;
-    for (var i = 0; i < orderedIds.length; i++) {
-      if (visible[orderedIds[i]]) { firstId = orderedIds[i]; break; }
-    }
+    for (var i = 0; i < orderedIds.length; i++) { if (visible[orderedIds[i]]) { firstId = orderedIds[i]; break; } }
     links.forEach(function(a){ a.classList.remove('toc-active'); });
     if (firstId && byId[firstId]) {
-      var a = byId[firstId];
-      a.classList.add('toc-active');
-      /* 让激活项保持在视野内 */
-      var rect = a.getBoundingClientRect();
-      var box = toc.getBoundingClientRect();
-      if (rect.top < box.top + 40 || rect.bottom > box.bottom - 40) {
-        a.scrollIntoView({ block: 'nearest' });
-      }
+      var a = byId[firstId]; a.classList.add('toc-active');
+      var rect = a.getBoundingClientRect(), box = toc.getBoundingClientRect();
+      if (rect.top < box.top + 40 || rect.bottom > box.bottom - 40) a.scrollIntoView({ block: 'nearest' });
     }
   }
-
-  var io = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      visible[e.target.id] = e.isIntersecting;
-    });
-    update();
-  }, { rootMargin: '-12% 0px -70% 0px', threshold: 0 });
-
+  var io = new IntersectionObserver(function(entries){ entries.forEach(function(e){ visible[e.target.id] = e.isIntersecting; }); update(); }, { rootMargin: '-12% 0px -70% 0px', threshold: 0 });
   headings.forEach(function(h){ io.observe(h); });
 })();
 </script>

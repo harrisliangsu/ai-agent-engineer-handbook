@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>02 上下文工程</title>
+  <title>上下文工程（Context Engineering）</title>
   <style>
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
@@ -91,11 +91,11 @@
   <div class="site-nav-inner">
     <a href="README.html" class="site-nav-brand">LLM 应用工程演进</a>
     <nav class="site-nav-links" aria-label="章节导航">
-      <a href="01_prompt_engineering.html"><span class="ch-no">01</span><span class="ch-name">提示词</span></a>
-      <a href="02_context_engineering.html"><span class="ch-no">02</span><span class="ch-name">上下文</span></a>
-      <a href="03_agent_engineering.html"><span class="ch-no">03</span><span class="ch-name">Agent</span></a>
-      <a href="04_harness_engineering.html"><span class="ch-no">04</span><span class="ch-name">驾驭</span></a>
-      <a href="article.html" class="site-nav-extra">综述</a>
+      <a href="prompt-engineering.html"><span class="ch-no">01</span><span class="ch-name">提示词</span></a>
+      <a href="context-engineering.html"><span class="ch-no">02</span><span class="ch-name">上下文</span></a>
+      <a href="agent-engineering.html"><span class="ch-no">03</span><span class="ch-name">Agent</span></a>
+      <a href="harness-engineering.html"><span class="ch-no">04</span><span class="ch-name">驾驭</span></a>
+      <a href="overview.html" class="site-nav-extra">综述</a>
     </nav>
   </div>
 </header>
@@ -280,8 +280,8 @@ Zep（temporal KG）/ Anthropic Memory Tool</li>
 </ul>
 <p>关键转折：<strong>生产级 LLM 应用的核心难度从”写 prompt”迁移到了”管
 context”</strong>——这是 Agent（<a
-href="./03_agent_engineering.md">03</a>）和驾驭工程（<a
-href="./04_harness_engineering.md">04</a>）的前提。</p>
+href="./agent-engineering.md">03</a>）和驾驭工程（<a
+href="./harness-engineering.md">04</a>）的前提。</p>
 <hr />
 <h2 id="定义与起源">2.1 定义与起源</h2>
 <p>“Context Engineering”（上下文工程）这个词在 2024
@@ -328,8 +328,7 @@ prompt”迁移到了”管 context”</strong>。</p>
 <h2 id="长上下文的物理学">2.2 长上下文的物理学</h2>
 <p>要理解为什么”塞满窗口”是个坏主意，必须先理解上下文的三个物理约束：</p>
 <h3 id="on²-成本">2.2.1 O(N²) 成本</h3>
-<p>回到 <a
-href="./01_prompt_engineering.md">01_prompt_engineering.md</a>
+<p>回到 <a href="./prompt-engineering.md">prompt-engineering.md</a>
 §1.1：标准 attention 是 N² 复杂度。上下文从 32K 翻到
 128K，注意力计算量是 16 倍而非 4 倍。对推理服务来说这意味着两件事：</p>
 <ul>
@@ -342,7 +341,7 @@ href="./01_prompt_engineering.md">01_prompt_engineering.md</a>
 占用可达 40+ GB，比模型权重本身还大</strong>。这就是为什么 vLLM 的
 PagedAttention 和 SGLang 的 RadixAttention 这类”管 KV
 cache”的技术成为推理服务器的核心竞争力（详见 <a
-href="./04_harness_engineering.md">04_harness_engineering.md</a>
+href="./harness-engineering.md">harness-engineering.md</a>
 §3.9.2）。</p>
 <h3 id="lost-in-the-middle">2.2.3 Lost-in-the-Middle</h3>
 <p>Liu 等人 2024 TACL 论文 <em>Lost in the Middle: How Language Models
@@ -751,8 +750,8 @@ agent 在”想 → 检索 → 评判 → 重写 query → 重新检索 →
 </ul>
 <p>实证：Self-RAG 在生产部署中能减少 25-40%
 的”不必要检索”——因为模型学会了对自己已有知识的事情不去检索。</p>
-<p>详见 <a href="./03_agent_engineering.md">03_agent_engineering.md</a>
-§2 范式演进、§5 框架对比。</p>
+<p>详见 <a href="./agent-engineering.md">agent-engineering.md</a> §2
+范式演进、§5 框架对比。</p>
 <h3 id="多模态-rag">2.4.10 多模态 RAG</h3>
 <p>图像 + 文本混合的索引方案：</p>
 <ul>
@@ -2955,9 +2954,9 @@ Framework）的内置协议，等 A2A 标准明朗。</p>
 </tbody>
 </table>
 <p>工具集成在 Agent 实现层面的细节 → <a
-href="./03_agent_engineering.md">03_agent_engineering.md</a> §3.1 与
-§5； LLM 网关 / observability / 推理服务器层面的基础设施 → <a
-href="./04_harness_engineering.md">04_harness_engineering.md</a> §3.9
+href="./agent-engineering.md">agent-engineering.md</a> §3.1 与 §5； LLM
+网关 / observability / 推理服务器层面的基础设施 → <a
+href="./harness-engineering.md">harness-engineering.md</a> §3.9
 附录（注：04 章把这 4 类显式标记为”相关但非 harness 工程”）。</p>
 <hr />
 <h2 id="bibliography">Bibliography</h2>
@@ -3002,13 +3001,11 @@ class="uri">https://huggingface.co/BAAI/bge-m3</a></p>
 <h2 id="章节交叉引用">章节交叉引用</h2>
 <ul>
 <li>想理解长上下文背后的 Transformer 物理 → <a
-href="./01_prompt_engineering.md">01_prompt_engineering.md</a> §1.1</li>
+href="./prompt-engineering.md">prompt-engineering.md</a> §1.1</li>
 <li>想理解 Agentic RAG / 记忆 在 Agent 里怎么用 → <a
-href="./03_agent_engineering.md">03_agent_engineering.md</a> §3 +
-§4</li>
+href="./agent-engineering.md">agent-engineering.md</a> §3 + §4</li>
 <li>想理解 KV cache / prefix caching 推理服务器层面 → <a
-href="./04_harness_engineering.md">04_harness_engineering.md</a>
-§3.9.2</li>
+href="./harness-engineering.md">harness-engineering.md</a> §3.9.2</li>
 </ul>
 <nav class="page-pager" id="page-pager" aria-label="章节翻页"></nav>
 
@@ -3022,13 +3019,13 @@ href="./04_harness_engineering.md">04_harness_engineering.md</a>
 
 <script>
 (function(){
-  /* ---- 章节翻页（顺序：README → 01 → 02 → 03 → 04） ---- */
   var pages = [
     { file: 'README.html',                  title: '总览' },
-    { file: '01_prompt_engineering.html',   title: '01 · 提示词工程' },
-    { file: '02_context_engineering.html',  title: '02 · 上下文工程' },
-    { file: '03_agent_engineering.html',    title: '03 · Agent 工程' },
-    { file: '04_harness_engineering.html',  title: '04 · 驾驭工程' }
+    { file: 'prompt-engineering.html',      title: '01 · 提示词工程' },
+    { file: 'context-engineering.html',     title: '02 · 上下文工程' },
+    { file: 'agent-engineering.html',       title: '03 · Agent 工程' },
+    { file: 'harness-engineering.html',     title: '04 · 驾驭工程' },
+    { file: 'overview.html',                title: '综述' }
   ];
   var here = (location.pathname.split('/').pop() || 'README.html').toLowerCase();
   var idx = -1;
@@ -3036,74 +3033,40 @@ href="./04_harness_engineering.md">04_harness_engineering.md</a>
     if (pages[i].file.toLowerCase() === here) { idx = i; break; }
   }
   var pager = document.getElementById('page-pager');
-  if (idx < 0) {
-    pager.style.display = 'none';
-  } else {
-    var prev = pages[idx - 1];
-    var next = pages[idx + 1];
-    var html = '';
-    if (prev) {
-      html += '<a class="pager-prev" href="' + prev.file + '">' +
-              '<span class="pager-label">← 上一篇</span>' +
-              '<span class="pager-title">' + prev.title + '</span></a>';
-    } else {
-      html += '<span class="pager-empty"></span>';
-    }
-    if (next) {
-      html += '<a class="pager-next" href="' + next.file + '">' +
-              '<span class="pager-label">下一篇 →</span>' +
-              '<span class="pager-title">' + next.title + '</span></a>';
-    } else {
-      html += '<span class="pager-empty"></span>';
-    }
+  if (idx < 0) { pager.style.display = 'none'; }
+  else {
+    var prev = pages[idx - 1], next = pages[idx + 1], html = '';
+    if (prev) html += '<a class="pager-prev" href="' + prev.file + '"><span class="pager-label">← 上一篇</span><span class="pager-title">' + prev.title + '</span></a>';
+    else html += '<span class="pager-empty"></span>';
+    if (next) html += '<a class="pager-next" href="' + next.file + '"><span class="pager-label">下一篇 →</span><span class="pager-title">' + next.title + '</span></a>';
+    else html += '<span class="pager-empty"></span>';
     pager.innerHTML = html;
   }
 
-  /* ---- TOC 当前位置高亮（IntersectionObserver） ---- */
   var toc = document.getElementById('TOC');
   if (!toc || !('IntersectionObserver' in window)) return;
   var links = toc.querySelectorAll('a[href^="#"]');
   if (!links.length) return;
-
-  var byId = {};
-  var orderedIds = [];
+  var byId = {}, orderedIds = [];
   links.forEach(function(a){
     var id = decodeURIComponent((a.getAttribute('href') || '').slice(1));
     if (!id) return;
-    byId[id] = a;
-    orderedIds.push(id);
+    byId[id] = a; orderedIds.push(id);
   });
-  var headings = orderedIds
-    .map(function(id){ return document.getElementById(id); })
-    .filter(Boolean);
+  var headings = orderedIds.map(function(id){ return document.getElementById(id); }).filter(Boolean);
   if (!headings.length) return;
-
   var visible = {};
   function update() {
     var firstId = null;
-    for (var i = 0; i < orderedIds.length; i++) {
-      if (visible[orderedIds[i]]) { firstId = orderedIds[i]; break; }
-    }
+    for (var i = 0; i < orderedIds.length; i++) { if (visible[orderedIds[i]]) { firstId = orderedIds[i]; break; } }
     links.forEach(function(a){ a.classList.remove('toc-active'); });
     if (firstId && byId[firstId]) {
-      var a = byId[firstId];
-      a.classList.add('toc-active');
-      /* 让激活项保持在视野内 */
-      var rect = a.getBoundingClientRect();
-      var box = toc.getBoundingClientRect();
-      if (rect.top < box.top + 40 || rect.bottom > box.bottom - 40) {
-        a.scrollIntoView({ block: 'nearest' });
-      }
+      var a = byId[firstId]; a.classList.add('toc-active');
+      var rect = a.getBoundingClientRect(), box = toc.getBoundingClientRect();
+      if (rect.top < box.top + 40 || rect.bottom > box.bottom - 40) a.scrollIntoView({ block: 'nearest' });
     }
   }
-
-  var io = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      visible[e.target.id] = e.isIntersecting;
-    });
-    update();
-  }, { rootMargin: '-12% 0px -70% 0px', threshold: 0 });
-
+  var io = new IntersectionObserver(function(entries){ entries.forEach(function(e){ visible[e.target.id] = e.isIntersecting; }); update(); }, { rootMargin: '-12% 0px -70% 0px', threshold: 0 });
   headings.forEach(function(h){ io.observe(h); });
 })();
 </script>
