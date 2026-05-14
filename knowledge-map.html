@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>AI Agent / LLM 应用工程师 · 知识图谱</title>
+  <style>
+    :root {
+      --bg:           #faf8f3;
+      --bg-elev:      #ffffff;
+      --bg-soft:      #f5f1e9;
+      --text:         #1d1d1f;
+      --text-strong:  #0a0a0c;
+      --text-muted:   #5a5d63;
+      --text-subtle:  #8a8d93;
+      --border:       #e6e1d6;
+      --border-soft:  #efeae0;
+      --border-strong:#d6d0c2;
+      --accent:       #b85c00;
+      --accent-soft:  #fdecd9;
+      --accent-deep:  #8a4500;
+      --link:         #0d6cad;
+      --shadow-sm:    0 1px 2px rgba(60, 50, 30, 0.04);
+      --shadow-md:    0 2px 8px rgba(60, 50, 30, 0.06), 0 1px 2px rgba(60, 50, 30, 0.04);
+      --shadow-lg:    0 8px 24px rgba(60, 50, 30, 0.12);
+
+      /* 四层颜色 */
+      --c-l1: #c44a3d; /* 提示词 - 红 */
+      --c-l2: #2d7d6f; /* 上下文 - 青 */
+      --c-l3: #6a4c93; /* Agent - 紫 */
+      --c-l4: #b85c00; /* Harness - 橙 */
+      --c-int: #1a6fcc; /* 面试 - 蓝 */
+      --c-tr:  #5a7a3d; /* 翻译 - 绿 */
+      --c-gl:  #8a6d4a; /* 术语 - 棕 */
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+                   "Source Han Sans SC", "SF Pro Text", -apple-system, BlinkMacSystemFont,
+                   "Segoe UI", Roboto, sans-serif;
+      font-size: 15.5px;
+      line-height: 1.75;
+      color: var(--text);
+      background: var(--bg);
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 48px 32px 100px;
+      font-feature-settings: "kern", "calt";
+    }
+
+    h1 {
+      font-size: 2.2em;
+      margin: 0 0 0.3em;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      color: var(--text-strong);
+    }
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.05em;
+      margin-bottom: 1.6em;
+    }
+    .intro {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 1.1em 1.4em;
+      margin-bottom: 2em;
+      font-size: 0.96em;
+    }
+    .intro p { margin: 0.4em 0; }
+    .intro code {
+      background: var(--bg-soft);
+      padding: 0.1em 0.4em;
+      border-radius: 3px;
+      font-size: 0.86em;
+      color: var(--accent-deep);
+    }
+
+    /* 顶层 section 卡片 */
+    section.pillar {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--c-color, var(--accent));
+      border-radius: 10px;
+      margin: 1.4em 0;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.15s ease;
+    }
+    section.pillar:hover { box-shadow: var(--shadow-md); }
+    section.pillar > h2 {
+      margin: 0;
+      padding: 0.85em 1.2em;
+      font-size: 1.4em;
+      font-weight: 700;
+      color: var(--c-color, var(--accent-deep));
+      border-bottom: 1px solid var(--border-soft);
+    }
+    section.pillar > h2 .badge {
+      display: inline-block;
+      margin-left: 0.6em;
+      padding: 0.1em 0.55em;
+      background: var(--c-color, var(--accent));
+      color: #fff;
+      font-size: 0.62em;
+      font-weight: 700;
+      border-radius: 12px;
+      letter-spacing: 0.04em;
+      vertical-align: 4px;
+    }
+    section.pillar > .pillar-body {
+      padding: 0.5em 1.2em 1.2em;
+    }
+    section.pillar > .pillar-body > p:first-child {
+      margin-top: 0.8em;
+      color: var(--text-muted);
+      font-style: normal;
+    }
+
+    /* 四层颜色 */
+    section#l1 { --c-color: var(--c-l1); }
+    section#l2 { --c-color: var(--c-l2); }
+    section#l3 { --c-color: var(--c-l3); }
+    section#l4 { --c-color: var(--c-l4); }
+    section#interview { --c-color: var(--c-int); }
+    section#translations { --c-color: var(--c-tr); }
+    section#glossary { --c-color: var(--c-gl); }
+    section#path { --c-color: var(--accent); }
+
+    /* details 树 */
+    details {
+      margin: 0.5em 0;
+      background: transparent;
+      border-left: 2px solid var(--border);
+      padding-left: 0.9em;
+      transition: border-left-color 0.15s ease;
+    }
+    details[open] {
+      border-left-color: var(--c-color, var(--accent));
+    }
+    details > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 0.35em 0.4em 0.35em 1.2em;
+      position: relative;
+      font-weight: 500;
+      color: var(--text-strong);
+      border-radius: 4px;
+      transition: background 0.1s ease;
+    }
+    details > summary:hover {
+      background: var(--bg-soft);
+    }
+    details > summary::-webkit-details-marker { display: none; }
+    details > summary::before {
+      content: "▶";
+      position: absolute;
+      left: 0;
+      top: 0.5em;
+      font-size: 0.7em;
+      color: var(--c-color, var(--accent));
+      transition: transform 0.15s ease;
+    }
+    details[open] > summary::before {
+      transform: rotate(90deg);
+    }
+    details > summary .tag {
+      display: inline-block;
+      font-size: 0.72em;
+      color: var(--text-subtle);
+      background: var(--bg-soft);
+      padding: 0.05em 0.45em;
+      border-radius: 3px;
+      margin-left: 0.6em;
+      vertical-align: 2px;
+      letter-spacing: 0.03em;
+    }
+    details > summary .note {
+      color: var(--text-muted);
+      font-weight: 400;
+      font-size: 0.93em;
+    }
+
+    /* 叶子节点表格风格 */
+    table.topics {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.7em 0 0.4em;
+      font-size: 0.92em;
+      background: transparent;
+    }
+    table.topics th, table.topics td {
+      padding: 0.45em 0.7em;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    table.topics th {
+      font-size: 0.82em;
+      color: var(--text-subtle);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: transparent;
+      border-bottom: 1px solid var(--border);
+    }
+    table.topics td:nth-child(1) {
+      font-weight: 600;
+      color: var(--text-strong);
+      white-space: nowrap;
+      width: 8.5em;
+    }
+    table.topics td:nth-child(2) { color: var(--text-muted); }
+    table.topics td:nth-child(3) { width: 11em; }
+    table.topics td:last-child { white-space: nowrap; }
+
+    /* 链接 */
+    a {
+      color: var(--link);
+      text-decoration: none;
+      border-bottom: 1px dotted rgba(13, 108, 173, 0.4);
+      transition: color 0.1s ease, border-color 0.1s ease;
+    }
+    a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+    .pill-link {
+      display: inline-block;
+      padding: 0.1em 0.55em;
+      margin: 0.1em 0.15em 0.1em 0;
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 0.86em;
+      color: var(--text-strong);
+    }
+    .pill-link:hover {
+      background: var(--c-color, var(--accent));
+      color: #fff;
+      border-color: var(--c-color, var(--accent));
+    }
+
+    /* 术语 chip */
+    .term-chip {
+      display: inline-block;
+      padding: 0.05em 0.5em;
+      margin: 0.18em 0.1em 0.18em 0;
+      background: var(--accent-soft);
+      color: var(--accent-deep);
+      border-radius: 3px;
+      font-size: 0.86em;
+      border-bottom: none;
+    }
+    .term-chip:hover { background: var(--accent); color: #fff; }
+
+    /* 顶部 nav */
+    nav.toc {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1em 1.4em;
+      margin: 0 0 1.6em;
+      font-size: 0.93em;
+    }
+    nav.toc a {
+      display: inline-block;
+      margin: 0.18em 0.35em 0.18em 0;
+      padding: 0.15em 0.65em;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    nav.toc a:hover { background: var(--bg-soft); }
+
+    /* 复习路径 */
+    .path-card {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.9em 1.2em;
+      margin: 0.8em 0;
+    }
+    .path-card h4 {
+      margin: 0 0 0.4em;
+      color: var(--accent-deep);
+      font-size: 1.02em;
+    }
+    .path-card .week {
+      display: block;
+      margin: 0.3em 0;
+      color: var(--text-muted);
+    }
+    .path-card .week strong { color: var(--text-strong); font-weight: 600; }
+
+    code {
+      font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+      font-size: 0.86em;
+      background: var(--bg-soft);
+      color: var(--accent-deep);
+      padding: 0.1em 0.4em;
+      border-radius: 3px;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2.4em 0;
+    }
+
+    footer {
+      margin-top: 3em;
+      padding-top: 1.5em;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.9em;
+    }
+
+    @media (max-width: 720px) {
+      body { padding: 24px 16px 64px; font-size: 14.5px; }
+      h1 { font-size: 1.6em; }
+      section.pillar > h2 { font-size: 1.15em; padding: 0.75em 1em; }
+      section.pillar > .pillar-body { padding: 0.4em 1em 1em; }
+      table.topics td:nth-child(1) { width: auto; white-space: normal; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>🧠 AI Agent / LLM 应用工程师 · 全景知识图谱</h1>
+<div class="subtitle">仓库总览思维导图 · 91 题 / 工程四层 / 4 篇翻译 / 82 术语</div>
+
+<div class="intro">
+  <p>本图谱串起仓库全部内容。<strong>把工程四层、面试题分类、经典翻译、术语速查表四个 lens 交叉刷</strong>。</p>
+  <p>点击每个节点的 <code>▶</code> 展开下一层；任何蓝色链接都直接跳到对应的 HTML 章节 / 题目 / 术语条目；术语链接还会弹出浮窗（不离开当前页）。</p>
+</div>
+
+<nav class="toc">
+  <a href="#l1">L1 提示词</a>
+  <a href="#l2">L2 上下文</a>
+  <a href="#l3">L3 Agent</a>
+  <a href="#l4">L4 Harness</a>
+  <a href="#interview">91 题</a>
+  <a href="#translations">翻译</a>
+  <a href="#glossary">术语</a>
+  <a href="#path">复习路径</a>
+</nav>
+
+<h2 style="margin-top:1em;color:var(--text-strong);">一、工程四层抽象（核心知识骨架）</h2>
+<p style="color:var(--text-muted);margin-top:-0.3em;">
+  <strong>提示词 → 上下文 → Agent → Harness</strong> 是四层递进抽象，每层独立成科但生产系统四层都需要。
+</p>
+
+<section class="pillar" id="l1">
+  <h2>🎯 Layer 1 · 提示词工程 <span class="badge">Prompt</span></h2>
+  <div class="pillar-body">
+    <p><strong>核心问题</strong>：如何让 LLM 在单次调用中产出可控的高质量输出？</p>
+
+    <details open>
+      <summary>Transformer 基础 <span class="note">— Attention / Multi-head / Position encoding</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/prompt-engineering.html#11-起点transformer-与注意力机制">L1 §1.1 起点：Transformer 与注意力机制</a></li>
+        <li>对应面试题：
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#a1.-为什么-transformer-用-layer-norm-而不是-batch-norm">A1 LayerNorm vs BatchNorm</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#a2.-多头注意力的多头到底有什么用单头加大维度行不行">A2 多头注意力</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#a3.-rope-相比绝对位置编码的优势为什么外推还是会崩">A3 RoPE</a>
+        </li>
+        <li>核心术语：
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-layernorm-rmsnorm">LayerNorm</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-rope">RoPE</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-yarn">YaRN</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-gqa-mqa">GQA/MQA</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-moe">MoE</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-multi-head-attention">multi-head attention</a>
+        </li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>训练栈 <span class="note">— Pretrain → Post-train → SFT → RLHF/DPO/GRPO/RLVR</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/prompt-engineering.html#12-llm-训练栈预训练--后训练--微调">L1 §1.2 LLM 训练栈</a></li>
+        <li>对应面试题：B 章节 10 题 <a class="pill-link" href="interview-prep/html/interview-questions.html#b.-训练--微调10-题">→ 全部</a></li>
+        <li>核心术语：
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-sft">SFT</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-lora">LoRA</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-qlora">QLoRA</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-rlhf">RLHF</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-dpo">DPO</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-ppo">PPO</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-grpo">GRPO</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-rlvr">RLVR</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-rm">RM</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-catastrophic-forgetting">灾难性遗忘</a>
+        </li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>推理与解码 <span class="note">— Greedy / Top-k / Top-p / Temperature / Beam</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/prompt-engineering.html#13-推理栈与解码策略">L1 §1.3 推理栈与解码</a></li>
+        <li>核心术语：
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-temperature">temperature</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-logit">logit</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-autoregressive">autoregressive</a>
+        </li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>经典提示词技术 <span class="note">— CoT / Self-Consistency / ToT / ReAct / Self-Refine / Reflexion / Long CoT</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/prompt-engineering.html#14-提示词工程的经典技术">L1 §1.4 经典技术</a></li>
+        <li>对应面试题：C 章节 9 题 <a class="pill-link" href="interview-prep/html/interview-questions.html#c.-提示词工程9-题">→ 全部</a></li>
+        <li>核心术语：
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-cot">CoT</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-self-consistency">Self-Consistency</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-tot">ToT</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-react">ReAct</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-self-refine">Self-Refine</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-reflexion">Reflexion</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-few-shot">few-shot</a>
+        </li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>自动化与高级 <span class="note">— DSPy / OPRO / APE / Prompt 版本化</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/prompt-engineering.html#15-自动化与高级提示词">L1 §1.5 自动化优化</a></li>
+        <li><a href="interview-prep/html/interview-questions.html#c8.-dspy--opro--ape-自动-prompt-优化各是什么思路">C8 DSPy / OPRO / APE</a></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>评估与红队 <span class="note">— LLM-as-judge / Prompt Injection / Jailbreak</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/prompt-engineering.html#16-评估红队与提示词工程的黄昏">L1 §1.6 评估、红队</a></li>
+        <li>对应：<a class="pill-link" href="interview-prep/html/interview-questions.html#c7.-prompt-injection-有哪些攻击面防御纵深怎么做">C7 Prompt Injection</a> <a class="pill-link" href="interview-prep/html/interview-questions.html#i.-安全--护栏6-题">I 安全 6 题</a></li>
+        <li>核心术语：
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-llm-judge">LLM-as-judge</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-eval">Eval</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-prompt-injection">prompt injection</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-jailbreak">jailbreak</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-guardrails">guardrails</a>
+        </li>
+      </ul>
+    </details>
+  </div>
+</section>
+
+<section class="pillar" id="l2">
+  <h2>🧱 Layer 2 · 上下文工程 <span class="badge">Context</span></h2>
+  <div class="pillar-body">
+    <p><strong>核心问题</strong>：如何在有限的 context window 里塞进最相关的信息？</p>
+
+    <details open>
+      <summary>长上下文物理学 <span class="note">— KV cache / Attention sink / Lost in the Middle / RULER</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/context-engineering.html#22-长上下文的物理学">L2 §2.2 长上下文物理</a> · <a href="engineering-foundations/html/context-engineering.html#23-ruler-与-1m-上下文的真实能力">§2.3 RULER</a></li>
+        <li>对应：
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#a5.-lost-in-the-middle-是什么工程上怎么缓解">A5 Lost in the Middle</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#a10.-上下文越长效果越好吗工程上-128k-真能用吗">A10 128k 真能用吗</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#d8.-长上下文1mvs-rag到底怎么选">D8 长上下文 vs RAG</a>
+        </li>
+        <li>核心术语：
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-context-window">context window</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-kv-cache">KV cache</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-attention-sink">attention sink</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-lost-in-middle">Lost in the Middle</a>
+        </li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>推理加速 <span class="note">— PagedAttention / FlashAttention / vLLM / continuous batching / prefix caching</span></summary>
+      <ul>
+        <li>对应：
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#a4.-vllm-的-pagedattention-解决了什么问题为什么吞吐能涨-24-倍">A4 PagedAttention</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#a6.-speculative-decoding-原理什么场景收益最大">A6 Speculative</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#a7.-prefix-caching-与-kv-cache-的区别">A7 Prefix Caching</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#a8.-flashattention-123-各解决了什么为什么-h100-上-fa3-能再快-1.5-2">A8 FlashAttention</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#a9.-continuous-batching-vs-static-batching">A9 Continuous Batching</a>
+        </li>
+        <li>核心术语：
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-flash-attention">FlashAttention</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-paged-attention">PagedAttention</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-vllm">vLLM</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-continuous-batching">continuous batching</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-spec-decode">speculative decoding</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-prefix-caching">prefix caching</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-ttft">TTFT</a>
+        </li>
+      </ul>
+    </details>
+
+    <details open>
+      <summary>RAG 全栈 <span class="note">— Chunking / Embedding / Hybrid Search / Reranker / Vector DB / RAGAS</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/context-engineering.html#24-rag-全栈选型">L2 §2.4 RAG 全栈选型</a></li>
+        <li>对应：D 章节 10 题 <a class="pill-link" href="interview-prep/html/interview-questions.html#d.-rag10-题">→ 全部</a></li>
+        <li>核心术语：
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-rag">RAG</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-chunking">chunking</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-embedding">embedding</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-embed-models">embed models</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-bm25">BM25</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-hybrid-search">hybrid search</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-reranker">reranker</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-vector-db">vector DB</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-rag-variants">RAG 变体</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-ragas">RAGAS</a>
+        </li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Memory 系统 <span class="note">— MemGPT / Letta / Mem0 / Zep / 工作 vs 情景 vs 语义</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/context-engineering.html#25-记忆系统完整工程指南">L2 §2.5 记忆系统</a></li>
+        <li>对应：F 章节 8 题 <a class="pill-link" href="interview-prep/html/interview-questions.html#f.-memory8-题">→ 全部</a></li>
+        <li>核心术语：
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-sub-agent">sub-agent</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-progress-file">progress 文件</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-memory-corruption">Memory Corruption</a>
+        </li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Context 管理策略 <span class="note">— 滑窗 / 摘要 / Sub-agent 隔离 / Compaction</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/context-engineering.html#26-上下文管理策略把-context-window-当作稀缺资源">L2 §2.6 Context 管理</a></li>
+        <li>对应：
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#f5.-progress-文件--git-作为-memory-bridge-是什么为什么对长任务-agent-关键">F5 progress 文件</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#f7.-context-compaction上下文压缩应该什么时候触发怎么做">F7 Context Compaction</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#j3.-agent-跑爆-context-怎么办">J3 Context 爆量</a>
+        </li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>MCP / A2A 协议生态 <span class="note">— Resources / Tools / Prompts / 跨厂商</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/context-engineering.html#27-mcp--a2a-协议生态">L2 §2.7 MCP / A2A</a></li>
+        <li>对应：<a class="pill-link" href="interview-prep/html/interview-questions.html#e5.-mcpmodel-context-protocol是什么为什么-2026-年增速这么快">E5 MCP 协议</a></li>
+        <li>核心术语：<a class="term-chip" href="interview-prep/html/interview-questions.html#g-mcp">MCP</a></li>
+      </ul>
+    </details>
+  </div>
+</section>
+
+<section class="pillar" id="l3">
+  <h2>🤖 Layer 3 · Agent 工程 <span class="badge">Agent</span></h2>
+  <div class="pillar-body">
+    <p><strong>核心问题</strong>：如何让 LLM 自主决策、调工具、跨多步完成任务？</p>
+
+    <details open>
+      <summary>Anthropic 6 大 Pattern <span class="note">— Augmented LLM / Prompt Chaining / Routing / Parallelization / Orchestrator-Workers / Evaluator-Optimizer</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/agent-engineering.html#3-agent-架构一种常见的-4-层拆分">L3 §3 Agent 架构</a></li>
+        <li>对应：
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#e1.-anthropic-building-effective-agents-把-agent-模式分成-workflow-和-agent-两类区别是什么为什么这个区分重要">E1 Workflow vs Agent</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#e2.-anthropic-6-大-agentic-patterns-分别是什么什么场景用哪个">E2 6 大 Pattern</a>
+        </li>
+        <li>必读：<a href="translations/html/building-effective-agents.html">《Building Effective Agents》中文</a></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Agent 范式演进 <span class="note">— ReAct → Plan-and-Execute → Reflexion → 长程自治</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/agent-engineering.html#2-agent-范式的演进">L3 §2 范式演进</a></li>
+        <li><a class="pill-link" href="interview-prep/html/interview-questions.html#e3.-react-loop--plan-and-execute--reflexion-区别">E3 ReAct vs Plan-and-Execute vs Reflexion</a></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Agent 框架 <span class="note">— LangChain / LangGraph / LlamaIndex / Haystack / Anthropic SDK</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/agent-engineering.html#5-主流-agent-框架对比2026">L3 §5 主流框架对比</a></li>
+        <li>核心术语：<a class="term-chip" href="interview-prep/html/interview-questions.html#g-langchain">LangChain / LangGraph</a></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>多 Agent 协作 <span class="note">— Supervisor (推荐) / Hierarchical / Swarm (反模式)</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/agent-engineering.html#6-多-agent-协作模式">L3 §6 多 Agent</a></li>
+        <li>对应：
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#e4.-多-agent-协作模式-supervisor--hierarchical--swarm-怎么选">E4 协作模式选型</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#j5.-多-agent-协作冲突怎么处理">J5 冲突处理</a>
+        </li>
+        <li>必读：<a href="translations/html/multi-agent-research-system.html">《Multi-Agent Research System》中文</a></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Tool Use / Function Calling <span class="note">— Schema 设计 / 粒度 / Deny-first / Error as prompt</span></summary>
+      <ul>
+        <li><a class="pill-link" href="interview-prep/html/interview-questions.html#e8.-function-calling--tool-use-怎么设计才能让-agent-用得对">E8 Tool Use 设计</a></li>
+        <li>核心术语：
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-tool-use">tool use</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-deny-first">deny-first</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-computer-use">Computer Use</a>
+        </li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Agent 4 大失败模式 + Loop of Death <span class="note">— Anthropic 实证总结</span></summary>
+      <ul>
+        <li>对应：
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#e6.-agent-4-种典型失败模式anthropic-总结及对策">E6 4 大失败模式</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#e10.-90-的-loop-of-death-是怎么发生的怎么防">E10 Loop of Death</a>
+        </li>
+        <li>必读：<a href="translations/html/effective-harnesses-for-long-running-agents.html">《Effective Harnesses》中文</a></li>
+        <li>核心术语：<a class="term-chip" href="interview-prep/html/interview-questions.html#g-loop-of-death">Loop of Death</a></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Agent 评测 <span class="note">— 通用 benchmark vs 业务领域</span></summary>
+      <ul>
+        <li>对应：K 章节 5 题 <a class="pill-link" href="interview-prep/html/interview-questions.html#k.-agent-评测5-题">→ 全部</a></li>
+        <li>重点：
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#k1.-agent-benchmark-全景tau-bench--swe-bench-verified--osworld--webarena--gaia--theagentcompany-各侧重什么">K1 通用 benchmark 全景</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#k5.-业务领域-agent--多-agent-业务助手-怎么评">K5 业务领域评测</a>
+        </li>
+      </ul>
+    </details>
+  </div>
+</section>
+
+<section class="pillar" id="l4">
+  <h2>🛡️ Layer 4 · Harness 工程 <span class="badge">Harness</span></h2>
+  <div class="pillar-body">
+    <p><strong>核心问题</strong>：如何工程化环境，让 agent 物理上无法重复犯错？<br />
+    <em>"anytime you find an agent makes a mistake, take the time to engineer a solution such that the agent never makes that mistake again."</em> — Hashimoto</p>
+
+    <details open>
+      <summary>命名与定位 <span class="note">— Hashimoto 2026-02 · 与其他三层的边界</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/harness-engineering.html#31-起源被命名的那一层东西">L4 §3.1 起源</a> · <a href="engineering-foundations/html/harness-engineering.html#32-与其他三层的边界">§3.2 边界</a></li>
+        <li><a class="pill-link" href="interview-prep/html/interview-questions.html#e7.-hashimoto-的-harness-engineering-核心思想是什么怎么落地">E7 harness 核心思想</a></li>
+      </ul>
+    </details>
+
+    <details open>
+      <summary>两条核心法则 + 四大支柱 <span class="note">— 强约束 / 自愈循环 · 上下文 / 专业化 / 持久化 / 结构化</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/harness-engineering.html#33-驾驭层核心方法论--支撑设施">L4 §3.3 方法论 + 支撑设施</a></li>
+        <li>对应：
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#e12.-agent-harness-包括哪些核心组件设计原则是什么">E12 harness 组件</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#j4.-怎么让-agent-不再犯同样的错harness-engineering">J4 不再犯同样错</a>
+        </li>
+        <li>核心术语：
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-harness">harness</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-agents-md">AGENTS.md</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-progress-file">progress 文件</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-sub-agent">sub-agent</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-deny-first">deny-first</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-lint">lint</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-type-check">type check</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-cicd">CI/CD</a>
+        </li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>支撑设施 <span class="note">— MCP / Sandbox / Guardrails</span></summary>
+      <ul>
+        <li>对应：
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#g7.-沙箱设计e2b--daytona--microvm--gvisor-怎么选">G7 沙箱选型</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#i4.-nemo-guardrails-5-类-rails">I4 NeMo Guardrails</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#i5.-deny-first-权限模型--沙箱防御纵深">I5 Deny-first 纵深</a>
+        </li>
+        <li>核心术语：
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-mcp">MCP</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-sandbox">sandbox</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.html#g-guardrails">guardrails</a>
+        </li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>生产栈参考架构 + 成熟度模型 L0-L4 <span class="note">— 8 层完整栈 / 角色矩阵 / 自我诊断</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/harness-engineering.html#34-完整生产栈参考架构">L4 §3.4 生产栈</a></li>
+        <li><a href="engineering-foundations/html/harness-engineering.html#346-harness-成熟度模型-l0l4自我诊断你在哪一级">L4 §3.4.6 成熟度模型</a></li>
+        <li>必读：<a href="translations/html/openai-harness-engineering.html">OpenAI《Harness Engineering》</a></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>2026 模型横评 + Cost 优化 <span class="note">— 8 个 ROI 杠杆</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/harness-engineering.html#355-2026-主流-llm-横向对照表">L4 §3.5.5 模型横评</a></li>
+        <li><a href="engineering-foundations/html/harness-engineering.html#356-cost-优化系统化8-个杠杆按-roi-排序">L4 §3.5.6 Cost 优化</a></li>
+        <li>对应：<a class="pill-link" href="interview-prep/html/interview-questions.html#g6.-成本优化prompt-caching--model-routing--semantic-cache-怎么省-80">G6 成本省 80%</a></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>场景选型清单 <span class="note">— 内部工具 / 客服 / 编码 / 多 agent 业务系统</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/harness-engineering.html#36-recommendations三类典型场景的选型清单">L4 §3.6 场景选型</a></li>
+        <li>对应：
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#g1.-设计一个生产级客服-agent含-rag--多轮--fallback--人工接管">G1 客服 Agent</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#g2.-设计-coding-agent参考-claude-code--cursor--devin">G2 Coding Agent</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#k5.-业务领域-agent--多-agent-业务助手-怎么评">K5 业务领域评测</a>
+        </li>
+      </ul>
+    </details>
+  </div>
+</section>
+
+<hr />
+
+<h2 id="interview" style="color:var(--text-strong);">二、91 道面试题 · 11 大类</h2>
+
+<section class="pillar" id="interview">
+  <div class="pillar-body">
+    <table class="topics">
+      <thead>
+        <tr><th>分类</th><th>核心覆盖</th><th>难度</th><th>入口</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>A. LLM 基础</strong> (10)</td><td>Transformer / RoPE / KV cache / 长上下文 / 推理优化</td><td>1⭐ 7⭐⭐ 2⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.html#a.-llm-基础10-题">→ A</a></td></tr>
+        <tr><td><strong>B. 训练 / 微调</strong> (10)</td><td>SFT / DPO / GRPO / LoRA / R1 涌现</td><td>1⭐ 7⭐⭐ 2⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.html#b.-训练--微调10-题">→ B</a></td></tr>
+        <tr><td><strong>C. 提示词工程</strong> (9)</td><td>CoT / Self-Consistency / ReAct / 自动 prompt 优化</td><td>1⭐ 7⭐⭐ 1⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.html#c.-提示词工程9-题">→ C</a></td></tr>
+        <tr><td><strong>D. RAG</strong> (10)</td><td>Hybrid / Reranker / GraphRAG / Self-RAG / RAGAS</td><td>1⭐ 7⭐⭐ 2⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.html#d.-rag10-题">→ D</a></td></tr>
+        <tr><td><strong>E. Agent</strong> (12) 核心</td><td>6 patterns / 多 agent / 失败模式 / harness</td><td>1⭐ 6⭐⭐ 5⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.html#e.-agent12-题核心分类">→ E</a></td></tr>
+        <tr><td><strong>F. Memory</strong> (8)</td><td>MemGPT / Letta / Mem0 / progress 文件 / corruption</td><td>1⭐ 5⭐⭐ 2⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.html#f.-memory8-题">→ F</a></td></tr>
+        <tr><td><strong>G. 系统设计</strong> (8)</td><td>客服 / coding / 搜索 / 网关 / 高并发 / 成本 / 沙箱 / 闭环</td><td>0⭐ 1⭐⭐ 7⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.html#g.-系统设计8-题">→ G</a></td></tr>
+        <tr><td><strong>H. 评估</strong> (6)</td><td>judge bias / pairwise / benchmark hack / 漂移</td><td>0⭐ 2⭐⭐ 4⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.html#h.-评估6-题">→ H</a></td></tr>
+        <tr><td><strong>I. 安全 / 护栏</strong> (6)</td><td>OWASP / Prompt Injection / NeMo / EU AI Act</td><td>0⭐ 1⭐⭐ 5⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.html#i.-安全--护栏6-题">→ I</a></td></tr>
+        <tr><td><strong>J. 行为题</strong> (7)</td><td>Hashimoto 闭环 / 0-1 落地路线 / debug hallucination</td><td>0⭐ 2⭐⭐ 5⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.html#j.-系统行为题--实战题7-题">→ J</a></td></tr>
+        <tr><td><strong>K. Agent 评测</strong> (5)</td><td>通用 benchmark / trajectory / tool-use / 生产监控 / 业务领域</td><td>0⭐ 2⭐⭐ 3⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.html#k.-agent-评测5-题">→ K</a></td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:1.4em;color:var(--text-muted);"><strong>JD 调研</strong>：30+ 国内外岗位拆解 → <a href="interview-prep/html/jd-requirements.html">JD Requirements 章节</a></p>
+  </div>
+</section>
+
+<hr />
+
+<h2 id="translations" style="color:var(--text-strong);">三、经典文章中文翻译</h2>
+
+<section class="pillar" id="translations">
+  <div class="pillar-body">
+    <table class="topics">
+      <thead>
+        <tr><th>文章</th><th>核心观点</th><th></th><th>入口</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Building Effective Agents</strong></td><td>Workflow vs Agent / 6 大 pattern / 简单优先</td><td>Anthropic 2024</td><td><a href="translations/html/building-effective-agents.html">→ 中文</a></td></tr>
+        <tr><td><strong>Effective Harnesses</strong></td><td>4 大失败模式 + 对策 / progress 文件 / 5 步开机协议</td><td>Anthropic 2025</td><td><a href="translations/html/effective-harnesses-for-long-running-agents.html">→ 中文</a></td></tr>
+        <tr><td><strong>Multi-Agent Research System</strong></td><td>Orchestrator-Workers / Sub-agent 隔离 / Verifier</td><td>Anthropic 2025</td><td><a href="translations/html/multi-agent-research-system.html">→ 中文</a></td></tr>
+        <tr><td><strong>OpenAI Harness Engineering</strong></td><td>Agent = Model + Harness / Humans steer, Agents execute</td><td>OpenAI 2026</td><td><a href="translations/html/openai-harness-engineering.html">→ 中文</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<hr />
+
+<h2 id="glossary" style="color:var(--text-strong);">四、术语速查表（82 条 × 10 主题）</h2>
+
+<section class="pillar" id="glossary">
+  <div class="pillar-body">
+    <p>所有 HTML 页面右下角都内嵌完整术语库，点击文中橙色标记词条即弹浮窗，不离开当前位置。下面按主题分组列出（点击直接跳转）：</p>
+
+    <details open>
+      <summary>软件工程基础（10）</summary>
+      <p>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-lint">lint</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-type-check">type check</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-cicd">CI/CD</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-sandbox">sandbox</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-canary">canary</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-abtest">A/B test</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-hitl">HITL</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-slo">SLO/SLI/SLA</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-ttl">TTL</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-biz-metrics">业务指标</a>
+      </p>
+    </details>
+
+    <details>
+      <summary>LLM 基础概念（9）</summary>
+      <p>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-token">token</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-embedding">embedding</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-context-window">context window</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-prefill-decode">prefill/decode</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-kv-cache">KV cache</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-autoregressive">autoregressive</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-logit">logit</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-temperature">temperature</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-attention-sink">attention sink</a>
+      </p>
+    </details>
+
+    <details>
+      <summary>Transformer 架构（5）</summary>
+      <p>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-layernorm-rmsnorm">LayerNorm/RMSNorm</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-rope">RoPE</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-yarn">YaRN/NTK</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-gqa-mqa">GQA/MQA</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-moe">MoE</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-multi-head-attention">multi-head attention</a>
+      </p>
+    </details>
+
+    <details>
+      <summary>推理加速（7）</summary>
+      <p>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-flash-attention">FlashAttention</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-paged-attention">PagedAttention</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-vllm">vLLM</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-continuous-batching">continuous batching</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-spec-decode">speculative decoding</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-prefix-caching">prefix caching</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-ttft">TTFT</a>
+      </p>
+    </details>
+
+    <details>
+      <summary>量化（4）</summary>
+      <p>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-fp16-bf16-fp8">FP16/BF16/FP8</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-int4-int8">INT4/INT8/NF4</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-awq">AWQ</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-gptq">GPTQ</a>
+      </p>
+    </details>
+
+    <details>
+      <summary>微调与对齐（10）</summary>
+      <p>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-sft">SFT</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-lora">LoRA</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-qlora">QLoRA</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-rlhf">RLHF</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-rm">RM</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-dpo">DPO</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-ppo">PPO</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-grpo">GRPO</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-rlvr">RLVR</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-catastrophic-forgetting">灾难性遗忘</a>
+      </p>
+    </details>
+
+    <details>
+      <summary>提示词与推理范式（7）</summary>
+      <p>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-cot">CoT</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-tot">ToT</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-react">ReAct</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-reflexion">Reflexion</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-self-refine">Self-Refine</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-self-consistency">Self-Consistency</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-few-shot">few-shot/zero-shot</a>
+      </p>
+    </details>
+
+    <details>
+      <summary>RAG（9）</summary>
+      <p>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-rag">RAG</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-chunking">chunking</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-bm25">BM25</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-hybrid-search">hybrid search</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-reranker">reranker</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-vector-db">vector DB</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-embed-models">embed models</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-rag-variants">RAG 变体</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-ragas">RAGAS</a>
+      </p>
+    </details>
+
+    <details>
+      <summary>Agent 工程（11）</summary>
+      <p>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-harness">harness</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-mcp">MCP</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-tool-use">tool use</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-computer-use">Computer Use</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-sub-agent">sub-agent</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-agents-md">AGENTS.md</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-deny-first">deny-first</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-progress-file">progress 文件</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-loop-of-death">Loop of Death</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-memory-corruption">Memory Corruption</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-langchain">LangChain</a>
+      </p>
+    </details>
+
+    <details>
+      <summary>评估与安全（10）</summary>
+      <p>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-eval">Eval</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-llm-judge">LLM-as-judge</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-llm-benchmarks">eval benchmarks</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-tracing-tools">trace 工具</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-lost-in-middle">Lost in the Middle</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-prompt-injection">prompt injection</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-hallucination">hallucination</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-guardrails">guardrails</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-jailbreak">jailbreak</a>
+      </p>
+    </details>
+  </div>
+</section>
+
+<hr />
+
+<h2 id="path" style="color:var(--text-strong);">五、复习路径建议</h2>
+
+<section class="pillar" id="path">
+  <div class="pillar-body">
+
+    <div class="path-card">
+      <h4>路径 A · 应届 / 入门（2-4 周）</h4>
+      <span class="week"><strong>Week 1</strong>：工程基础概念 — L1 §1.1-§1.3 + 术语速查（LLM 基础 + Transformer）+ A1-A10</span>
+      <span class="week"><strong>Week 2</strong>：提示词 + RAG 入门 — L1 §1.4 + L2 §2.4 + C1-C9 + D1-D5</span>
+      <span class="week"><strong>Week 3</strong>：Agent 概念 — L3 §1-§3 + E1, E2, E3, E5, E8 + 翻译《Building Effective Agents》</span>
+      <span class="week"><strong>Week 4</strong>：安全 + 实战 — L1 §1.6 + I1, I2 + J7（0-1 落地路线）</span>
+    </div>
+
+    <div class="path-card">
+      <h4>路径 B · 中级（3-6 年，1-2 月）</h4>
+      <span class="week">基础（已具备）→ 重点深化：</span>
+      <span class="week">• 全部 A-F 章节</span>
+      <span class="week">• L1-L4 完整过一遍</span>
+      <span class="week">• G/H 部分（系统设计 + 评估）</span>
+      <span class="week">• 翻译 4 篇全读</span>
+      <span class="week">• 自己项目对应 J 行为题准备</span>
+    </div>
+
+    <div class="path-card">
+      <h4>路径 C · 资深 / staff（深度 + 广度）</h4>
+      <span class="week">• 全部 11 类（A-K）</span>
+      <span class="week">• L4 §3.4 生产栈架构 + §3.4.6 成熟度模型自评</span>
+      <span class="week">• §3.5.6 Cost 优化 8 杠杆</span>
+      <span class="week">• §3.6 场景选型清单</span>
+      <span class="week">• <strong>必背</strong>：Hashimoto + Anthropic harness 原话</span>
+      <span class="week">• <strong>必备</strong>：1-2 个量化项目案例（GMV / 转化率 / 准确率有数字）</span>
+    </div>
+
+    <div class="path-card">
+      <h4>路径 D · 场景驱动（按目标岗位定制）</h4>
+      <table class="topics" style="margin-top:0.4em;">
+        <thead><tr><th>目标岗位</th><th>重点章节</th></tr></thead>
+        <tbody>
+          <tr><td><strong>LLM SaaS（客服 / 文档 QA）</strong></td><td>L2 RAG + L3 Agent + G1 (客服) + I 安全 + K5 业务评测</td></tr>
+          <tr><td><strong>AI Coding 工具</strong></td><td>L3 + L4 全部 + G2 (Coding Agent) + E7 (harness) + 翻译两篇 harness 文章</td></tr>
+          <tr><td><strong>多智能体业务系统</strong></td><td>L3 §6 多 Agent + E4/E10 + K5 业务评测 + G1/G3 + J1 STAR + 项目数据</td></tr>
+          <tr><td><strong>基础设施 / 推理 / 训练</strong></td><td>A4-A9 推理加速 + B1-B10 训练栈 + G4/G5 网关与高并发</td></tr>
+          <tr><td><strong>安全 / Red Team</strong></td><td>C7 + I1-I6 + L1 §1.6 + L4 三层防御</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <p>调研日期 2026-05-02 · K 章节增补 2026-05-14 · 术语库 v82 · 知识图谱与 <a href="knowledge-map.md">knowledge-map.md</a> 同步</p>
+  <p>本图谱串联仓库全部内容（4 个工程层、91 道面试题、4 篇翻译、82 条术语）。按 lens 交叉复习效率最高。</p>
+</footer>
+
+</body>
+</html>
