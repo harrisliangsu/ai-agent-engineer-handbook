@@ -3410,12 +3410,18 @@ href="./harness-engineering.md">harness-engineering.md</a> §3.9.2</li>
   var headings = orderedIds.map(function(id){ return document.getElementById(id); }).filter(Boolean);
   if (!headings.length) return;
   var visible = {};
+  // 用户点击 TOC 链接后短时间内只更新高亮，不要再主动滚 TOC 容器
+  var suppressTocScrollUntil = 0;
+  links.forEach(function(a){
+    a.addEventListener('click', function(){ suppressTocScrollUntil = Date.now() + 1000; });
+  });
   function update() {
     var firstId = null;
     for (var i = 0; i < orderedIds.length; i++) { if (visible[orderedIds[i]]) { firstId = orderedIds[i]; break; } }
     links.forEach(function(a){ a.classList.remove('toc-active'); });
     if (firstId && byId[firstId]) {
       var a = byId[firstId]; a.classList.add('toc-active');
+      if (Date.now() < suppressTocScrollUntil) return;
       var rect = a.getBoundingClientRect(), box = toc.getBoundingClientRect();
       if (rect.top < box.top + 40 || rect.bottom > box.bottom - 40) a.scrollIntoView({ block: 'nearest' });
     }
