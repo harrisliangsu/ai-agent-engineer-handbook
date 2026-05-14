@@ -1943,7 +1943,7 @@ Claude Code 有内置 `/compact` 命令，是这一思路的成熟实现。
 
 ### K4. ⭐⭐⭐ 上线 Agent 持续评估闭环：哪些指标该设 SLO？bad case 归因到 harness 怎么落地？
 
-**核心答案**：生产 Agent 评估闭环 = **多层指标 SLO + 全量 trace + 自动 bad case 检测 + 人工归因 + [harness](#g-harness) 沉淀**。Agent 不是 chat，单看正确率不够——必须同时跟成本、延迟、安全、轨迹健康四维。
+**核心答案**：生产 Agent 评估闭环 = **多层指标 [SLO](#g-slo) + 全量 trace + 自动 bad case 检测 + 人工归因 + [harness](#g-harness) 沉淀**。Agent 不是 chat，单看正确率不够——必须同时跟成本、延迟、安全、轨迹健康四维。
 
 **四类生产 SLO**：
 
@@ -1981,7 +1981,7 @@ Claude Code 有内置 `/compact` 命令，是这一思路的成熟实现。
 
 **四层评测体系**：
 
-1. **业务 SLO（顶层北极星）**：
+1. **业务 [SLO](#g-slo)（顶层北极星）**：
 
    - **转化率**：列表页→详情页、详情页→订单页、列表页→订单页——电商 / 旅行场景的核心 KPI（典型 +1pp 转化率即显著、+1.5-2pp 算大幅提升）
    - **GMV / UV / 订单量**：日均增量 GMV、日均下单间夜、日均增量 UV
@@ -2142,6 +2142,27 @@ Agent 自治走到关键节点时暂停等待人工：
 - **法规要求**：医疗诊断、信贷决策、招聘筛选（EU AI Act 高风险系统要求）
 
 设计原则："Humans steer. Agents execute."（OpenAI Harness Engineering）。Agent 不是替代人，是放大人的判断——把人放在制定计划、设定约束、审核结果的位置，agent 处理执行。
+
+</details>
+
+<details id="g-slo">
+<summary><strong>SLO / SLI / SLA / Error Budget</strong> <span class="term-tag">软件工程</span> — 服务质量的"目标 / 指标 / 合约 / 预算"四件套，来自 SRE</summary>
+
+Google SRE 体系定义的四个术语：
+
+- **SLI (Service Level Indicator)**：一个**指标**——可观测的数字。如"成功率 99.5%"、"p99 延迟 280ms"、"任务完成率 92%"。
+- **SLO (Service Level Objective)**：在 SLI 上**设定的目标**。如"成功率 SLO = 99.9%（30 天滑窗）"。是工程团队对内的承诺。
+- **SLA (Service Level Agreement)**：和**用户 / 客户的合约**，违约要赔钱 / 退服务费。通常比 SLO 宽（SLO 99.9% → SLA 99.5%），留缓冲。
+- **Error Budget**：`1 - SLO`。SLO 99.9% 意味着 30 天有 43.2 分钟"预算"可以不达标，预算用完就冻结非必要发布。
+
+**Agent 应用怎么用**：
+
+1. **每个 Agent 场景定 1-3 个 SLO**：如"客服 Agent 解决率 SLO = 85%"、"p99 端到端延迟 SLO ≤ 5s"、"单任务平均成本 SLO ≤ $0.05"
+2. **触发告警**：实时 SLI 跌破 SLO 80% 警告，跌破 SLO 直接 page oncall
+3. **冻结发布**：error budget 烧完了，禁止合并非紧急修复
+4. **业务 SLO vs 技术 SLO**：业务 SLO（转化率 / CSAT / GMV）属于产品验收，技术 SLO（延迟 / 错误率 / cost）属于工程兜底，两层都要
+
+**经验法则**：SLO 不是越严越好——99.99% 比 99.9% 贵 5-10 倍，且大概率超过用户感知阈值。Google 建议"刚刚够用户不抱怨"的水位。
 
 </details>
 
