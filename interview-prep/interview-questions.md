@@ -2,7 +2,7 @@
 
 **调研日期**：2026-05-02（K 章节增补于 2026-05-14）
 **目标读者**：求职者（应届到 staff 级）+ 招聘方
-**覆盖**：11 大分类 / 90 道题 / 难度分级 / 含一手论文 + Anthropic / OpenAI / DeepSeek 官方资料
+**覆盖**：11 大分类 / 91 道题 / 难度分级 / 含一手论文 + Anthropic / OpenAI / DeepSeek 官方资料
 
 ---
 
@@ -28,7 +28,7 @@
 | **H. 评估** | 6 | 0⭐ 2⭐⭐ 4⭐⭐⭐ | judge bias / pairwise / benchmark hack / 漂移 |
 | **I. 安全 / 护栏** | 6 | 0⭐ 1⭐⭐ 5⭐⭐⭐ | OWASP / Prompt Injection / NeMo Guardrails / EU AI Act |
 | **J. 行为题 / 实战** | 7 | 0⭐ 2⭐⭐ 5⭐⭐⭐ | Hashimoto harness 闭环 / 0-1 落地路线 |
-| **K. Agent 评测** | 4 | 0⭐ 2⭐⭐ 2⭐⭐⭐ | benchmark 全景 / trajectory 三层粒度 / tool-use 正确性 / 生产监控闭环 |
+| **K. Agent 评测** | 5 | 0⭐ 2⭐⭐ 3⭐⭐⭐ | 通用 benchmark / trajectory 三层粒度 / tool-use / 生产监控 / 业务领域 Agent 评测 |
 
 **学习路径建议**：
 - **应届 / 初级**：A + B + C + 部分 D，能讲清核心概念即可
@@ -1865,7 +1865,7 @@ Claude Code 有内置 `/compact` 命令，是这一思路的成熟实现。
 
 ---
 
-## K. Agent 评测（4 题）
+## K. Agent 评测（5 题）
 
 ### K1. ⭐⭐ Agent benchmark 全景：tau-bench / SWE-bench Verified / OSWorld / WebArena / GAIA / TheAgentCompany 各侧重什么？
 
@@ -1881,6 +1881,8 @@ Claude Code 有内置 `/compact` 命令，是这一思路的成熟实现。
 6. **TheAgentCompany**（CMU 2024）：模拟一家虚拟公司（GitLab / Plane / RocketChat 等真服务），给 agent 项目经理 / HR / 工程师等岗位任务，端到端评估远程工作场景。SOTA Claude 3.5 Sonnet 仅 24% pass，暴露了 agent 距离真实工作仍有距离。
 
 **选型指引**：(a) 编码 → SWE-bench Verified；(b) 客服 / 业务流 → tau-bench；(c) 桌面自动化 → OSWorld；(d) 浏览器 → WebArena；(e) 多跳研究 → GAIA；(f) 通用远程办公 → TheAgentCompany。生产场景**永远不要只信单一 benchmark**——E11 提到的 hack 模式（数据污染、format gaming、judge hacking）每个榜单都中招过。
+
+**⚠️ 适用边界**：以上都是**通用 / 跨领域学术 benchmark**，只适合作**基模能力 baseline 对比**或选型参考——**不能用来评测专业领域 Agent**（电商 / 旅行 / 金融 / 客服 / 多智能体业务助手等）。业务领域 Agent 评测见 [K5](#k5.-业务领域-agent-多-agent-业务助手-怎么评)。
 
 **来源**：SWE-bench Verified <https://openai.com/index/introducing-swe-bench-verified/>；tau-bench <https://arxiv.org/abs/2406.12045>；OSWorld <https://os-world.github.io/>；TheAgentCompany <https://the-agent-company.com/>；GAIA <https://huggingface.co/spaces/gaia-benchmark/leaderboard>
 
@@ -1972,6 +1974,77 @@ Claude Code 有内置 `/compact` 命令，是这一思路的成熟实现。
 **反模式**：(1) 只跑离线 benchmark 上线（线上分布差异大）；(2) 没 trace 直接看汇总指标（出 bug 无从查）；(3) bad case 修一个忘一个，没回归 CI（同样错误反复犯）；(4) 评估 model 比生产 model 弱（判官原则违背）。
 
 **来源**：Hashimoto《Harness Engineering》；Anthropic《Effective Harnesses for Long-Running Agents》；Langfuse docs <https://langfuse.com/docs>；OpenAI Evals docs
+
+### K5. ⭐⭐⭐ 业务领域 Agent / 多 Agent 业务助手 怎么评？
+
+**核心答案**：业务领域 Agent（电商导购、旅行助手、客服、金融 / 法律咨询、内部 RAG 等）**不能用 K1 那种学术 benchmark 评**——必须建**业务转化率 + 子 Agent 准确率 + 黄金集回归 + Harness 健康度**四层评测体系。学术 benchmark 仅作选模型 baseline，**真正决定上不上线的是线上 A/B 业务指标**。
+
+**四层评测体系**：
+
+1. **业务 SLO（顶层北极星）**：
+
+   - **转化率**：列表页→详情页、详情页→订单页、列表页→订单页——电商 / 旅行场景的核心 KPI（典型 +1pp 转化率即显著、+1.5-2pp 算大幅提升）
+   - **GMV / UV / 订单量**：日均增量 GMV、日均下单间夜、日均增量 UV
+   - **CSAT / 解决率 / NPS**：客服类还要看用户满意度与首轮解决率
+   - **业务漏斗各环节驻留时长**：意图识别→筛选→详情→下单各步耗时
+
+   所有改动最终都要在 [A/B](#g-abtest) 里看这一层——子 Agent 准确率涨但转化率不涨说明评测维度选错。
+
+2. **子 Agent 准确率（多智能体系统必须分解到子 Agent）**：
+
+   - **分子 Agent 报指标**：典型多智能体旅行助手酒店 Agent 准确率 93.1%、行程 Agent 80%、交通 Agent 79.5%——**整体平均会掩盖单个子 Agent 退化**，必须拆
+   - **3 分率 / 5 分率**：人工评分 ≥3 分（或 ≥4 分）的样本占比，比单纯准确率更反映用户实际体验
+   - **意图路由准确率**：用户 query 是否被正确路由到对应子 Agent（多 Agent 协同系统的 input gate）
+   - **LLM 路径 vs 算法路径路由准确率**：双模式自适应路由系统要单独评 router 决策合理性
+
+3. **业务转化率 A/B（线上唯一真相）**：
+
+   - **桶切分**：user_id hash 一致性 + 同期对照（避免 [Lost in the Middle](#g-lost-in-middle) 这种"换桶看起来变好其实是不同人群"假象）
+   - **观察窗口**：1-2 周覆盖业务周期（节假日 / 周中周末），春节 / 黄金周等特殊周期单独评估
+   - **Guardrail metric**：转化率涨、p99 延迟不涨、单次成本不涨、refusal 率不涨——任一恶化 > 阈值即回滚
+   - **灰度路径**：shadow（双跑不返回）→ 1% → 5% → 25% → 50% → 100%，每阶段守阈值
+   - **同期对照陷阱**：节假日 / 大促对照组本就有强季节性，要么 A/B 同 cohort 切分，要么用 holdout
+
+4. **Harness 健康度（多 Agent 协同系统）**：
+
+   - **路由准确率**：LLM 路径与算法路径自适应路由是否符合预设策略（输入形态分类正确性）
+   - **子 Agent 调用分布**：各子 Agent 调用比例 vs 历史 baseline，**异常突变说明 router 漂移**
+   - **多 Agent 协同完整率**：串联多个子 Agent 的任务全部成功率（任一子 Agent 失败导致整体失败）
+   - **降级 / 兜底触发率**：算法路径不可用回退到 LLM 路径的比例、人工兜底触发率
+   - **[Loop of Death](#g-loop-of-death) / 上下文爆量率**：sub-agent 调用深度、超 token 预算的 trace 占比
+   - **节点级灰度切换效果**：算法策略多版本演进时按节点切换的回归 / 提升幅度
+
+**评测 pipeline 实战（以电商 / 旅行多 Agent 系统为例）**：
+
+1. **黄金集分子 Agent 维护**：酒店 / 行程 / 交通 / 攻略各 200-1000 真实用户问题，子 Agent owner 标 expected output + 3 分基准答案
+2. **离线回归**：prompt / 模型 / 路由策略改动跑全量黄金集，子 Agent **各自报准确率 + 3 分率**，整体也要看路由准确率
+3. **预发流量 shadow**：新版本在预发环境跑真实流量但不返回用户，对比新旧轨迹差异（路由变化、子 Agent 调用次数变化、cost 变化）
+4. **A/B 上线**：1% → 5% → 25% → 100%，每阶段守业务转化率不回归才推进
+5. **线上 bad case 闭环**：用户反馈 / 自动检测（首轮失败 / 多轮无结果 / refusal）→ 归因到子 Agent / 路由 / 工具调用 → 加进黄金集 → 永不再犯（[harness engineering](#g-harness) 实战）
+
+**与通用学术 benchmark 的核心区别**：
+
+| 维度 | 通用 benchmark（K1） | 业务领域 Agent（K5） |
+|---|---|---|
+| **目标** | 选哪个基模 | 这版能不能上线 |
+| **指标** | 绝对分（73.5%） | 相对增量（+1.77pp 转化率） |
+| **数据** | 公开 / 学术集 | 自家黄金集 + 线上 trace |
+| **维度** | 任务完成率 | 业务漏斗 + 子 Agent + harness 健康 |
+| **判定** | 离线一次跑 | 线上 A/B 兜底 |
+| **粒度** | 整体 | 必须分子 Agent + 分场景 |
+
+**反模式（来自飞猪 AI 智能体「问一问」、酒店 AI 预定助手、千问酒店 MCP 等项目踩坑）**：
+
+1. **只看子 Agent 平均准确率上线**：某子 Agent 退化被均摊掩盖，体验变差但分数变高
+2. **A/B 只看 7 天数据**：没覆盖业务周期（周中周末 / 节假日），结论是假象
+3. **没分场景看转化率**：搜索流量 vs 个性化推荐流量分布差异大，总体涨可能掩盖某场景跌
+4. **没记录线上 trace**：bad case 无法归因，harness 沉淀闭环断了，同样错误反复犯
+5. **学术 benchmark 当业务验收**：SWE-bench 涨 5pp 不等于线上转化率涨——业务领域必须自家黄金集 + 线上 A/B
+6. **A/B 没设 Guardrail**：转化率涨了但单次成本翻倍 / refusal 率涨了 / p99 延迟涨了，业务不可持续
+
+**进阶**：多 Agent 协同矩阵 + 算法策略灰度切换的系统，还要评**算法侧 vs LLM 侧打分一致性**（两条路径产出策略 / 答案的相对差异）、**多版本算法 A/B 节点级回归**（按节点切换的局部影响）、**LLM 辅助特征工程的产出可复用率**（LLM 产出策略 vs 工程人工复核后的留存率）。
+
+**来源**：飞猪 AI 智能体「问一问」工程实践（酒店 Agent 准确率 93.1%、3 分率 62.1%）；酒店 AI 预定助手 A/B 数据（列表页-订单页+1.77%、日均增量 GMV 46w）；千问飞猪酒店 MCP 春节日均 GMV 300w；Anthropic《How we built our multi-agent research system》；J7 0-1 落地路线 / J4 harness 闭环
 
 ---
 
@@ -3054,7 +3127,7 @@ NVIDIA NeMo Guardrails 5 类：
 ## Methodology Appendix
 
 - **调研日期**：2026-05-02
-- **覆盖**：11 大分类 / 90 道题 / 难度分级 / 含一手论文 + Anthropic / OpenAI / DeepSeek 官方资料
+- **覆盖**：11 大分类 / 91 道题 / 难度分级 / 含一手论文 + Anthropic / OpenAI / DeepSeek 官方资料
 - **派遣 agent**：3 个并行 web-search-agent（A/B/C / D/E/F / G/H/I/J 各一），其中 D/E/F 由作者基于技术知识直接撰写（原 agent 因外部中断未完成）
 - **答案构建原则**：
   1. 优先引用一手论文 + 厂商官方文档（Anthropic / OpenAI / DeepSeek 等）
