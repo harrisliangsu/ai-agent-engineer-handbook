@@ -522,6 +522,40 @@ header#title-block-header .date {
     border-top: none;
   }
 
+  /* 默认折叠章内题目列表（第 3 层 ul） */
+  nav#TOC > ul > li > ul > li > ul {
+    display: none;
+    margin-top: 0.15em;
+    margin-bottom: 0.3em;
+  }
+  nav#TOC > ul > li > ul > li.toc-expanded > ul {
+    display: block;
+  }
+
+  /* 章节标题前的折叠箭头（JS 注入） */
+  .toc-arrow {
+    display: inline-block;
+    width: 1em;
+    margin-left: -0.6em;
+    margin-right: 0.15em;
+    text-align: center;
+    color: var(--text-subtle);
+    font-size: 0.65em;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s ease, color 0.15s ease;
+    vertical-align: 1px;
+  }
+  .toc-arrow:hover { color: var(--accent); }
+  li.toc-expanded > .toc-arrow {
+    transform: rotate(90deg);
+    color: var(--accent);
+  }
+  /* 没箭头的章节（如 Executive Summary）做对齐占位 */
+  nav#TOC > ul > li > ul > li:not(.has-children) > a {
+    padding-left: 1.15em;
+  }
+
   /* TOC 滚动条 */
   nav#TOC::-webkit-scrollbar { width: 6px; }
   nav#TOC::-webkit-scrollbar-track { background: transparent; }
@@ -842,6 +876,123 @@ a.term-ref:hover::before { opacity: 1; }
   border-left-color: var(--accent);
   box-shadow: 0 0 0 2px var(--accent-soft);
   animation: glossary-flash 1.6s ease;
+}
+
+/* ========================================================================
+   术语弹窗（点 a.term-ref 触发，浮在原文旁边而不跳转）
+   ======================================================================== */
+.term-popover {
+  position: absolute;
+  width: min(420px, calc(100vw - 24px));
+  max-height: min(60vh, 480px);
+  overflow-y: auto;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(40, 30, 10, 0.18), 0 2px 6px rgba(40, 30, 10, 0.08);
+  padding: 0.95em 1.1em 0.9em;
+  z-index: 9999;
+  font-size: 0.95em;
+  line-height: 1.7;
+  color: var(--text);
+  animation: term-pop-in 0.14s ease;
+}
+
+@keyframes term-pop-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.term-popover-close {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1.4em;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 4px;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+.term-popover-close:hover {
+  background: var(--bg-soft);
+  color: var(--accent-deep);
+}
+
+.term-popover-head {
+  font-size: 1em;
+  font-weight: 600;
+  color: var(--accent-deep);
+  padding-right: 1.8em;
+  margin-bottom: 0.55em;
+  border-bottom: 1px dashed var(--border);
+  padding-bottom: 0.55em;
+}
+.term-popover-head strong { color: var(--accent-deep); }
+.term-popover-head .term-tag {
+  display: inline-block;
+  font-size: 0.7em;
+  color: var(--text-subtle);
+  background: var(--bg-soft);
+  padding: 0.05em 0.45em;
+  border-radius: 3px;
+  margin-left: 0.5em;
+  vertical-align: 2px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.term-popover-body {
+  font-size: 0.95em;
+}
+.term-popover-body p:first-child { margin-top: 0; }
+.term-popover-body p:last-child  { margin-bottom: 0; }
+.term-popover-body ul,
+.term-popover-body ol {
+  margin: 0.35em 0;
+  padding-left: 1.3em;
+}
+.term-popover-body li { margin: 0.18em 0; }
+.term-popover-body code { font-size: 0.86em; }
+.term-popover-body a.term-ref {
+  /* 弹窗内的二级术语链接还能再点开下一层 */
+}
+
+.term-popover-footer {
+  margin-top: 0.75em;
+  padding-top: 0.5em;
+  border-top: 1px dashed var(--border);
+  font-size: 0.82em;
+  text-align: right;
+}
+.term-popover-footer a {
+  color: var(--text-muted);
+  border-bottom: none;
+}
+.term-popover-footer a:hover {
+  color: var(--accent);
+}
+
+/* 移动端：popover 居中固定 */
+.term-popover.term-popover-mobile {
+  position: fixed;
+  width: calc(100vw - 32px);
+  max-width: 420px;
+  max-height: 70vh;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%);
+}
+/* 移动端遮罩（通过 body 类切换，可选） */
+@media (max-width: 720px) {
+  .term-popover { font-size: 0.94em; }
 }
 
 @keyframes glossary-flash {

@@ -1,20 +1,20 @@
 # AI Agent / LLM 应用工程师面试题与答案研究报告
 
-**调研日期**：2026-05-02
+**调研日期**：2026-05-02（K 章节增补于 2026-05-14）
 **目标读者**：求职者（应届到 staff 级）+ 招聘方
-**覆盖**：10 大分类 / 90+ 道题 / 难度分级 / 含一手论文 + Anthropic / OpenAI / DeepSeek 官方资料
+**覆盖**：11 大分类 / 90 道题 / 难度分级 / 含一手论文 + Anthropic / OpenAI / DeepSeek 官方资料
 
 ---
 
 ## Executive Summary
 
-本报告按 10 大分类整理 AI Agent / LLM 应用工程师面试题，每题给：
+本报告按 11 大分类整理 AI Agent / LLM 应用工程师面试题，每题给：
 
 - **难度分级**：⭐ 基础 / ⭐⭐ 中等 / ⭐⭐⭐ 困难
 - **200-500 字技术答案**：含数字 / 论文出处 / 工程取舍
 - **来源**：每题至少 1-2 个权威 URL，方便深挖
 
-**10 大分类**：
+**11 大分类**：
 
 | 分类 | 题数 | 难度分布 | 重点 |
 |---|---|---|---|
@@ -28,11 +28,12 @@
 | **H. 评估** | 6 | 0⭐ 2⭐⭐ 4⭐⭐⭐ | judge bias / pairwise / benchmark hack / 漂移 |
 | **I. 安全 / 护栏** | 6 | 0⭐ 1⭐⭐ 5⭐⭐⭐ | OWASP / Prompt Injection / NeMo Guardrails / EU AI Act |
 | **J. 行为题 / 实战** | 7 | 0⭐ 2⭐⭐ 5⭐⭐⭐ | Hashimoto harness 闭环 / 0-1 落地路线 |
+| **K. Agent 评测** | 4 | 0⭐ 2⭐⭐ 2⭐⭐⭐ | benchmark 全景 / trajectory 三层粒度 / tool-use 正确性 / 生产监控闭环 |
 
 **学习路径建议**：
 - **应届 / 初级**：A + B + C + 部分 D，能讲清核心概念即可
-- **3-5 年（中级）**：全部 A-F + 部分 G/H，要有项目案例
-- **5-10 年（资深 / staff）**：全部 10 类，G/J 是主战场，要能从架构层讨论取舍
+- **3-5 年（中级）**：全部 A-F + 部分 G/H/K，要有项目案例
+- **5-10 年（资深 / staff）**：全部 11 类，G/J/K 是主战场，要能从架构层讨论取舍
 - **架构师 / staff+**：J 行为题决定差异，必须有 Hashimoto harness 思维 + 量化落地案例
 
 ---
@@ -1864,6 +1865,116 @@ Claude Code 有内置 `/compact` 命令，是这一思路的成熟实现。
 
 ---
 
+## K. Agent 评测（4 题）
+
+### K1. ⭐⭐ Agent benchmark 全景：tau-bench / SWE-bench Verified / OSWorld / WebArena / GAIA / TheAgentCompany 各侧重什么？
+
+**核心答案**：Agent benchmark 按"任务领域"分四大类——编码（SWE-bench Verified）、桌面浏览器（OSWorld / WebArena）、对话工具（tau-bench）、多步研究 / 通用工作（GAIA / TheAgentCompany）。**不要只刷单一榜单**——E11 的结论是任何 benchmark 都可能被 hack，2026 推荐多 benchmark 交叉 + 自家黄金集 + Arena 真人盲评三层。
+
+**6 大主流 benchmark 速览**：
+
+1. **SWE-bench Verified**（OpenAI 2024 重新标注）：500 题人工挑选过的 GitHub issue → patch + 单测验证，删除了原 SWE-bench 中 ambiguous / unsolvable 的题。**2026 编码 Agent 标准**，Claude / GPT / Devin 都在刷。
+2. **tau-bench**（Sierra 2024）：用 LLM 模拟用户与 agent 多轮交互，agent 必须正确调 [tool](#g-tool-use) + 遵守 policy（"已退款用户不能再退"）+ 用户最终 satisfaction 判定。比 SWE-bench 更接近客服 / 业务流 agent，是工作流类 agent 的代表 benchmark。
+3. **OSWorld**（CMU 2024）：真 Ubuntu 桌面 + 369 个跨应用任务（GIMP、LibreOffice、终端、浏览器），[Computer Use](#g-computer-use) 必跑；2026 SOTA 仅 ~38% pass。
+4. **WebArena / Visual WebArena**（CMU 2023-2024）：自托管真实网站（GitLab、Reddit-like、e-commerce）+ ~800 个任务，浏览器 agent 标准。Visual 版本要求看截图操作。
+5. **GAIA**（Meta 2023）：466 个真人写的多跳问题，要求 agent 联网检索 + 文件读取 + 推理；难度三档（Level 1/2/3），2026 仍未被打到 80%+。
+6. **TheAgentCompany**（CMU 2024）：模拟一家虚拟公司（GitLab / Plane / RocketChat 等真服务），给 agent 项目经理 / HR / 工程师等岗位任务，端到端评估远程工作场景。SOTA Claude 3.5 Sonnet 仅 24% pass，暴露了 agent 距离真实工作仍有距离。
+
+**选型指引**：(a) 编码 → SWE-bench Verified；(b) 客服 / 业务流 → tau-bench；(c) 桌面自动化 → OSWorld；(d) 浏览器 → WebArena；(e) 多跳研究 → GAIA；(f) 通用远程办公 → TheAgentCompany。生产场景**永远不要只信单一 benchmark**——E11 提到的 hack 模式（数据污染、format gaming、judge hacking）每个榜单都中招过。
+
+**来源**：SWE-bench Verified <https://openai.com/index/introducing-swe-bench-verified/>；tau-bench <https://arxiv.org/abs/2406.12045>；OSWorld <https://os-world.github.io/>；TheAgentCompany <https://the-agent-company.com/>；GAIA <https://huggingface.co/spaces/gaia-benchmark/leaderboard>
+
+### K2. ⭐⭐⭐ Agent trajectory evaluation：step-level / trajectory-level / outcome-level 三层粒度怎么权衡？
+
+**核心答案**：Agent 输出不是单条 response 而是一条 trajectory（thought / action / observation 序列），评估要分三层粒度：(1) **Outcome-level**（最终成败 0/1）；(2) **Trajectory-level**（整条路径合不合理）；(3) **Step-level**（每一步动作单独打分）。粒度越细 signal 越多但成本越高，训练用 outcome、离线 eval 用 trajectory、关键场景才上 step。
+
+**三层粒度对比**：
+
+1. **Outcome-level**：只看最终结果是否达标（单测通过 / 任务完成 / 答案正确）。
+   - 优点：cheap、客观、可作 RL reward
+   - 缺点：稀疏信号，不告诉你哪步错了
+   - 用法：[RLVR](#g-rlvr)、SWE-bench 类 benchmark、生产 SLO 监控、[A/B](#g-abtest) 对照
+2. **Trajectory-level**：让 [LLM-as-judge](#g-llm-judge) 看整条轨迹打分（路径最短性 / 是否冗余调用 / 是否走错方向 / 工具选择合理性）。
+   - 优点：catch 大多数错误模式，性价比最高
+   - 缺点：judge 自己得 ≥ 被评模型；长 trajectory 中段会 [Lost in the Middle](#g-lost-in-middle)
+   - 用法：bad case 复盘、offline eval、benchmark 增强
+3. **Step-level**（process reward）：对每个 thought / action 单独打分。
+   - 优点：最精细，能定位"agent 在第 N 步开始漂移"
+   - 缺点：最贵；reward 易 over-engineered 导致 agent 学 reward 而非真任务
+   - 用法：训练 process reward model（OpenAI PRM800K《Let's Verify Step by Step》、Math-Shepherd）；高 stake 关键步骤抽检
+
+**生产权衡**：
+
+1. **训练阶段**：首选 outcome reward（GRPO + [RLVR](#g-rlvr) 简单稳定）；长 trajectory 方差大时叠加 step-level dense reward 降方差，但要训 PRM。
+2. **离线 eval**：trajectory-level LLM-judge 性价比最高——黄金集每条标 expected_trajectory_traits，judge 打 0-1。
+3. **在线监控**：outcome-level（任务成功率）+ 关键 step 抽样（"工具调用失败率"、"context 爆量率"），不做全量 step-level（成本爆炸）。
+
+**陷阱**：(1) Outcome 通过不代表 trajectory 健康（agent 可能 hack benchmark）；(2) Step-level reward 容易催生作弊行为；(3) 三层都用 LLM-judge 时要警惕 [judge bias](#g-llm-judge)（self-preference / verbosity）。
+
+**来源**：OpenAI 2023《Let's Verify Step by Step》<https://arxiv.org/abs/2305.20050>；Anthropic《How we built our multi-agent research system》<https://www.anthropic.com/engineering/built-multi-agent-research-system>；DeepSeek-R1 RLVR 设计
+
+### K3. ⭐⭐ Tool-use correctness 怎么评：参数 hallucinate / 选错工具 / 漏调工具 / 用错顺序 都怎么 catch？
+
+**核心答案**：Tool-use 评估要分别覆盖"该不该调"、"调对了吗"、"参数对不对"、"顺序对不对"四个维度。生产标配 = static schema validation + LLM-judge trajectory eval + 黄金集 + 线上 trace 抽样 + dry-run 二次确认。
+
+**4 大失败模式 + 检测手段**：
+
+1. **该调没调**（应当用工具却凭空回答）：黄金集每条标 `expected_tools_used`；offline eval 比对 trajectory 实际调用集合；线上用 [hallucination](#g-hallucination) detector + 人工 spot-check。
+2. **不该调瞎调**（用户问"今天几号"却调 send_email）：trajectory-level [LLM-judge](#g-llm-judge) 看每个 tool call 必要性；线上监控 tool call rate 异常突增；调用前 LLM 自检"这个 call 必要吗"作 router gate。
+3. **选错工具**（用 search 替代 read_file）：[tool 描述](#g-tool-use)写得清楚 + few-shot 示例；离线 eval 用 LLM-judge 打"工具选型合理性"；trace 中 same-purpose tool 互换的 case 进回归集。
+4. **参数 hallucinate**（捏造 order_id / user_id）：
+   - **JSON schema 严格验证**：type / enum / required / pattern；
+   - **关键参数 precondition**："order_id 必须是当前用户的"，DB 校验；
+   - **Dry-run 模式**：工具先返回预览，让 agent 二次确认再真执行（参考 J1 退款工具案例）；
+   - **Read-before-Edit**：Edit 工具强制先 Read 同文件，防盲改。
+
+**评估 pipeline 4 件套**：
+
+1. **黄金集**：100-500 真实场景，人工标 expected_tools + expected_args；prompt / model 改动跑回归。
+2. **LLM-judge**：trajectory-level + 4 维 rubric（必要性 / 工具选型 / 参数正确性 / 顺序合理性）。
+3. **线上监控**：tool call 成功率、参数 validation 失败率、precondition 触发率、dry-run 二次确认率，异常报警 + bad case 自动入库。
+4. **回归闭环**：每个 bad case 标 root cause → 改 prompt / schema / precondition / dry-run → 加进黄金集 → 永不再犯（[harness engineering](#g-harness) 思想）。
+
+**BFCL（Berkeley Function-Calling Leaderboard）**是 2024 年起的 tool-use 标准 benchmark，包含 simple / multiple / parallel / multi-turn 等多个子任务，可作为离线 baseline 参考。
+
+**来源**：Anthropic Tool Use docs；BFCL <https://gorilla.cs.berkeley.edu/leaderboard.html>；Hashimoto Harness Engineering；Anthropic 《Building Effective Agents》
+
+### K4. ⭐⭐⭐ 上线 Agent 持续评估闭环：哪些指标该设 SLO？bad case 归因到 harness 怎么落地？
+
+**核心答案**：生产 Agent 评估闭环 = **多层指标 SLO + 全量 trace + 自动 bad case 检测 + 人工归因 + [harness](#g-harness) 沉淀**。Agent 不是 chat，单看正确率不够——必须同时跟成本、延迟、安全、轨迹健康四维。
+
+**四类生产 SLO**：
+
+1. **成功率类**：任务完成率 / 用户满意度 / 解决率（不需人工）；按场景 SLO 95%+。
+2. **效率类**：p99 端到端延迟、平均 token 用量、平均工具调用次数、单任务成本；任一突变 > 10% 触发告警（防 [Loop of Death](#g-loop-of-death) / [context 爆量](#g-context-window)）。
+3. **安全类**：refusal 率（异常突变可能是 prompt 漂移）、敏感 tool 调用率（destructive action）、[prompt injection](#g-prompt-injection) 检出率。
+4. **健康类**：tool call 失败率、retry rate、sub-agent 调用深度、[HITL](#g-hitl) 触发率。
+
+**全量 trace + 采样 review**：
+
+1. **Trace 采集**：OpenTelemetry + Langfuse / LangSmith / Helicone / Phoenix，每个 trace 串 prompt / thought / action / observation / cost / latency；trace_id 关联 user_id / session_id 方便追根。
+2. **自动 bad case 检测**：(a) outcome failed；(b) refusal；(c) 用户 thumb-down；(d) cost 超阈值；(e) 调用了 destructive tool；(f) trajectory 长度 > p95；(g) tool call validation 失败。
+3. **人工 sample review**：每周 50-100 条 bad case，归因到 root cause 4 类（prompt 不清 / 工具描述误导 / context 缺失 / 模型能力极限）。
+
+**Harness 沉淀闭环**（J4 [harness engineering](#g-harness) 实战）：
+
+1. **每个 bad case 一条回归**：写一条 case 进黄金集 → [CI](#g-cicd) 永久保护。
+2. **同 root cause 多发就工程化**：改 [AGENTS.md](#g-agents-md) / 工具 schema / [deny-first](#g-deny-first) 权限 / dry-run 兜底——物理上让 agent 无法再犯。
+3. **关键认知**：模型能力靠厂商，harness 能力靠你自己——**复利在 harness**。
+
+**典型工具栈 2026**：
+
+- **Trace + eval**：Langfuse / LangSmith / Phoenix / Patronus / Helicone
+- **Offline benchmark**：BFCL / SWE-bench / tau-bench / 自家黄金集
+- **SLO 监控**：Datadog / Grafana / Prometheus
+- **质量评估**：[RAGAS](#g-ragas)（RAG）/ 自训 LLM-judge / Chatbot Arena（人类反馈）
+
+**反模式**：(1) 只跑离线 benchmark 上线（线上分布差异大）；(2) 没 trace 直接看汇总指标（出 bug 无从查）；(3) bad case 修一个忘一个，没回归 CI（同样错误反复犯）；(4) 评估 model 比生产 model 弱（判官原则违背）。
+
+**来源**：Hashimoto《Harness Engineering》；Anthropic《Effective Harnesses for Long-Running Agents》；Langfuse docs <https://langfuse.com/docs>；OpenAI Evals docs
+
+---
+
 ## 术语速查表
 
 > 答案中以 `[术语]` 标记的概念都可点击跳到本表对应条目并自动展开。本表按 10 个主题分组收录 60+ 高频术语，**默认全部收起**——遇到不熟的术语再展开看精要解释，避免被信息淹没。
@@ -2943,7 +3054,7 @@ NVIDIA NeMo Guardrails 5 类：
 ## Methodology Appendix
 
 - **调研日期**：2026-05-02
-- **覆盖**：10 大分类 / 86 道题 / 难度分级 / 含一手论文 + Anthropic / OpenAI / DeepSeek 官方资料
+- **覆盖**：11 大分类 / 90 道题 / 难度分级 / 含一手论文 + Anthropic / OpenAI / DeepSeek 官方资料
 - **派遣 agent**：3 个并行 web-search-agent（A/B/C / D/E/F / G/H/I/J 各一），其中 D/E/F 由作者基于技术知识直接撰写（原 agent 因外部中断未完成）
 - **答案构建原则**：
   1. 优先引用一手论文 + 厂商官方文档（Anthropic / OpenAI / DeepSeek 等）
