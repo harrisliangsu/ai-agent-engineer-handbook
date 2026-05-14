@@ -489,6 +489,19 @@ header#title-block-header .date {
     list-style: none;
   }
 
+  /* 含子节点的 li：箭头 + 链接同行，嵌套 ul 换行 */
+  nav#TOC li.has-children {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+  }
+  nav#TOC li.has-children > .toc-arrow { flex: 0 0 auto; }
+  nav#TOC li.has-children > a {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  nav#TOC li.has-children > ul { flex: 0 0 100%; }
+
   nav#TOC a {
     display: block;
     padding: 3px 8px 3px 10px;
