@@ -173,7 +173,7 @@
 <figcaption>自主 Agent</figcaption>
 </figure>
 <p><strong>何时使用 Agent：</strong> 适合开放式问题——很难甚至无法预测需要多少步、也写不出一条固定的代码路径。LLM 可能会跑很多轮，<strong>你需要对它的决策具备一定信任度</strong>。Agent 的自主性让它特别适合在<strong>可信环境</strong>中扩展任务规模。</p>
-<p>但自主性同时意味着更高的成本和<strong>错误累积</strong>的可能。我们建议在沙箱环境中做<strong>充分测试</strong>，并配上合适的护栏（guardrails）。</p>
+<p>但自主性同时意味着更高的成本和<strong>错误累积</strong>的可能。我们建议在<a class="term-ref" href="#g-sandbox">沙箱</a>环境中做<strong>充分测试</strong>，并配上合适的护栏（<a class="term-ref" href="#g-guardrails">guardrails</a>）。</p>
 <p><strong>适用示例：</strong></p>
 <p>下列示例来自我们自己的实现：</p>
 <ul>
@@ -261,6 +261,1176 @@
   }
   var io = new IntersectionObserver(function(entries){ entries.forEach(function(e){ visible[e.target.id] = e.isIntersecting; }); update(); }, { rootMargin: '-12% 0px -70% 0px', threshold: 0 });
   headings.forEach(function(h){ io.observe(h); });
+})();
+</script>
+
+<hr />
+<h2 id="术语速查表">术语速查表</h2>
+<blockquote>
+<p>答案中以 <code>[术语]</code> 标记的概念都可点击跳到本表对应条目并自动展开。本表按 10 个主题分组收录 60+ 高频术语，<strong>默认全部收起</strong>——遇到不熟的术语再展开看精要解释，避免被信息淹没。</p>
+</blockquote>
+<section class="glossary">
+
+<h3 id="术语-软件工程基础">软件工程基础</h3>
+
+<details id="g-lint">
+<summary><strong>lint</strong> <span class="term-tag">软件工程</span> — 静态代码检查工具，扫描源码找潜在 bug 与风格问题</summary>
+<p>不实际运行代码的情况下分析源码，识别潜在 bug、未使用变量、风格违规、可疑用法。常见工具：</p>
+<ul>
+<li><strong>JavaScript/TypeScript</strong>：ESLint、Biome</li>
+<li><strong>Python</strong>：Pylint、Ruff、Flake8</li>
+<li><strong>Go</strong>：golangci-lint</li>
+<li><strong>Rust</strong>：clippy</li>
+<li><strong>Shell</strong>：shellcheck</li>
+</ul>
+<p>在 Agent 工程中，lint 经常被用作 <strong>harness 的硬约束</strong>——把 lint 错误反馈给模型重写代码，比单纯在 prompt 里说"请遵守编码规范"可靠得多（Augment Code 把这叫做 Constraint Harness）。</p>
+</details>
+
+<details id="g-type-check">
+<summary><strong>type check / 类型检查</strong> <span class="term-tag">软件工程</span> — 验证变量、参数、返回值类型是否匹配</summary>
+<p>确保代码中变量赋值、函数调用的类型一致：</p>
+<ul>
+<li><strong>静态类型语言</strong>：TypeScript / Go / Rust / Java 编译期检查</li>
+<li><strong>动态语言加注解</strong>：Python 用 mypy / pyright / Pyre，Ruby 用 Sorbet</li>
+</ul>
+<p>对 Agent：让 agent 写完代码后强制跑 <code>tsc --noEmit</code> / <code>mypy .</code> / <code>cargo check</code>，类型错误作为反馈喂回模型继续修。比让 agent 自己"声明检查过类型"可靠得多——这是 <a class="term-ref" href="#g-harness">harness</a> 工程的典型做法。</p>
+</details>
+
+<details id="g-cicd">
+<summary><strong>CI/CD</strong> <span class="term-tag">软件工程</span> — 持续集成 / 持续部署流水线</summary>
+<p><strong>CI</strong>（Continuous Integration）：每次代码提交自动跑测试、构建、lint、type check 等校验。<br />
+<strong>CD</strong>（Continuous Deployment）：通过校验后自动部署到测试 / 预发 / 生产环境。</p>
+<p>常见工具：GitHub Actions、GitLab CI、Jenkins、CircleCI、Buildkite。</p>
+<p>在 Agent 工程里，CI 是最重要的 <strong>deterministic 反馈源</strong>——LLM 自评不可靠，但 CI 通过/失败是 0/1 信号，可以直接作为 ground truth。Hashimoto 的 harness engineering 强调"能不能解决问题强相关于 agent 能不能验证自己的工作"。</p>
+</details>
+
+<details id="g-sandbox">
+<summary><strong>sandbox / 沙箱</strong> <span class="term-tag">软件工程</span> — 隔离的代码执行环境，限制对外部资源的访问</summary>
+<p>让不可信代码（用户上传、LLM 生成）在受限环境中跑，防止破坏宿主系统。隔离强度从弱到强：</p>
+<ul>
+<li><strong>Docker (runc)</strong>：共享 kernel，弱隔离，启动 &lt;1s</li>
+<li><strong>gVisor</strong>：用户态 syscall 拦截，中隔离</li>
+<li><strong>Firecracker / microVM</strong>：独立 kernel，强隔离，~100-300ms 冷启</li>
+<li><strong>E2B</strong>：基于 Firecracker 的 SaaS，LLM Agent 代码执行首选</li>
+<li><strong>完全 VM</strong>：最强隔离，秒-分钟级冷启</li>
+</ul>
+<p>Agent 跑用户/LLM 生成代码必须沙箱，并叠加纵深防御：网络出口白名单 + 文件系统只读 + 时间/内存配额 + 不挂载 host 凭据。</p>
+</details>
+
+<details id="g-canary">
+<summary><strong>canary / 金丝雀发布</strong> <span class="term-tag">软件工程</span> — 先给少量流量上新版本，观察无异常再全量</summary>
+<p>来自煤矿用金丝雀检测毒气的典故。部署流程典型为：shadow（双跑不返回）→ 1% → 5% → 25% → 50% → 100%，每阶段观察核心指标无回归才推进。</p>
+<p>对 LLM 应用：新 prompt / 新模型 / 新 agent harness 上线必走 canary，关键指标（解决率、CSAT、refusal 率、p99 延迟、单次成本）任何一个恶化 &gt; 阈值就回滚。LLM 应用的"非确定性"特性让 canary 比传统软件更重要。</p>
+</details>
+
+<details id="g-abtest">
+<summary><strong>A/B test</strong> <span class="term-tag">软件工程</span> — 对照试验，把流量切成两组分别用新旧版本，比较关键指标差异</summary>
+<p>按 user_id hash 切流量保证一个用户始终进同一桶（避免体验跳变）。判定要素：</p>
+<ul>
+<li><strong>业务指标</strong>：转化率、CSAT、留存——验证假设</li>
+<li><strong>代理指标</strong>：thumb up/down、refusal 率、对话轮数</li>
+<li><strong>Guardrail metric</strong>：成本、延迟不能恶化超阈值</li>
+<li><strong>观察窗口</strong>：至少 1-2 周覆盖业务周期</li>
+<li><strong>统计显著性</strong>：t-test / Mann-Whitney 检验</li>
+</ul>
+<p>LLM 应用调 prompt / 换模型 / 改 RAG 都应过 A/B；只靠 offline eval 上线常翻车（线上流量分布与黄金集差异大）。</p>
+</details>
+
+<details id="g-biz-metrics">
+<summary><strong>GMV / UV / CSAT / NPS / 转化率</strong> <span class="term-tag">业务指标</span> — 电商 / 旅行 / 客服业务最常用的几个北极星指标</summary>
+<p>业务侧验收 Agent 是否上线最看的几个指标：</p>
+<ul>
+<li><strong>GMV (Gross Merchandise Value)</strong>：商品交易总额，电商核心指标。日均 GMV、月 GMV、增量 GMV（A/B 实验组比对照组多出来的）都是常见口径。</li>
+<li><strong>UV (Unique Visitor) / DAU (Daily Active User)</strong>：独立访客数 / 日活用户。UV 看流量，DAU 看粘性。</li>
+<li><strong>PV (Page View)</strong>：页面浏览量，UV × 人均浏览次数。</li>
+<li><strong>CTR (Click-Through Rate)</strong>：点击率，曝光后点击占比；推荐系统核心指标。</li>
+<li><strong>转化率 (Conversion Rate)</strong>：漏斗各环节转化——列表页→详情页、详情页→订单页、详情页→支付。电商 / 旅行场景 +1pp 即显著、+1.5-2pp 算大幅提升。</li>
+<li><strong>CSAT (Customer Satisfaction Score)</strong>：用户满意度评分（1-5 或 1-10），客服 Agent 必看。</li>
+<li><strong>NPS (Net Promoter Score)</strong>：净推荐值，"你有多大可能推荐给朋友"，-100 到 100。</li>
+<li><strong>首轮解决率 / FCR (First Contact Resolution)</strong>：首次交互就解决问题的比例，客服 Agent 关键指标。</li>
+</ul>
+<p><strong>Agent 工程关注</strong>：把模型 / prompt / RAG 改动放进 A/B 看这些业务指标，而非只看离线 benchmark 分数。改动让 benchmark 涨但 GMV / CSAT 跌的情况非常常见。</p>
+</details>
+
+<details id="g-hitl">
+<summary><strong>HITL / human-in-the-loop</strong> <span class="term-tag">软件工程</span> — 关键决策点引入人工审核 / 确认</summary>
+<p>Agent 自治走到关键节点时暂停等待人工：</p>
+<ul>
+<li><strong>高风险操作前</strong>：转账、发邮件、删数据、合并 PR</li>
+<li><strong>置信度低时</strong>：模型自评 confidence &lt; 阈值</li>
+<li><strong>法规要求</strong>：医疗诊断、信贷决策、招聘筛选（EU AI Act 高风险系统要求）</li>
+</ul>
+<p>设计原则："Humans steer. Agents execute."（OpenAI Harness Engineering）。Agent 不是替代人，是放大人的判断——把人放在制定计划、设定约束、审核结果的位置，agent 处理执行。</p>
+</details>
+
+<details id="g-slo">
+<summary><strong>SLO / SLI / SLA / Error Budget</strong> <span class="term-tag">软件工程</span> — 服务质量的"目标 / 指标 / 合约 / 预算"四件套，来自 SRE</summary>
+<p>Google SRE 体系定义的四个术语：</p>
+<ul>
+<li><strong>SLI (Service Level Indicator)</strong>：一个<strong>指标</strong>——可观测的数字。如"成功率 99.5%"、"p99 延迟 280ms"、"任务完成率 92%"。</li>
+<li><strong>SLO (Service Level Objective)</strong>：在 SLI 上<strong>设定的目标</strong>。如"成功率 SLO = 99.9%（30 天滑窗）"。是工程团队对内的承诺。</li>
+<li><strong>SLA (Service Level Agreement)</strong>：和<strong>用户 / 客户的合约</strong>，违约要赔钱 / 退服务费。通常比 SLO 宽（SLO 99.9% → SLA 99.5%），留缓冲。</li>
+<li><strong>Error Budget</strong>：<code>1 - SLO</code>。SLO 99.9% 意味着 30 天有 43.2 分钟"预算"可以不达标，预算用完就冻结非必要发布。</li>
+</ul>
+<p><strong>Agent 应用怎么用</strong>：</p>
+<ol>
+<li><strong>每个 Agent 场景定 1-3 个 SLO</strong>：如"客服 Agent 解决率 SLO = 85%"、"p99 端到端延迟 SLO ≤ 5s"、"单任务平均成本 SLO ≤ $0.05"</li>
+<li><strong>触发告警</strong>：实时 SLI 跌破 SLO 80% 警告，跌破 SLO 直接 page oncall</li>
+<li><strong>冻结发布</strong>：error budget 烧完了，禁止合并非紧急修复</li>
+<li><strong>业务 SLO vs 技术 SLO</strong>：业务 SLO（转化率 / CSAT / GMV）属于产品验收，技术 SLO（延迟 / 错误率 / cost）属于工程兜底，两层都要</li>
+</ol>
+<p><strong>经验法则</strong>：SLO 不是越严越好——99.99% 比 99.9% 贵 5-10 倍，且大概率超过用户感知阈值。Google 建议"刚刚够用户不抱怨"的水位。</p>
+</details>
+
+<details id="g-ttl">
+<summary><strong>TTL / Time To Live</strong> <span class="term-tag">软件工程</span> — 数据 / 缓存 / 凭据的有效期</summary>
+<p>到期自动失效。常见用法：</p>
+<ul>
+<li><strong>Cache TTL</strong>：Redis 缓存设 1h / 24h</li>
+<li><strong>Prompt Caching TTL</strong>：Anthropic 默认 5 分钟，可选 1 小时</li>
+<li><strong>Session TTL</strong>：用户会话 24h-7d</li>
+<li><strong>凭据 TTL</strong>：JWT、临时 AWS 凭据通常 1h</li>
+<li><strong>Memory TTL</strong>：低 confidence 记忆短 TTL，高 confidence 长 TTL（<a class="term-ref" href="#g-memory-corruption">Memory Corruption</a> 防御之一）</li>
+</ul>
+</details>
+
+<h3 id="术语-llm-基础概念">LLM 基础概念</h3>
+
+<details id="g-token">
+<summary><strong>token</strong> <span class="term-tag">LLM 基础</span> — LLM 的最小输入/输出单位，由 tokenizer 切分得到</summary>
+<ul>
+<li>英文：一个 token 通常对应 1 个常用词或半个长词（约 4 字符）</li>
+<li>中文：一个 token 约对应 0.5-2 个汉字（取决于 tokenizer 训练）</li>
+<li>代码：标点 / 缩进 / 符号都各占 token</li>
+</ul>
+<p><strong>经验换算</strong>：1000 英文单词 ≈ 1300 token；1000 汉字 ≈ 1500-2000 token。</p>
+<p>为什么重要：context window、API 计费、推理速度都按 token 算。控制 token 数 = 控制成本和延迟。Anthropic / OpenAI / Google 各自的 tokenizer 不同，相同文本 token 数差 ±20% 很常见。</p>
+</details>
+
+<details id="g-embedding">
+<summary><strong>embedding</strong> <span class="term-tag">LLM 基础</span> — 把文本/图片映射为高维稠密向量，语义相近的向量距离近</summary>
+<p>文本 → 神经网络 → 一个 768 / 1024 / 1536 / 3072 维的浮点数向量。同义词 / 同主题文本的向量在空间中距离近（cosine similarity 高）。</p>
+<p>主要用途：</p>
+<ul>
+<li><strong>检索</strong>：query embedding → 找最相似的 doc embedding（RAG 召回）</li>
+<li><strong>聚类</strong>：相似主题文档自动分组</li>
+<li><strong>分类</strong>：用相似度做 zero-shot 分类</li>
+<li><strong>去重</strong>：相似度 &gt; 阈值视为重复</li>
+</ul>
+<p>主流模型 2026：OpenAI text-embedding-3-large、Cohere v4、Voyage-3、BGE-M3（开源 SOTA，中英双语 + dense/sparse/multi-vector 三合一）。</p>
+</details>
+
+<details id="g-context-window">
+<summary><strong>context window / 上下文窗口</strong> <span class="term-tag">LLM 基础</span> — 模型单次能处理的 token 上限</summary>
+<p>包含 system prompt + 历史对话 + 用户输入 + 模型输出，所有都计算在内。2026 主流模型：</p>
+<ul>
+<li>GPT-4o：128k</li>
+<li>Claude 3.5 Sonnet / Opus：200k</li>
+<li>Gemini 1.5 Pro：1M-2M</li>
+<li>Llama 3.1：128k</li>
+</ul>
+<p><strong>注意</strong>：宣称窗口 ≠ 有效窗口。RULER 基准显示多数模型在窗口 1/4 之外性能急剧下降（<a class="term-ref" href="#g-lost-in-middle">Lost in the Middle</a>）。工程建议把"应当塞入 context"的阈值定在 8-32k，更长走 RAG 或层级摘要。</p>
+</details>
+
+<details id="g-prefill-decode">
+<summary><strong>prefill / decode</strong> <span class="term-tag">LLM 基础</span> — LLM 推理的两阶段：处理输入 → 逐 token 生成</summary>
+<ul>
+<li><strong>Prefill</strong>：把 prompt 所有 token 一次性喂入模型计算 KV cache。compute-bound（受 GPU 算力限制），一次能并行处理整段 prompt。延迟决定 <a class="term-ref" href="#g-ttft">TTFT</a>。</li>
+<li><strong>Decode</strong>：一次生成一个 token，每个 token 都要复用前面所有 token 的 <a class="term-ref" href="#g-kv-cache">KV cache</a>。memory-bound（受显存带宽限制），延迟决定 TBT（time between tokens）。</li>
+</ul>
+<p>两个阶段瓶颈不同，调优策略也不同——prefill 优化靠并行 / <a class="term-ref" href="#g-flash-attention">FlashAttention</a>，decode 优化靠 <a class="term-ref" href="#g-continuous-batching">continuous batching</a> / <a class="term-ref" href="#g-spec-decode">speculative decoding</a>。</p>
+</details>
+
+<details id="g-kv-cache">
+<summary><strong>KV cache</strong> <span class="term-tag">LLM 基础</span> — 注意力中已计算过的 K (Key) / V (Value) 矩阵缓存</summary>
+<p>生成第 t 个 token 时需要前面所有 token 的 K/V 参与注意力计算。把它们缓存下来避免每次重算，是 LLM 推理的最基础优化。</p>
+<p>显存占用：<code>2 × num_layers × num_heads × head_dim × seq_len × batch × bytes_per_elem</code>。70B 模型上 128k 上下文的 KV cache 可达数十 GB，远超模型权重本身。</p>
+<p>进阶优化：</p>
+<ul>
+<li><a class="term-ref" href="#g-paged-attention">PagedAttention</a>：分块管理，去碎片</li>
+<li><a class="term-ref" href="#g-gqa-mqa">GQA/MQA</a>：减少 K/V 头数，KV cache 减小到 1/8 ~ 1/H</li>
+<li>KV cache 量化：FP8 KV cache（H100 原生）显存减半</li>
+<li><a class="term-ref" href="#g-prefix-caching">prefix caching</a>：跨 request 复用相同前缀的 KV</li>
+</ul>
+</details>
+
+<details id="g-autoregressive">
+<summary><strong>autoregressive / 自回归</strong> <span class="term-tag">LLM 基础</span> — 一次生成一个 token，下一个 token 的生成依赖前面所有 token</summary>
+<p>GPT 类 decoder-only 模型的生成方式：<code>P(x_t | x_1, ..., x_{t-1})</code>。每生成一个 token 都要跑一次完整 forward（虽然能复用 KV cache），所以<strong>输出长度直接决定延迟</strong>。</p>
+<p>对比：BERT 是非自回归（masked LM，一次预测所有 mask 位置），扩散模型（diffusion）也是非自回归（一次去噪整段）。</p>
+<p>自回归的代价催生了大量加速技术：<a class="term-ref" href="#g-spec-decode">speculative decoding</a>、parallel decoding、Medusa、EAGLE 等。</p>
+</details>
+
+<details id="g-logit">
+<summary><strong>logit</strong> <span class="term-tag">LLM 基础</span> — 模型输出的原始未归一化得分，每个词汇表 token 一个值</summary>
+<p>decoder 最后一层输出 <code>[vocab_size]</code> 维的 logit 向量；过 softmax 后得到下一个 token 的概率分布。</p>
+<p>工程上能拿到 logit（或 top-k logprob）的场景：</p>
+<ul>
+<li>计算 perplexity（评估模型对文本的"惊讶"程度）</li>
+<li>Self-Consistency 取候选 logprob 加权</li>
+<li>LLM-as-judge 用 yes/no logit 差值作 confidence</li>
+<li>DPO 损失函数直接用 logprob 计算</li>
+<li>Speculative decoding 用 logit 做 rejection sampling</li>
+</ul>
+<p>注意：OpenAI / Anthropic 商用 API 默认只返回采样结果，需显式开 logprobs 选项。</p>
+</details>
+
+<details id="g-temperature">
+<summary><strong>temperature</strong> <span class="term-tag">LLM 基础</span> — 控制采样随机性的超参数，0 = 确定性，&gt;1 = 高随机</summary>
+<p><code>P(token) ∝ exp(logit / T)</code>：</p>
+<ul>
+<li><strong>T=0</strong>：greedy，每次选 argmax，结果可复现（同输入同输出）</li>
+<li><strong>T=0.7-1.0</strong>：通用对话推荐范围</li>
+<li><strong>T&gt;1</strong>：越大越随机，多样性高但容易胡说</li>
+</ul>
+<p>何时调高：<a class="term-ref" href="#g-self-consistency">Self-Consistency</a> 需要多样路径、creative writing、brainstorm。<br />
+何时调低：代码生成、数学推理、严格格式输出，T=0.1-0.3。</p>
+<p>陷阱：T=0 不完全等同 deterministic——浮点 GPU 算子的非确定性 + 并发调度可能让相同 prompt 的输出仍有微差。</p>
+</details>
+
+<details id="g-attention-sink">
+<summary><strong>attention sink</strong> <span class="term-tag">LLM 基础</span> — 模型把大量注意力集中到序列开头几个 token 的现象</summary>
+<p>Xiao et al. 2023 发现：长序列推理时，靠后的 token 往往把不成比例多的注意力分给了序列最前面的几个 token（即使它们语义无关）——这些 token 成为"sink"，吸收掉 softmax 必须分配的归一化质量。</p>
+<p>工程意义：</p>
+<ul>
+<li><strong>StreamingLLM</strong>：滑窗推理保留开头 sink token，可处理无限长序列</li>
+<li>解释了 <a class="term-ref" href="#g-lost-in-middle">Lost in the Middle</a>：中间 token 注意力被首尾压榨</li>
+<li>解释了为什么截断序列开头会大幅伤害性能——sink 没了</li>
+</ul>
+</details>
+
+<h3 id="术语-transformer-架构">Transformer 架构</h3>
+
+<details id="g-layernorm-rmsnorm">
+<summary><strong>LayerNorm / RMSNorm</strong> <span class="term-tag">架构</span> — Transformer 主流归一化层，沿 feature 维度对单样本归一化</summary>
+<p><strong>LayerNorm</strong>：<code>y = (x - μ) / σ * g + b</code>，沿 hidden 维度求均值方差。与 batch 无关，天然支持变长序列与单条推理——这是 Transformer 选 LayerNorm 而非 BatchNorm 的原因。</p>
+<p><strong>RMSNorm</strong>（Zhang &amp; Sennrich 2019）：<code>y = x / sqrt(mean(x²)+ε) * g</code>，去掉减均值和 bias。Llama / PaLM / Mistral 等现代 LLM 几乎都改用 RMSNorm，省 7-64% 归一化耗时且效果不降。</p>
+<p><strong>Pre-LN vs Post-LN</strong>：LN 在残差<strong>前</strong>做（Pre-LN）训练比放残差<strong>后</strong>（Post-LN）稳定，可去掉 warmup，GPT-2 起几乎统一用 Pre-LN。</p>
+</details>
+
+<details id="g-rope">
+<summary><strong>RoPE / Rotary Position Embedding</strong> <span class="term-tag">架构</span> — 旋转位置编码，把位置信息编码进 Q/K 旋转矩阵</summary>
+<p>Su et al. 2021。把位置 m 表示为旋转矩阵 R_m 作用在 Q/K 上，使得 <code>&lt;R_m·q, R_n·k&gt; = f(q, k, m-n)</code>——<strong>注意力得分只依赖相对距离</strong>。</p>
+<p>优点：(1) 无额外参数；(2) 天然编码相对位置；(3) 可与线性注意力兼容。已成 Llama / Qwen / Mistral 等绝大多数现代 LLM 的位置编码方案。</p>
+<p><strong>外推问题</strong>：纯外推 2k→32k 会崩——高频分量旋转角度落入未见区域。缓解：</p>
+<ul>
+<li><strong>NTK-aware scaling</strong>：低频维度插值、高频近似不变</li>
+<li><strong>YaRN</strong>（Peng 2023）：加 attention temperature + 按维度分段缩放，Llama-3.1 128k、Qwen2.5 用的就是这套</li>
+</ul>
+</details>
+
+<details id="g-yarn">
+<summary><strong>NTK-aware scaling / YaRN</strong> <span class="term-tag">架构</span> — RoPE 长度外推方案，让 2k 训练的模型能跑 32k / 128k context</summary>
+<p><a class="term-ref" href="#g-rope">RoPE</a> 纯外推会崩——高频分量在训练上下文外旋转角度落入未见区域。两种工程化方案：</p>
+<ul>
+<li><strong>NTK-aware scaling</strong>（NTK = Neural Tangent Kernel）：对低频维度做插值（拉伸 base），高频维度近乎不变。简单有效，不需重训。</li>
+<li><strong>YaRN</strong>（Peng et al. 2023）：在 NTK 基础上加 <strong>attention temperature</strong> 调整 + 按频率维度<strong>分段缩放</strong>（高频严格保留、低频强插值），需少量长上下文数据微调（万级 token 长度样本）。</li>
+</ul>
+<p><strong>主流应用</strong>：</p>
+<ul>
+<li>Llama-3.1 128k → YaRN</li>
+<li>Qwen2.5 / Qwen3 → YaRN</li>
+<li>Mistral-7B 32k 早期版本 → NTK</li>
+<li>GPT-4 / Claude → 闭源，可能用自研方案 + 长上下文持续训练</li>
+</ul>
+<p><strong>经验数字</strong>：YaRN 在 4× 上下文扩展（2k→8k 或 32k→128k）几乎无损；8× 以上仍有性能下降。极致长上下文（1M+）通常需要重训而非仅靠 YaRN。</p>
+</details>
+
+<details id="g-gqa-mqa">
+<summary><strong>GQA / MQA</strong> <span class="term-tag">架构</span> — Grouped/Multi Query Attention，多个 Q 头共享同一组 K/V 头</summary>
+<p>标准 multi-head attention：H 个头各有独立 Q/K/V。</p>
+<ul>
+<li><strong>MQA</strong>：所有 Q 头共享一套 K/V（极端形态）</li>
+<li><strong>GQA</strong>：把 H 个 Q 头分成 G 组，每组共享一套 K/V（折中），G=H/8 是常见配置</li>
+</ul>
+<p>收益：<a class="term-ref" href="#g-kv-cache">KV cache</a> 减小到 1/8 ~ 1/H，推理吞吐显著提升，效果几乎无损。Llama-2 70B / Llama-3 / Mistral / Qwen2 等都用 GQA。</p>
+</details>
+
+<details id="g-moe">
+<summary><strong>MoE / Mixture of Experts</strong> <span class="term-tag">架构</span> — 混合专家模型，每个 token 只激活部分 expert FFN</summary>
+<p>把传统 dense FFN 换成 N 个并行的 expert FFN + 一个 router。每个 token 通过 router 选 top-k 个 expert（k 通常 1-2），只激活这部分 expert 计算。</p>
+<p>优点：<strong>参数量大、算力省</strong>。Mixtral 8x7B 总参数 47B，激活参数仅 13B；DeepSeek-V3 671B 总参数，激活仅 37B。同等推理成本下 capacity 远超 dense 模型。</p>
+<p>挑战：(1) 训练时负载均衡（防一两个 expert 被过度使用）；(2) 显存占用按总参数计而非激活参数；(3) 通信开销大（expert parallelism）。</p>
+</details>
+
+<details id="g-multi-head-attention">
+<summary><strong>multi-head attention / 多头注意力</strong> <span class="term-tag">架构</span> — 把 d_model 拆成 h 份独立投影 Q/K/V，每头学不同子空间的关系</summary>
+<p>单头注意力对每对 token 只产生一个 attention 分布——一种"关系视角"。多头（h=8/32/64/128）让模型同时学多种关系——句法头关注短距离依赖，语义头关注共指、远程实体。</p>
+<p><strong>为什么单头加大维度不行</strong>：多头是 h 个低秩注意力的混合，表达能力严格更强；单头是一个高秩注意力，自由度反而少。</p>
+<p>进阶变体：<a class="term-ref" href="#g-gqa-mqa">GQA / MQA</a> 在 KV 侧减头省显存，Q 侧仍保多头。</p>
+</details>
+
+<h3 id="术语-推理加速">推理加速</h3>
+
+<details id="g-flash-attention">
+<summary><strong>FlashAttention</strong> <span class="term-tag">推理加速</span> — 通过 tiling + online softmax 不实例化完整 attention 矩阵的 attention 计算</summary>
+<p>Dao 2022。标准 attention 显存 O(N²)（要存 N×N 的 attention matrix），长序列瓶颈。FlashAttention 把 Q/K/V 分块加载到 GPU SRAM 计算，<strong>不写出完整 attention matrix</strong>，显存降到 O(N)，速度也快——attention 是 memory-bound，少读 HBM 就快。</p>
+<p><strong>演进</strong>：</p>
+<ul>
+<li><strong>FA1</strong>（2022）：A100 上 ~25% 峰值 FLOPS</li>
+<li><strong>FA2</strong>（2023）：优化并行划分、warp 调度，A100 ~50-72% 峰值</li>
+<li><strong>FA3</strong>（Shah 2024）：针对 H100 用 WGMMA 异步张量核心 + TMA + producer/consumer warp，BF16 达 740 TFLOPS（75% 峰值），FP8 接近 1.2 PFLOPS</li>
+</ul>
+</details>
+
+<details id="g-paged-attention">
+<summary><strong>PagedAttention</strong> <span class="term-tag">推理加速</span> — vLLM 提出，把 KV cache 像 OS 虚拟内存一样切成固定大小 block 管理</summary>
+<p>Kwon et al. 2023。解决传统推理 <a class="term-ref" href="#g-kv-cache">KV cache</a> 的三类碎片问题：</p>
+<ul>
+<li><strong>内部碎片</strong>：预分配 max_seq_len 但实际只用一小部分</li>
+<li><strong>外部碎片</strong>：请求间隙无法复用</li>
+<li><strong>共享前缀无法去重</strong></li>
+</ul>
+<p>机制：KV cache 切成固定大小 block（如 16 token），每个序列维护 block table（逻辑→物理映射）。显存利用率从 ~20% 提到 &gt;96%；同 prompt 多采样共享前缀 block；配合 <a class="term-ref" href="#g-continuous-batching">continuous batching</a> 吞吐相对 HuggingFace TGI 提升 2-4×，相对 FasterTransformer 24×。</p>
+</details>
+
+<details id="g-vllm">
+<summary><strong>vLLM</strong> <span class="term-tag">推理加速</span> — UC Berkeley 开源的高吞吐 LLM 推理引擎，实现 PagedAttention</summary>
+<p>2023 年起的事实标准开源推理服务器。核心特性：</p>
+<ul>
+<li><a class="term-ref" href="#g-paged-attention">PagedAttention</a> 显存管理</li>
+<li><a class="term-ref" href="#g-continuous-batching">Continuous Batching</a></li>
+<li><a class="term-ref" href="#g-prefix-caching">Prefix Caching</a> 自动开启</li>
+<li>Chunked prefill（v0.6+ 默认，prefill/decode 交错调度降抖动）</li>
+<li>FP8 KV cache（H100/H200）</li>
+<li>支持 <a class="term-ref" href="#g-gptq">GPTQ</a> / <a class="term-ref" href="#g-awq">AWQ</a> 量化</li>
+</ul>
+<p>对比：TGI（HuggingFace）、TensorRT-LLM（NVIDIA，私有更快）、SGLang（前缀复用更彻底）、LMDeploy（OpenCompass 出品）。</p>
+</details>
+
+<details id="g-continuous-batching">
+<summary><strong>continuous batching</strong> <span class="term-tag">推理加速</span> — 按 token 级别动态调度，请求结束即退出、新请求随时插入</summary>
+<p>也叫 in-flight batching，Yu et al. ORCA 2022 提出。对比 static batching（等齐 batch 再一起跑，长短请求混在一起时 GPU 利用率经常 &lt;30%），continuous batching：</p>
+<ul>
+<li>每个 decode step 后，已完成的 request 立刻退出</li>
+<li>新到的 request 立刻插入空槽并先做 prefill，再加入 decode batch</li>
+<li>配合 <a class="term-ref" href="#g-paged-attention">PagedAttention</a> 无显存碎片</li>
+</ul>
+<p>vLLM 数据：吞吐相比 static 提升 5-23×。已成所有现代推理引擎的默认。</p>
+</details>
+
+<details id="g-spec-decode">
+<summary><strong>speculative decoding</strong> <span class="term-tag">推理加速</span> — 小 draft 模型快速猜 K 个 token，大模型一次 forward 并行验证</summary>
+<p>Leviathan et al. 2023。流程：</p>
+<ol>
+<li>小 draft model（1-7B）自回归生成 K 个 token（K=5 典型）</li>
+<li>大 target model（70B+）一次 forward <strong>并行</strong>验证 K+1 个位置</li>
+<li>前 j 个被接受 + 第 j+1 个拒绝 → 保留前 j 个 + 采样一个新 token</li>
+</ol>
+<p>数学上保证输出分布与原模型完全一致（rejection sampling）。</p>
+<p>收益条件：(1) draft 与 target 分布相似（接受率 &gt;60%）；(2) 大模型受 memory bandwidth 限制，并行验证不增延迟。代码生成接受率 70-90%，开放生成 30-50%。变体：EAGLE-2/3、Medusa、Llama 3.1 self-speculative。</p>
+</details>
+
+<details id="g-prefix-caching">
+<summary><strong>prefix caching</strong> <span class="term-tag">推理加速</span> — 跨 request 缓存相同前缀的 KV cache，跳过 prefill 重新计算</summary>
+<p><a class="term-ref" href="#g-kv-cache">KV cache</a> 是单 request 内复用；prefix caching 是<strong>跨 request</strong> 复用——多个 request 共享 system prompt / few-shot / agent 历史时，首次计算后缓存这部分 KV，后续 request 直接命中跳过 prefill。</p>
+<p>效果：agent / RAG / 多轮对话场景，system prompt 通常 1-4k token、几乎所有请求共享，<a class="term-ref" href="#g-ttft">TTFT</a> 可下降 10-100×。</p>
+<p>实现：vLLM <code>--enable-prefix-caching</code>、SGLang RadixAttention（用 radix tree 自动管理所有历史前缀）、Anthropic prompt caching API（5min TTL，cached 部分 0.1× 价格）。</p>
+</details>
+
+<details id="g-ttft">
+<summary><strong>TTFT / Time to First Token</strong> <span class="term-tag">推理加速</span> — 从 request 发出到第一个 token 返回的延迟</summary>
+<p>主要由 prefill 决定（处理 input 所有 token）。计费、监控的核心指标之一。</p>
+<p>降低 TTFT 的手段：</p>
+<ul>
+<li><a class="term-ref" href="#g-prefix-caching">Prefix Caching</a>（命中后 TTFT 降 80%+）</li>
+<li>减短 prompt（RAG 召回精度上去后能砍 chunk）</li>
+<li><a class="term-ref" href="#g-flash-attention">FlashAttention</a> / 更新硬件</li>
+<li><a class="term-ref" href="#g-spec-decode">Speculative decoding</a></li>
+<li>Chunked prefill（不阻塞其他请求 decode）</li>
+</ul>
+<p>伴生指标：<strong>TBT</strong>（time between tokens，单 token 间隔）— 由 decode 决定。</p>
+</details>
+
+<h3 id="术语-量化">量化</h3>
+
+<details id="g-fp16-bf16-fp8">
+<summary><strong>FP16 / BF16 / FP8</strong> <span class="term-tag">量化</span> — 低精度浮点格式，省显存省算力</summary>
+<ul>
+<li><strong>FP16</strong>（half）：5 位 exp + 10 位 mantissa，动态范围窄，训练易溢出</li>
+<li><strong>BF16</strong>（brain float）：8 位 exp + 7 位 mantissa，动态范围同 FP32，精度低但训练稳，A100/H100 起的默认训练精度</li>
+<li><strong>FP8</strong>（H100/H200 原生）：E4M3（前向）+ E5M2（反向），动态范围比 INT8 大 ~10⁴×，几乎无精度损失，throughput 是 BF16 的 2×</li>
+</ul>
+<p>混合精度训练：权重和梯度用 BF16/FP16，optimizer state 仍用 FP32。</p>
+</details>
+
+<details id="g-int4-int8">
+<summary><strong>INT4 / INT8 / NF4</strong> <span class="term-tag">量化</span> — 整数量化，把 FP16 权重压到 4/8 bit 整数</summary>
+<p>部署阶段把权重量化到低 bit 整数，推理时反量化回浮点计算。</p>
+<ul>
+<li><strong>INT8</strong>：精度损失通常 &lt;1%，部署友好</li>
+<li><strong>INT4</strong>（<a class="term-ref" href="#g-gptq">GPTQ</a> / <a class="term-ref" href="#g-awq">AWQ</a>）：7B 模型从 14GB 压到 ~4GB，普通显卡可跑大模型</li>
+<li><strong>NF4</strong>（NormalFloat 4-bit，<a class="term-ref" href="#g-qlora">QLoRA</a> 用）：信息论最优的正态分布量化，专为 LLM 权重分布设计</li>
+</ul>
+<p>INT8 / INT4 量化通常需要校准集（128-512 样本），AWQ 更智能（保护 1% salient 通道）。极致显存场景再用 GGUF（llama.cpp 格式）+ 3-bit / 2-bit 量化跑手机端。</p>
+</details>
+
+<details id="g-awq">
+<summary><strong>AWQ / Activation-aware Weight Quantization</strong> <span class="term-tag">量化</span> — 保护 1% salient 通道的 INT4 权重量化</summary>
+<p>Lin et al. 2023。核心洞察：只需保护 ~1% 的"重要权重通道"（由激活幅值识别）即可保住精度。对这些通道按 per-channel scale 放大再量化。</p>
+<p>对比 <a class="term-ref" href="#g-gptq">GPTQ</a>：实现更简单，Llama-2 上困惑度更低，已成 vLLM / TensorRT-LLM 默认。</p>
+</details>
+
+<details id="g-gptq">
+<summary><strong>GPTQ</strong> <span class="term-tag">量化</span> — 较早的 post-training 4-bit 权重量化</summary>
+<p>Frantar 2022。用 OBQ 启发的逐层最小化量化误差，需要少量校准集（128 样本）。优点：早、生态全（exllama / vllm / TGI 都支持）；缺点：对激活分布敏感，重要通道可能被压坏。</p>
+<p>2026 部署选型：H100/H200 → <a class="term-ref" href="#g-fp16-bf16-fp8">FP8</a>；A100/3090 → <a class="term-ref" href="#g-awq">AWQ</a> INT4；手机/边缘 → INT4 + GGUF。</p>
+</details>
+
+<h3 id="术语-微调与对齐">微调与对齐</h3>
+
+<details id="g-sft">
+<summary><strong>SFT / Supervised Fine-Tuning</strong> <span class="term-tag">微调</span> — 监督微调，用 (prompt, response) 对数据训练模型</summary>
+<p>最基础的指令微调方式：把 (输入, 期望输出) 对当做监督学习样本，cross-entropy loss 教模型学指令跟随。</p>
+<p>经验数据量：</p>
+<ul>
+<li>基于 chat 模型做格式/风格适配：500-5000 高质量样本</li>
+<li>注入新领域知识：1-10 万样本 + 5-20% 通用数据混入</li>
+<li>从 base 做完整 instruct tuning：百万级（Llama 3 用 ~1000 万）</li>
+</ul>
+<p><strong>LIMA 论文</strong>：1000 条精选样本即可让 65B base 接近 GPT-4 对话质量——质量 &gt;&gt; 数量。</p>
+</details>
+
+<details id="g-lora">
+<summary><strong>LoRA / Low-Rank Adaptation</strong> <span class="term-tag">微调</span> — 冻结原权重，只训练低秩 adapter 矩阵</summary>
+<p>Hu et al. 2021。把权重更新分解为两个低秩矩阵 <code>ΔW = BA</code>（r=8/16/64），只训练这两个矩阵，可训参数减少 100-10000×。</p>
+<p>显存：</p>
+<ul>
+<li>全参微调 ≈ 16-20× 参数量字节，7B 需 &gt;100GB</li>
+<li>LoRA：冻结原权重仍要 FP16 加载，7B 需 ~14GB + adapter</li>
+</ul>
+<p>优点：可训参数少 / 多个 adapter 可热切换 / 缓解 <a class="term-ref" href="#g-catastrophic-forgetting">灾难性遗忘</a>。</p>
+</details>
+
+<details id="g-qlora">
+<summary><strong>QLoRA</strong> <span class="term-tag">微调</span> — 4-bit 量化冻结权重 + LoRA adapter，单卡 24G 跑 65B 微调</summary>
+<p>Dettmers et al. 2023。三项关键：</p>
+<ol>
+<li><strong>4-bit NF4 量化冻结权重</strong>：7B 从 14GB 压到 ~4GB</li>
+<li><strong>Double Quantization</strong>：把量化常数也量化，省 ~0.4 bit/param</li>
+<li><strong>Paged Optimizer</strong>：NVIDIA unified memory，OOM 时溢出到 CPU</li>
+</ol>
+<p>65B 模型 QLoRA 约 33GB，单 A100-48G 或双 RTX 3090 可跑。代价：训练慢 30-40%（反量化开销）。</p>
+</details>
+
+<details id="g-rlhf">
+<summary><strong>RLHF</strong> <span class="term-tag">对齐</span> — Reinforcement Learning from Human Feedback，用人类偏好做 RL 训练</summary>
+<p>三步走：(1) SFT 训出 base policy；(2) 人类标注 (chosen, rejected) 偏好对训出 <a class="term-ref" href="#g-rm">Reward Model</a>；(3) 用 RM 给 policy 输出打分，PPO/RLOO/REINFORCE 等算法更新 policy。</p>
+<p>InstructGPT、ChatGPT 让 RLHF 出圈。<strong>三大痛点</strong>：</p>
+<ul>
+<li>RM 训练需大量人类偏好标注（10 万对级），贵</li>
+<li>RM 容易被 hack（policy 学会迎合 RM 表面偏好）</li>
+<li>主观任务的偏好本身嘈杂</li>
+</ul>
+<p>催生了 <a class="term-ref" href="#g-dpo">DPO</a>、<a class="term-ref" href="#g-grpo">GRPO</a>、<a class="term-ref" href="#g-rlvr">RLVR</a> 等简化/改良方案。</p>
+</details>
+
+<details id="g-rm">
+<summary><strong>RM / Reward Model</strong> <span class="term-tag">对齐</span> — 用人类偏好训出来的"打分模型"，给 LLM 输出打分</summary>
+<p><a class="term-ref" href="#g-rlhf">RLHF</a> 第二步训出。输入：(prompt, response)，输出：一个 scalar reward。训练 loss 是 Bradley-Terry：让 RM 在 (chosen, rejected) 对上给 chosen 更高分。</p>
+<p>常见弱点：</p>
+<ul>
+<li><strong>Reward hacking</strong>：policy 学会迎合 RM 表面偏好（如长度、特定开头）</li>
+<li><strong>Goodhart's Law</strong>：RM 一变成 RL 目标就不再代表真实人类偏好</li>
+<li><strong>泛化差</strong>：训练分布外 RM 打分不可信</li>
+</ul>
+<p>替代方案：<a class="term-ref" href="#g-dpo">DPO</a> 完全去掉 RM，<a class="term-ref" href="#g-rlvr">RLVR</a> 用程序判定 reward。</p>
+</details>
+
+<details id="g-dpo">
+<summary><strong>DPO / Direct Preference Optimization</strong> <span class="term-tag">对齐</span> — 从数学上证明可以不用 RM、直接监督式优化偏好</summary>
+<p>Rafailov et al. 2023。证明：在 Bradley-Terry 偏好模型 + KL 约束下，最优 policy 有闭式解，可直接用偏好对 (chosen, rejected) 做监督式损失：</p>
+<p><code>L_DPO = -log σ(β(log π(y_w)/π_ref(y_w) - log π(y_l)/π_ref(y_l)))</code></p>
+<p><strong>优势</strong>：(1) 无 <a class="term-ref" href="#g-rm">RM</a> / 无在线采样 / 无 critic，仅 policy + ref 两个模型；(2) 用 SFT 同样的训练栈；(3) 超参稳定。</p>
+<p><strong>劣势</strong>：严重依赖偏好数据质量；容易过拟合 chosen 的表面模式；reward hacking 风险大。</p>
+<p>Llama-3、Qwen2 后训练主路径都是 DPO 或其变种（IPO、KTO、SimPO）。</p>
+</details>
+
+<details id="g-ppo">
+<summary><strong>PPO / Proximal Policy Optimization</strong> <span class="term-tag">对齐</span> — RLHF 经典算法，actor-critic + clipped objective</summary>
+<p>Schulman 2017。Actor 学策略，critic 学 value function 估计 advantage，clip 限制每步策略更新幅度防崩。</p>
+<p>RLHF 中需同时载入 actor / ref / critic / reward 四个模型，显存 ≥4× 单模型。超参敏感（KL 系数、clip ratio、advantage 归一化），训练不稳定。</p>
+<p>催生了 <a class="term-ref" href="#g-dpo">DPO</a>（去 RL）、<a class="term-ref" href="#g-grpo">GRPO</a>（去 critic）、RLOO（用平均 reward 当 baseline）等简化方案。</p>
+</details>
+
+<details id="g-grpo">
+<summary><strong>GRPO / Group Relative Policy Optimization</strong> <span class="term-tag">对齐</span> — DeepSeek 提出，去掉 critic，用组内 reward 均值做 baseline</summary>
+<p>DeepSeek-Math 2024 提出，R1 验证。核心创新：<strong>去掉 critic（value 网络）</strong>，对同一 prompt 采样 G 个 response（典型 G=64），用组内 reward 的均值/标准差做 advantage 归一化：<code>A_i = (r_i - mean(r)) / std(r)</code>，再做 PPO-like 的 clipped objective + KL 正则。</p>
+<p>效果：</p>
+<ul>
+<li>显存省一半（无 critic），70B 级 RL 在合理资源内可行</li>
+<li>组内归一化天然提供 baseline，方差比 PPO 的 GAE 还低</li>
+<li>配合 <a class="term-ref" href="#g-rlvr">RLVR</a>，R1-Zero 直接从 base 模型纯 RL 涌现 long CoT</li>
+</ul>
+</details>
+
+<details id="g-rlvr">
+<summary><strong>RLVR / RL with Verifiable Rewards</strong> <span class="term-tag">对齐</span> — 用程序判定的 0/1 reward 做 RL，无需 RM</summary>
+<p>在数学、代码、形式逻辑等可自动验证的任务上，直接用程序判定 reward：答案匹配、单测通过、定理证明器验证。</p>
+<p><strong>优势</strong>：</p>
+<ul>
+<li>无标注成本</li>
+<li>信号干净，无 <a class="term-ref" href="#g-rm">RM hack</a> 空间</li>
+<li>可大规模并行 rollout</li>
+</ul>
+<p>DeepSeek-R1、DAPO（ByteDance 开源 SOTA）都属此类。<strong>局限</strong>：仅适用可验证任务，开放对话仍需 <a class="term-ref" href="#g-rlhf">RLHF</a> / <a class="term-ref" href="#g-dpo">DPO</a>。</p>
+</details>
+
+<details id="g-catastrophic-forgetting">
+<summary><strong>catastrophic forgetting / 灾难性遗忘</strong> <span class="term-tag">微调</span> — 在新任务上微调后，原通用能力显著下降</summary>
+<p>机制：参数被新任务 loss 拉走，原本编码通用知识的方向被覆盖。</p>
+<p>缓解组合（生产推荐）：</p>
+<ul>
+<li>5-30% 通用数据混入新数据</li>
+<li><a class="term-ref" href="#g-lora">LoRA</a> 而非全参（低秩约束）</li>
+<li>小学习率（lr=1e-5 起）+ 短训练（1-2 epoch）</li>
+<li>持续 eval MMLU / MT-Bench 监控</li>
+</ul>
+<p>进阶：EWC（按 Fisher 信息加权 L2 正则）、Model Souping（微调模型与原模型权重平均）、MoE 路由扩展。</p>
+</details>
+
+<h3 id="术语-提示词与推理范式">提示词与推理范式</h3>
+
+<details id="g-cot">
+<summary><strong>CoT / Chain of Thought</strong> <span class="term-tag">提示词</span> — 让模型先输出推理步骤再给答案</summary>
+<p>Wei et al. 2022。最简形式："Let's think step by step"（Kojima 2022 zero-shot CoT）。</p>
+<p>为什么有效：(1) 增加有效 compute（更多 forward step）；(2) 把"系统 1"直觉答题转成"系统 2"分步推理；(3) 暴露错误推理便于 self-consistency 投票纠正。</p>
+<p>是涌现能力，&lt;10B 模型几乎无效。<strong>Long CoT</strong>（R1 / o1 用 RL 训出，含回溯/自我验证，数千 token 长）是 2025 的新范式。</p>
+</details>
+
+<details id="g-tot">
+<summary><strong>ToT / Tree of Thoughts</strong> <span class="term-tag">提示词</span> — 把推理建模为树搜索，每步多候选 + 自评估 + 回溯</summary>
+<p>Yao et al. 2023。<a class="term-ref" href="#g-cot">CoT</a> 是线性单链，错了无法回头；ToT 每步生成多个候选 thought，LLM 自评估状态价值（promising / sure / impossible），BFS/DFS 展开可回溯剪枝。</p>
+<p>Game of 24 上 GPT-4 CoT 4% vs ToT 74%。代价：LLM 调用数从 1 涨到 50-200。</p>
+<p>适合：解空间需显式搜索（puzzle、规划、定理证明），中间状态可评估。不适合：闲聊、摘要、翻译。</p>
+</details>
+
+<details id="g-react">
+<summary><strong>ReAct</strong> <span class="term-tag">提示词</span> — Reasoning + Acting，思考-行动-观察循环</summary>
+<p>Yao et al. 2022。结构 <code>Thought → Action → Observation</code> 循环：模型先 "Thought: 我需要查 X"，输出 "Action: search[X]"，工具结果作为 "Observation: ..." 喂回 prompt，再下一轮 Thought。</p>
+<p>三大效果：</p>
+<ul>
+<li>把模型不知道的事实外化给工具，减少幻觉</li>
+<li>Reasoning 由 observation 引导，错了能纠偏</li>
+<li>提供可解释的 trace 便于 debug</li>
+</ul>
+<p>是现代 agent 框架（Claude tool use、OpenAI function calling、LangChain、AutoGPT）的概念原型。</p>
+</details>
+
+<details id="g-reflexion">
+<summary><strong>Reflexion</strong> <span class="term-tag">提示词</span> — 跨 episode 的"言语强化学习"，把失败原因存为 lesson</summary>
+<p>Shinn et al. 2023。Agent 在一次任务失败后（由外部 verifier 给二元 reward），用 LLM 把失败原因总结成自然语言 lesson 存入 episodic memory，下一次任务时把 lesson 加进 prompt 影响行为。</p>
+<p>vs <a class="term-ref" href="#g-self-refine">Self-Refine</a>：</p>
+<ul>
+<li>Self-Refine 单局优化、纯靠模型自评</li>
+<li>Reflexion 跨局学习、有外部 ground-truth verifier</li>
+</ul>
+<p>HumanEval 上 GPT-4 Reflexion 91%，超过 GPT-4 baseline 80%。</p>
+</details>
+
+<details id="g-self-refine">
+<summary><strong>Self-Refine</strong> <span class="term-tag">提示词</span> — 单任务内迭代：generate → self-feedback → refine 循环</summary>
+<p>Madaan et al. 2023。在一个 trajectory 里循环 N 轮，无外部 reward、无跨任务记忆。7 个任务平均提升 20%。</p>
+<p>陷阱：弱模型自评不准，可能越改越差。生产常组合 Self-Refine（局内）+ <a class="term-ref" href="#g-reflexion">Reflexion</a>（跨局）。</p>
+</details>
+
+<details id="g-self-consistency">
+<summary><strong>self-consistency</strong> <span class="term-tag">提示词</span> — 对同一问题采样 N 条 CoT，对最终答案做 majority vote</summary>
+<p>Wang et al. 2022。temperature&gt;0 采样 N 条 <a class="term-ref" href="#g-cot">CoT</a> 路径，对最终答案投票。GSM8K 上比 greedy CoT 提升 ~17 个百分点（PaLM 55%→74%）。</p>
+<p>收益大场景：(1) 答案空间离散（数字、选择题）；(2) 模型错误率 &lt;50%；(3) 推理路径多样（temperature 0.7-1.0）。代价：N×（典型 N=5-40），开放生成不适用。</p>
+</details>
+
+<details id="g-few-shot">
+<summary><strong>few-shot / zero-shot</strong> <span class="term-tag">提示词</span> — Prompt 中给/不给示例</summary>
+<ul>
+<li><strong>Zero-shot</strong>：直接说要求，无示例。"翻译成英文：你好"</li>
+<li><strong>Few-shot</strong>（in-context learning）：prompt 里给 1-N 个 (输入, 输出) 示例。GPT-3 论文最早系统化。</li>
+</ul>
+<p>何时 few-shot：(1) 任务格式新颖/输出结构复杂（JSON schema、特定 markdown）；(2) 分类任务标签多。</p>
+<p>何时 zero-shot：通用任务现代模型已饱和（摘要、翻译、QA），加 example 反而引入偏差。</p>
+<p>陷阱：example 顺序影响大（recency bias）；偶然规律会被学走；example 多了 <a class="term-ref" href="#g-lost-in-middle">Lost in the Middle</a>。建议 ≤8 条。</p>
+</details>
+
+<h3 id="术语-rag">RAG</h3>
+
+<details id="g-rag">
+<summary><strong>RAG / Retrieval-Augmented Generation</strong> <span class="term-tag">RAG</span> — 检索增强生成：先检索相关文档，再让 LLM 基于上下文回答</summary>
+<p>标准 pipeline = Ingestion + Retrieval + Generation：</p>
+<ol>
+<li><strong>Ingestion</strong>：document loader → <a class="term-ref" href="#g-chunking">chunking</a> → <a class="term-ref" href="#g-embedding">embedding</a> → 向量库写入</li>
+<li><strong>Retrieval</strong>：query rewriting → embedding → <a class="term-ref" href="#g-vector-db">vector search</a> → <a class="term-ref" href="#g-reranker">reranker</a> → top-k</li>
+<li><strong>Generation</strong>：构造 prompt（含 retrieved chunks）→ LLM 生成 → 后处理 + citation</li>
+</ol>
+<p>每段都有瓶颈：chunking 切大小、embedding 选型、召回率不足、context 顺序、模型不忠于 context。<strong>生产 RAG ≠ "embedding + 向量库 + LLM"</strong>——是一个工程系统。</p>
+</details>
+
+<details id="g-chunking">
+<summary><strong>chunking</strong> <span class="term-tag">RAG</span> — 把文档切成适合 embedding / 检索的小块</summary>
+<p>策略：</p>
+<ul>
+<li><strong>Fixed</strong>：按 token + overlap，简单但易在句中段中断</li>
+<li><strong>Recursive / Structural</strong>：按 markdown header / code block / paragraph 切，<strong>生产默认</strong></li>
+<li><strong>Semantic</strong>：按句间 embedding 相似度切</li>
+<li><strong>Late Chunking</strong>（Jina 2024）：先 long-context embedding 整文档，再 token-level 切</li>
+<li><strong>Contextual Retrieval</strong>（Anthropic 2024）：每个 chunk 加 LLM 生成的"上下文前缀"再 embed，retrieval 失败率降 49%</li>
+</ul>
+</details>
+
+<details id="g-bm25">
+<summary><strong>BM25</strong> <span class="term-tag">RAG</span> — 基于词频 + IDF 的经典稀疏检索算法</summary>
+<p>Okapi BM25。文档与 query 的相关性按 <code>Σ IDF(qi) · f(qi,d) · (k+1) / (f + k·(1-b+b·|d|/avgdl))</code> 计算。强项：精确词命中、稀有词高权重、专有名词、数字。短板：同义词不通（"医生" vs "doctor"）。</p>
+<p>与 <a class="term-ref" href="#g-embedding">dense embedding</a> 互补——<a class="term-ref" href="#g-hybrid-search">hybrid search</a> 把两者融合，召回率比单 dense 提升 5-15 个百分点。</p>
+</details>
+
+<details id="g-hybrid-search">
+<summary><strong>hybrid search</strong> <span class="term-tag">RAG</span> — dense embedding + BM25 双路召回 + 融合</summary>
+<p><a class="term-ref" href="#g-embedding">dense embedding</a> 擅长语义近似，<a class="term-ref" href="#g-bm25">BM25</a> 擅长精确词匹配，两者互补。</p>
+<p>融合方法：</p>
+<ul>
+<li><strong>RRF (Reciprocal Rank Fusion)</strong>：<code>score(d) = Σ 1/(k + rank_i(d))</code>，k=60。<strong>生产首选</strong>，无需归一化两路分数</li>
+<li><strong>加权和</strong>：<code>α·dense + (1-α)·bm25</code>，需要调 α 且分数归一化</li>
+<li><strong>学习式融合</strong>：把 top-N 喂 <a class="term-ref" href="#g-reranker">reranker</a> 接管最终排序</li>
+</ul>
+<p>Anthropic Contextual Retrieval 实验：单 embedding → +contextual embedding → +BM25 → +rerank，失败率 5.7% → 4.0% → 3.7% → 1.9%。</p>
+</details>
+
+<details id="g-reranker">
+<summary><strong>reranker / cross-encoder</strong> <span class="term-tag">RAG</span> — 把召回 top-N 用更精确（更慢）的模型重新打分</summary>
+<p><strong>Bi-encoder（<a class="term-ref" href="#g-embedding">embedding</a>）</strong>：query / doc 分别编码再 cosine 比对，快但无交互。<br />
+<strong>Cross-encoder（reranker）</strong>：query + doc 拼接喂 transformer，每层 self-attention 交互，<strong>相关性建模能力强 20-40%</strong>（NDCG@10），慢 100×。</p>
+<p>生产标配：bi-encoder 召回 top-100 → cross-encoder rerank 到 top-10 → 喂 LLM。</p>
+<p>主流：Cohere Rerank v3/v4、BGE-reranker-v2-m3（开源 SOTA 中英）、Jina Reranker v2、Mixedbread。</p>
+<p><strong>陷阱</strong>：召回 top-100 里没有相关文档，rerank 也救不了——reranker 锦上添花，不能替代召回。</p>
+</details>
+
+<details id="g-embed-models">
+<summary><strong>主流 embedding 模型选型</strong> <span class="term-tag">RAG</span> — BGE-M3 / Cohere v4 / Voyage-3 / OpenAI text-3-large / Qwen3-Embedding 怎么选</summary>
+<p>2026 主流 embedding 模型对比：</p>
+<ul>
+<li><strong>OpenAI text-embedding-3-large</strong>（3072 维）：英文 baseline，API 友好，$0.13/M tokens；中文一般。</li>
+<li><strong>Cohere embed-v4</strong>（1024-1536 维，多模态）：MTEB v2 顶级，<strong>支持文本+图像同空间</strong>，多语言 100+；企业 SaaS 首选。</li>
+<li><strong>Voyage-3-large</strong>（1024 维）：MTEB v2 综合第一，中文表现优秀，retrieval 任务略胜 Cohere。</li>
+<li><strong>BGE-M3</strong>（BAAI，1024 维）：<strong>开源 SOTA</strong>，<strong>同时支持 dense + sparse + multi-vector (ColBERT-style)</strong> 三种模式，中英双语；自托管首选。</li>
+<li><strong>Qwen3-Embedding-8B</strong>（阿里 2025）：开源中文 SOTA 之一，与 BGE-M3 各有胜场。</li>
+<li><strong>Conan-Embedding</strong>（腾讯）/ <strong>Yi-Embedding</strong>（零一）：国产中文方案。</li>
+</ul>
+<p><strong>选型框架</strong>：</p>
+<ol>
+<li>中文为主 → BGE-M3 / Voyage-3 / Qwen3-Embedding</li>
+<li>多模态 → Cohere v4</li>
+<li>纯英文 + API → OpenAI text-3-large</li>
+<li>自托管私有部署 → BGE-M3</li>
+</ol>
+<p><strong>关键陷阱</strong>：</p>
+<ul>
+<li>MTEB 有版本差异（v1 / v2 / MMTEB），不同模型挂的版本不一样，<strong>直接横比误导</strong>——自家场景必须重测</li>
+<li>Dense vs Sparse 看场景：精确词命中（专有名词 / 编号）BM25 + dense 混合（<a class="term-ref" href="#g-hybrid-search">hybrid search</a>）比单 dense 提升 5-15pp</li>
+</ul>
+</details>
+
+<details id="g-vector-db">
+<summary><strong>vector DB / 向量数据库</strong> <span class="term-tag">RAG</span> — 专门存 embedding 并支持近似最近邻 (ANN) 检索；Pinecone / Milvus / Qdrant 等</summary>
+<p>主流：</p>
+<ul>
+<li><strong>Pinecone</strong>：SaaS，企业首选</li>
+<li><strong>Milvus</strong>：开源 + 云</li>
+<li><strong>Qdrant</strong>：Rust 写，性能好</li>
+<li><strong>Weaviate</strong>：带知识图谱功能</li>
+<li><strong>pgvector</strong>：Postgres 扩展，已有 PG 直接用</li>
+<li><strong>Vespa / Elasticsearch</strong>：搜索引擎扩展向量</li>
+<li><strong>Chroma</strong>：本地开发友好</li>
+</ul>
+<p>ANN 算法：HNSW（最常见）、IVF、ScaNN（Google）。索引时间 vs 检索精度 vs 显存有 trade-off。</p>
+</details>
+
+<details id="g-rag-variants">
+<summary><strong>GraphRAG / Self-RAG / CRAG / Agentic RAG</strong> <span class="term-tag">RAG</span> — 朴素 RAG 的 4 个进阶变体，各解决不同短板</summary>
+<p>朴素 <a class="term-ref" href="#g-rag">RAG</a> 在多文档跨实体推理、召回质量不稳、多跳查询场景下都会力不从心。四个常见进阶方案：</p>
+<ol class="qa-points">
+<li><strong>GraphRAG</strong>（微软 2024）：先用 LLM 从文档抽 entity + relation 建知识图谱，按社区做层次摘要；query 时既能 vector search 又能图遍历。<strong>解决"跨多文档跨实体推理时朴素 RAG 召回不全"</strong>。代价：ingestion 成本大涨（每 chunk 一次 LLM 抽取）。</li>
+<li><strong>Self-RAG</strong>（Asai 2023）：训练单一 LM 自己生成 reflection token 决定 (a) 要不要检索 (b) retrieved 是否相关 (c) answer 是否被 context 支撑 (d) 整体 utility。<strong>解决"什么时候检索、检索后怎么用"的判断</strong>。需训练。</li>
+<li><strong>CRAG (Corrective RAG，Yan 2024)</strong>：retrieved chunks 经 lightweight evaluator 打分，分高直接用、中等触发 web 重新搜索、低退回基础生成。<strong>解决"召回质量参差不齐"时盲目使用 retrieved</strong>。</li>
+<li><strong>Agentic RAG</strong>：让 agent 决定 query rewriting → 多轮检索 → 子 agent 分工。<strong>解决多跳问题、需迭代检索</strong>。DeepResearch 类产品就是这一路。</li>
+</ol>
+<p><strong>实战选择</strong>：</p>
+<ul>
+<li>普通 QA → 朴素 RAG + <a class="term-ref" href="#g-reranker">reranker</a></li>
+<li>跨文档跨实体复杂推理 → GraphRAG</li>
+<li>召回质量不稳 → CRAG</li>
+<li>多跳推理 / 需迭代搜索 → Agentic RAG</li>
+</ul>
+</details>
+
+<details id="g-ragas">
+<summary><strong>RAGAS</strong> <span class="term-tag">RAG</span> — RAG 评估事实标准，4 大核心指标都用 LLM-as-judge 实现</summary>
+<p>Es et al. 2023。四大指标：</p>
+<ol>
+<li><strong>Faithfulness（忠实度）</strong>：答案中每个 claim 能否从检索 context 推出。&lt;0.7 = 模型在编造</li>
+<li><strong>Context Precision（检索精度）</strong>：top-K 中真正相关的占比。低 = retriever 召回噪声</li>
+<li><strong>Context Recall（检索召回）</strong>：ground truth 信息是否都被检索到。低 = 召回不全</li>
+<li><strong>Answer Relevancy（答案相关性）</strong>：答案是否真的回答了原问题</li>
+</ol>
+<p>生产阈值：4 个指标都 ≥0.7 算合格；Faithfulness &lt; 0.7 优先修；Context Recall &lt; 0.7 调 retriever。</p>
+</details>
+
+<h3 id="术语-agent-工程">Agent 工程</h3>
+
+<details id="g-harness">
+<summary><strong>harness / harness engineering</strong> <span class="term-tag">Agent</span> — 包裹 LLM 的代码骨架与工程化体系，让 agent 物理上无法重复犯错</summary>
+<p>Mitchell Hashimoto 2026 命名：<strong>"anytime you find an agent makes a mistake, take the time to engineer a solution such that the agent never makes that mistake again."</strong></p>
+<p>不是模型微调，而是<strong>工程化环境</strong>让模型物理上无法以同样方式再犯错。</p>
+<p>两条法则：</p>
+<ol>
+<li><strong>强约束</strong>：能用 deterministic 约束（<a class="term-ref" href="#g-lint">lint</a> / <a class="term-ref" href="#g-type-check">type check</a> / <a class="term-ref" href="#g-sandbox">sandbox</a> / <a class="term-ref" href="#g-cicd">CI</a> 硬失败）就不用 prompt</li>
+<li><strong>自愈循环</strong>：agent 能从环境拿 ground truth、自我评估、失败可 checkpoint 恢复</li>
+</ol>
+<p>OpenAI 公式：<strong>Agent = Model + Harness</strong>；"Humans steer. Agents execute."</p>
+</details>
+
+<details id="g-langchain">
+<summary><strong>LangChain / LangGraph / LlamaIndex / Haystack</strong> <span class="term-tag">Agent</span> — 主流 Agent / LLM 应用开发框架</summary>
+<p>2024-2026 主流框架对比：</p>
+<ul>
+<li><strong>LangChain</strong>（Harrison Chase / LangChain Inc.）：最早出圈的 LLM 应用框架，定位是"LLM 应用的胶水"——连 LLM、prompt 模板、工具、向量库、文档加载器。<strong>优点</strong>：生态最全；<strong>缺点</strong>：抽象层多容易过度封装，Anthropic <em>Building Effective Agents</em> 明确反对"过度抽象"。</li>
+<li><strong>LangGraph</strong>（LangChain Inc.）：基于 LangChain 的<strong>有状态 graph 编排</strong>——把 agent / workflow 建模成节点 + 边，每个节点是 LLM 调用或工具，边可条件跳转。比 LangChain 更适合复杂多步 / 多 agent 协同；阿里飞猪等多 agent 业务系统主流选择之一。</li>
+<li><strong>LlamaIndex</strong>（Jerry Liu）：聚焦 RAG，文档摄取 / 索引 / 检索 / 查询 pipeline 设计精细。<strong>RAG 重场景比 LangChain 更专业</strong>。</li>
+<li><strong>Haystack</strong>（deepset）：开源 RAG 框架，企业级（含 K8s 部署 / API server），欧洲社区主导。</li>
+<li><strong>Anthropic SDK 直调</strong>：Anthropic 在 <em>Building Effective Agents</em> 推荐——简单场景直接调 API 比裹一层 framework 更易理解、bug 更少。</li>
+</ul>
+<p><strong>经验</strong>：先用 SDK 直调写原型；workflow 模式（routing / parallelization / orchestrator-workers）成熟后再考虑 LangGraph；纯 RAG 场景考虑 LlamaIndex；避免一上来就 LangChain "全家桶"。</p>
+</details>
+
+<details id="g-mcp">
+<summary><strong>MCP / Model Context Protocol</strong> <span class="term-tag">Agent</span> — Anthropic 推出的开放协议，让 LLM 客户端用统一接口连接外部工具/数据源</summary>
+<p>2024-11 推出，2025-Q4 转入独立 Steering Committee（Anthropic / Block / OpenAI / Microsoft）。三种核心原语：</p>
+<ul>
+<li><strong>Resources</strong>：可读资源（文件、DB 行）</li>
+<li><strong>Tools</strong>：可执行函数（带 schema）</li>
+<li><strong>Prompts</strong>：可复用 prompt 模板</li>
+</ul>
+<p>解决"每接一个新工具就要写一遍 adapter"的 N×M 问题。2026 年增速最快的单一技能，97M+ 月下载，已是 Anthropic Applied AI Engineer JD 显式必备。</p>
+</details>
+
+<details id="g-tool-use">
+<summary><strong>tool use / function calling</strong> <span class="term-tag">Agent</span> — LLM 通过结构化 schema 调用外部函数</summary>
+<p>模型输出 <code>{"name": "search", "arguments": {"query": "..."}}</code> JSON，runtime 解析后真实执行函数，结果回喂模型。Anthropic Tool Use API、OpenAI function calling 都是同思路。</p>
+<p>设计原则（Anthropic 实测："agent 性能正比于工具描述清晰度"）：</p>
+<ul>
+<li>工具描述像写 docstring：用途 / 参数 / 返回值 / 错误情况</li>
+<li>粒度小、组合强（Read / Edit / Bash / Grep 而非 do_anything）</li>
+<li>强制前置约束（Edit 强制 Read-before-Edit）</li>
+<li>错误信息当 prompt（"command not found, did you mean X?"）</li>
+<li><a class="term-ref" href="#g-deny-first">Deny-first</a> 权限</li>
+</ul>
+</details>
+
+<details id="g-computer-use">
+<summary><strong>Computer Use / Browser Agent</strong> <span class="term-tag">Agent</span> — 让模型操作桌面 GUI 或浏览器</summary>
+<p>Anthropic 2024-Q4 推出 Computer Use。流程：截屏 → LLM 看图 + 推理 → 输出鼠标键盘动作（click X,Y / type text / scroll）→ 系统执行 → 再截屏循环。</p>
+<p>Browser Use（开源框架）类似但限于浏览器，基于 Playwright + DOM 增强（把可点击元素加序号叠加到截图）。</p>
+<p>实用场景：无 API 网站自动化、桌面软件自动化、端到端 e2e 测试。<strong>局限</strong>：慢、贵、安全性差、对 canvas 渲染应用支持差。生产建议：能用 API 就别用。</p>
+</details>
+
+<details id="g-sub-agent">
+<summary><strong>sub-agent</strong> <span class="term-tag">Agent</span> — 主 agent 派出的、有独立 context 的子任务 agent</summary>
+<p>主 agent 把"读 30 个文件做研究"丢给 sub-agent，sub-agent 有自己的独立 context 窗口，只把 final summary 回报给主 agent——<strong>主 context 不被中间产物污染</strong>。</p>
+<p>Claude Code Task 工具、OpenAI Swarm、CrewAI 等都支持。是防止 <a class="term-ref" href="#g-loop-of-death">Loop of Death</a> 和 context 爆炸的关键手段之一。</p>
+</details>
+
+<details id="g-agents-md">
+<summary><strong>AGENTS.md / CLAUDE.md</strong> <span class="term-tag">Agent</span> — 给 agent 看的项目说明书，写明协议 / 约束 / 启动流程</summary>
+<p>Agent 进入项目时自动读取。通常包含：</p>
+<ul>
+<li>项目背景 / 架构概览</li>
+<li><strong>5 步会话开机协议</strong>：pwd → git log → progress 文件 → 启动 dev server → 跑基础测试</li>
+<li>编码规范 / 风格约束</li>
+<li>禁止操作（生产环境、敏感目录、unsafe 命令）</li>
+<li>已知坑 / 反模式</li>
+<li>测试运行方式</li>
+</ul>
+<p>Hashimoto 视角：每行 AGENTS.md ≈ 一次错误的封堵。是 <a class="term-ref" href="#g-harness">harness engineering</a> 的隐式提示形态。</p>
+</details>
+
+<details id="g-deny-first">
+<summary><strong>deny-first</strong> <span class="term-tag">Agent</span> — 默认禁止所有工具/命令，显式白名单才允许</summary>
+<p>Claude Code 采用的权限模型。Bash 命令按 verb + path 粒度授权：</p>
+<ul>
+<li><code>git status</code> allow</li>
+<li><code>git push --force</code> deny（destructive）</li>
+<li><code>rm -rf</code> 弹出用户确认</li>
+<li><code>cat ~/.ssh/*</code> deny（敏感路径）</li>
+</ul>
+<p>对应安全原则：<strong>任一层失守，其他层兜底</strong>。配合 <a class="term-ref" href="#g-sandbox">sandbox</a>、网络出口白名单、文件系统只读做纵深防御。</p>
+</details>
+
+<details id="g-progress-file">
+<summary><strong>progress 文件 / progress.md</strong> <span class="term-tag">Agent</span> — 把 agent 任务进度持久化到文件，跨会话续跑</summary>
+<p>Anthropic <em>Effective Harnesses</em> 给的核心设计：长任务 agent 必然跑爆 context window，纯靠 LLM context 不可能记住"我跑到第几步"。</p>
+<p>解法：</p>
+<ul>
+<li><strong>progress.md / PLAN.md</strong>：agent 每完成一个里程碑写"已完成 X / 当前在 Y / 下一步 Z / 关键决策 / 风险点"</li>
+<li><strong>git commit</strong>：每次代码改动强制 git commit + descriptive message，git log 本身就是工作日志，且能回退到任意状态</li>
+</ul>
+<p>下次会话执行 5 步开机协议从断点续跑。<strong>核心洞察</strong>：context window 是"working memory"，文件系统是"long-term memory"。</p>
+</details>
+
+<details id="g-loop-of-death">
+<summary><strong>Loop of Death</strong> <span class="term-tag">Agent</span> — Agent 进入无限循环烧 token 直到耗尽</summary>
+<p>常见模式：</p>
+<ul>
+<li><strong>重试循环</strong>：tool 失败 → 重试一模一样的调用 → 再失败……</li>
+<li><strong>目标漂移</strong>：每步小修小补但整体没进展</li>
+<li><strong>互相否定</strong>：multi-agent 反复推翻对方决策</li>
+<li><strong>格式幻觉</strong>：死磕调不通的工具调用格式</li>
+</ul>
+<p><strong>防御纵深</strong>：</p>
+<ol>
+<li>硬性 max iteration（5-30 步）</li>
+<li>Execution timeout（5-30 分钟）</li>
+<li>Token budget（per-task hard cap）</li>
+<li>进度检测（连续 N 步无 diff 强停）</li>
+<li>失败重复检测（同 tool call 失败 3 次跳出）</li>
+<li>成本告警 + HITL</li>
+</ol>
+</details>
+
+<details id="g-memory-corruption">
+<summary><strong>Memory Corruption / 记忆污染</strong> <span class="term-tag">Agent</span> — 错误事实进入长期记忆后污染所有后续决策</summary>
+<p>例：用户开玩笑"我是亿万富翁"被存进语义记忆，之后 agent 一直按假设推理。</p>
+<p>防御：</p>
+<ul>
+<li><strong>写入门槛</strong>：LLM 评估"事实可信度 + long-term value"双高才写</li>
+<li><strong>来源标记</strong>：每条 memory 带 source（user_said / tool_returned / inferred）+ confidence</li>
+<li><strong>TTL 衰减</strong>：低 confidence 短 <a class="term-ref" href="#g-ttl">TTL</a></li>
+<li><strong>审计 trail</strong>：所有 memory 写入有 trace_id</li>
+<li><strong>用户可见可编辑</strong>：GDPR 合规 + 污染纠正</li>
+<li><strong>prompt injection 防御</strong>：tool 返回数据标 untrusted，不直接写入</li>
+</ul>
+</details>
+
+<h3 id="术语-评估与安全">评估与安全</h3>
+
+<details id="g-tracing-tools">
+<summary><strong>Trace + Eval 工具栈</strong> <span class="term-tag">评估</span> — Langfuse / LangSmith / Phoenix / Helicone / Patronus 等可观测平台</summary>
+<p>LLM 应用 / Agent 的"全链路追踪 + 评估"工具，2026 主流：</p>
+<ul>
+<li><strong>Langfuse</strong>（开源 + SaaS）：开源 SOTA，self-hostable，trace + prompt 版本化 + eval + cost 跟踪一站式。中小团队首选。</li>
+<li><strong>LangSmith</strong>（LangChain Inc.，闭源 SaaS）：LangChain 生态原生集成最深，trace 可视化好，eval framework 成熟。</li>
+<li><strong>Phoenix</strong>（Arize AI 开源）：聚焦 LLM 应用的 trace + monitoring，集成 OpenTelemetry 好。</li>
+<li><strong>Helicone</strong>（开源 + SaaS）：proxy 模式接入快，cost / cache hit / latency 监控直观。</li>
+<li><strong>Patronus</strong>（SaaS）：聚焦"hallucination / safety detector"，做生产级实时拦截，企业方向。</li>
+<li><strong>Datadog / Grafana / Prometheus</strong>：通用 APM / metrics 平台也开始支持 LLM trace（Datadog LLM Observability、Grafana Tempo）。</li>
+</ul>
+<p><strong>核心能力对齐项</strong>：</p>
+<ol>
+<li><strong>Trace</strong>：prompt → tool_call → response → cost / latency 串成完整 trace</li>
+<li><strong>Prompt 版本化</strong>：每次 prompt 改动一个 hash，可在 dashboard 切换并对比</li>
+<li><strong>Eval</strong>：CI 上跑黄金集，回归报警</li>
+<li><strong>Cost & Cache hit rate</strong>：单 trace 成本、cache 命中分布</li>
+<li><strong>User feedback / thumb up-down</strong>：直接打到 trace 上做 bad case 入库</li>
+</ol>
+<p><strong>选型</strong>：自建优先 Langfuse；LangChain 重度用户 LangSmith；纯 trace 监控用 Phoenix；安全 / 实时拦截用 Patronus。</p>
+</details>
+
+<details id="g-llm-benchmarks">
+<summary><strong>主流 LLM eval benchmark</strong> <span class="term-tag">评估</span> — MMLU / MT-Bench / Chatbot Arena / HumanEval / LiveBench / BFCL 各测什么</summary>
+<p>按测什么能力分类：</p>
+<ul>
+<li><strong>MMLU (Massive Multitask Language Understanding)</strong>：57 学科多选题，<strong>通用知识</strong>基准；GPT-4 ~88%。批评：题目泄漏严重、单选难辨细节差异。</li>
+<li><strong>HumanEval</strong>（OpenAI 2021）：164 道 Python 编程题 + 单测验证，<strong>代码生成</strong>基准。<strong>已被刷穿</strong>（多数前沿模型 90%+），不再有区分度，推荐 SWE-bench Verified。</li>
+<li><strong>MT-Bench</strong>（LMSYS 2023）：80 道多轮对话题，用 GPT-4 当 judge 1-10 打分。<strong>对话能力</strong>经典 benchmark，但 <a class="term-ref" href="#g-llm-judge">judge bias</a> 严重。</li>
+<li><strong>Chatbot Arena / LMArena</strong>（LMSYS / Berkeley）：<strong>真人盲评 pairwise</strong>，Elo 评分。最权威也最贵；2024 起被怀疑刷分（厂商针对性优化"问候 / 解释 / 列表格式"等 Arena 偏好）。</li>
+<li><strong>LiveBench</strong>（Abacus AI 等）：<strong>月度更新</strong>题目防数据污染，coverage 推理 / 数学 / 代码 / 语言 / 数据 / 指令；持续更新性最强。</li>
+<li><strong>BFCL (Berkeley Function-Calling Leaderboard)</strong>：<strong>Tool use / function calling</strong> 标准 benchmark，含 simple / multiple / parallel / multi-turn。</li>
+<li><strong>GSM8K / MATH / AIME</strong>：<strong>数学推理</strong>基准，AIME 是 R1 / o1 当前主战场。</li>
+</ul>
+<p><strong>实战</strong>：从 2026 视角，<strong>单一 benchmark 都已不可信</strong>——必须多 benchmark 交叉验证 + 自家黄金集 + Arena 真人盲评三层。</p>
+</details>
+
+<details id="g-eval">
+<summary><strong>Eval / Evaluation</strong> <span class="term-tag">评估</span> — LLM 应用 / Agent 的"打分"环节：offline / online / CI 三层评估</summary>
+<p>LLM / Agent 应用的 eval 不是单一动作，是一套体系。常见层次：</p>
+<ul>
+<li><strong>Offline eval</strong>：在固定 dataset / 黄金集上跑模型 / prompt / pipeline，看指标。每次 prompt 改动跑回归，CI 上自动化。</li>
+<li><strong>Online eval</strong>：线上流量上抽样评估，配合 A/B 看业务 metric 变化、bad case 检测、用户反馈打标。</li>
+<li><strong>Pre-prod eval</strong>：上线前在预发流量上做 shadow eval（双跑不返回用户），对比新旧版本轨迹差异。</li>
+<li><strong>Adversarial eval / Red team</strong>：人工 + 自动化构造对抗样本（jailbreak、prompt injection、edge case），评估安全护栏。</li>
+</ul>
+<p><strong>Eval 工具栈分类</strong>：</p>
+<ol>
+<li><strong>通用 framework</strong>：OpenAI Evals、DeepEval、Promptfoo、Inspect AI——CLI / 库形式跑评估</li>
+<li><strong>集成在可观测平台</strong>：Langfuse / LangSmith / Phoenix 都内置 eval framework，与 trace 联动</li>
+<li><strong>RAG 专用</strong>：<a class="term-ref" href="#g-ragas">RAGAS</a>（faithfulness / context relevancy 等 4 维）</li>
+<li><strong>Tool use 专用</strong>：BFCL（Berkeley Function-Calling Leaderboard）</li>
+<li><strong>领域专用</strong>：每家自家黄金集 + LLM-judge rubric</li>
+</ol>
+<p><strong>Eval 类型按打分方式</strong>：</p>
+<ul>
+<li><strong>Reference-based</strong>（有标准答案）：精确匹配、BLEU / ROUGE、单测通过、答案集合命中——客观但需标注</li>
+<li><strong>Reference-free</strong>（无标准答案）：<a class="term-ref" href="#g-llm-judge">LLM-as-judge</a> 给 0-1 分或 1-5 分；适合开放生成、对话；judge bias 是大坑</li>
+<li><strong>Pairwise</strong>：A vs B 对比，模型选型常用，agreement 比 pointwise 高</li>
+<li><strong>User feedback</strong>：thumb up/down、CSAT、留存——业务侧最终验收</li>
+</ul>
+<p><strong>经验法则</strong>：(1) 没 eval 就改 prompt = 改盲；(2) Eval model 必须 ≥ 被评估 model（判官原则）；(3) 黄金集要版本化 + 私有；(4) 每个 bad case 都要回归进黄金集——harness engineering 闭环。</p>
+</details>
+
+<details id="g-llm-judge">
+<summary><strong>LLM-as-judge</strong> <span class="term-tag">评估</span> — 用强 LLM 给候选输出打分，替代人工评估</summary>
+<p>把"评估"建模成 LLM 任务：让 judge 模型读 (prompt, response)，输出 0-1 分 / pass/fail / pairwise 谁更好。可大规模并行、便宜、可在 CI 自动化。</p>
+<p><strong>三大 bias</strong>：</p>
+<ul>
+<li><strong>Position bias</strong>：pairwise 时 judge 偏 A 或 B</li>
+<li><strong>Verbosity bias</strong>：偏好更长回答</li>
+<li><strong>Self-preference</strong>：GPT-4 偏好 GPT-4 输出</li>
+</ul>
+<p><strong>判官原则</strong>：judge 模型能力应 ≥ 被评估模型，否则评不出大模型回答好在哪。生产标配三层：<strong>自家黄金集 + LLM judge + 人工校准</strong>。</p>
+</details>
+
+<details id="g-lost-in-middle">
+<summary><strong>Lost in the Middle</strong> <span class="term-tag">评估</span> — 长上下文 QA 中，关键信息放中间时模型准确率显著下降</summary>
+<p>Liu et al. 2023 实验：把 gold passage 放 prompt 开头或结尾，模型准确率高；放中间则呈 U 形曲线下降，10+ documents 时中间位置可能低于无上下文 baseline。</p>
+<p>工程缓解：</p>
+<ul>
+<li>重排——把最相关 chunk 放最前/最后（<a class="term-ref" href="#g-reranker">reranker</a> + 头尾穿插）</li>
+<li>多轮检索 + 摘要而非一次塞满</li>
+<li>用支持原生长上下文的模型（Claude / Gemini 1.5 Pro 在 RULER 上更稳）</li>
+</ul>
+</details>
+
+<details id="g-prompt-injection">
+<summary><strong>prompt injection</strong> <span class="term-tag">安全</span> — 用户或外部内容劫持模型行为，绕过 system prompt</summary>
+<p>OWASP LLM Top 10 的 #1。类型：</p>
+<ul>
+<li><strong>直接注入</strong>："ignore previous instructions, do X"</li>
+<li><strong>间接注入</strong>：恶意指令藏在 RAG 文档 / 网页 / PDF / 邮件 / 工具返回里——agent 时代的头号威胁</li>
+<li><strong>越狱</strong>（<a class="term-ref" href="#g-jailbreak">jailbreak</a>）：DAN / role-play / many-shot</li>
+<li><strong>Payload smuggling</strong>：Base64 / Unicode 同形 / 图片 OCR 注入</li>
+<li><strong>Tool 滥用</strong>：让 agent 调敏感工具</li>
+</ul>
+<p><strong>Simon Willison 结论</strong>：prompt injection 没有 100% 解，必须按"LLM 不可信"做系统设计。dual-LLM 模式 = Planner（看 trusted 决策）+ Executor（看 untrusted 但无工具权限）。</p>
+</details>
+
+<details id="g-hallucination">
+<summary><strong>hallucination / 幻觉</strong> <span class="term-tag">评估</span> — 模型生成看似合理但实际错误的内容</summary>
+<p>来源：</p>
+<ul>
+<li>训练数据偏差 / 过时</li>
+<li><a class="term-ref" href="#g-rag">RAG</a> 召回不全或不准</li>
+<li>Context 太长信号被稀释</li>
+<li>模型自由发挥（无 grounding）</li>
+</ul>
+<p>debug 流程：复现 + 量化触发率 → 归因（RAG 召回 / 模型用 context / 工具调用）→ 修复 → 加 <a class="term-ref" href="#g-llm-judge">回归</a> → 生产监控（faithfulness scorer 实时拦截）。</p>
+<p><strong>关键认知</strong>：hallucination 多数是 prompt / RAG / 上下文工程缺陷，不是"模型病了"。</p>
+</details>
+
+<details id="g-guardrails">
+<summary><strong>guardrails</strong> <span class="term-tag">安全</span> — 围绕 LLM 的输入/输出/工具/对话各环节的安全护栏</summary>
+<p>NVIDIA NeMo Guardrails 5 类：</p>
+<ol>
+<li><strong>Input rails</strong>：PII 脱敏、<a class="term-ref" href="#g-prompt-injection">prompt injection</a> 检测、topic 限定</li>
+<li><strong>Dialog rails</strong>：基于 Colang DSL 控制对话流，硬编码关键决策点</li>
+<li><strong>Retrieval rails</strong>：剔除低质 / 敏感 / 不可信 chunk</li>
+<li><strong>Execution rails</strong>：工具调用前参数白名单 / 授权检查</li>
+<li><strong>Output rails</strong>：幻觉检测 / 敏感数据外泄过滤 / 毒性过滤</li>
+</ol>
+<p><strong>关键</strong>：rail 不是越多越好，每类挑 1-2 个高 ROI 的开，否则延迟/成本爆炸。</p>
+</details>
+
+<details id="g-jailbreak">
+<summary><strong>jailbreak / 越狱</strong> <span class="term-tag">安全</span> — 绕开模型安全训练让它输出有害内容</summary>
+<p>常见手法：</p>
+<ul>
+<li><strong>DAN</strong>（Do Anything Now）：让模型扮演无限制 AI</li>
+<li><strong>Role-play</strong>："我们写小说，角色 X 解释如何做 Y"</li>
+<li><strong>Many-shot</strong>（Anthropic 2024 披露）：长 context 塞几十个假问答示例，让模型 ICL 后顺着回答</li>
+<li><strong>Crescendo</strong>：多轮渐进式拉到敏感话题</li>
+<li><strong>Encoding</strong>：Base64 / leetspeak / 低资源语言绕过</li>
+</ul>
+<p>防御：厂商 RLHF safety training + 应用层 input/output classifier（Llama Guard）+ 限制 max context（对抗 many-shot）+ red team 定期演练。</p>
+</details>
+
+</section>
+
+<script>
+/* ========================================================================
+   交互增强：TOC 折叠 + 术语弹窗
+   ======================================================================== */
+(function() {
+
+  // -------- 1. 通过 hash 跳转时自动展开 details（直链访问场景） --------
+  function openHashTarget() {
+    var hash = location.hash;
+    if (!hash || hash.length < 2) return;
+    var el = document.getElementById(decodeURIComponent(hash.slice(1)));
+    if (el && el.tagName === 'DETAILS') {
+      el.open = true;
+      setTimeout(function() { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60);
+    }
+  }
+
+  // -------- 2. TOC 章内题目列表默认折叠，可点击展开 --------
+  function initToc() {
+    var chapters = document.querySelectorAll('nav#TOC > ul > li > ul > li');
+    chapters.forEach(function(li) {
+      var nestedUl = li.querySelector(':scope > ul');
+      if (!nestedUl) return;
+      li.classList.add('has-children');
+      var arrow = document.createElement('span');
+      arrow.className = 'toc-arrow';
+      arrow.textContent = '▶';
+      arrow.setAttribute('role', 'button');
+      arrow.setAttribute('aria-label', '展开/收起章节题目');
+      arrow.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        li.classList.toggle('toc-expanded');
+      });
+      // 章节链接被点击时也展开该章节（不收起）
+      var link = li.querySelector(':scope > a');
+      if (link) {
+        link.addEventListener('click', function() {
+          li.classList.add('toc-expanded');
+        });
+        link.parentNode.insertBefore(arrow, link);
+      }
+    });
+
+    // 如果当前 hash 指向某题，自动展开它所在的章节
+    expandTocForHash();
+  }
+
+  function expandTocForHash() {
+    var hash = location.hash;
+    if (!hash || hash.length < 2) return;
+    var tocLink = document.querySelector('nav#TOC a[href="' + hash + '"]');
+    if (!tocLink) return;
+    var li = tocLink.closest('nav#TOC > ul > li > ul > li');
+    if (li) li.classList.add('toc-expanded');
+  }
+
+  // -------- 3. 术语 popover：点击 a.term-ref 时浮窗显示，不跳转 --------
+  var currentPopover = null;
+
+  function closePopover() {
+    if (currentPopover) {
+      currentPopover.remove();
+      currentPopover = null;
+    }
+  }
+
+  function showPopover(termLink) {
+    closePopover();
+    var href = termLink.getAttribute('href') || '';
+    var id = href.startsWith('#') ? decodeURIComponent(href.slice(1)) : '';
+    var detail = id ? document.getElementById(id) : null;
+    if (!detail) return;
+
+    var summary = detail.querySelector('summary');
+    var summaryHTML = summary ? summary.innerHTML : id;
+
+    // 构造 popover
+    var pop = document.createElement('div');
+    pop.className = 'term-popover';
+    pop.setAttribute('role', 'dialog');
+    pop.style.top = '-9999px';
+    pop.style.left = '-9999px';
+
+    var closeBtn = document.createElement('button');
+    closeBtn.className = 'term-popover-close';
+    closeBtn.setAttribute('aria-label', '关闭');
+    closeBtn.textContent = '×';
+    pop.appendChild(closeBtn);
+
+    var head = document.createElement('div');
+    head.className = 'term-popover-head';
+    head.innerHTML = summaryHTML;
+    pop.appendChild(head);
+
+    var body = document.createElement('div');
+    body.className = 'term-popover-body';
+    detail.childNodes.forEach(function(node) {
+      if (node.nodeType !== 1) return;
+      if (node.tagName === 'SUMMARY') return;
+      body.appendChild(node.cloneNode(true));
+    });
+    pop.appendChild(body);
+
+    var footer = document.createElement('div');
+    footer.className = 'term-popover-footer';
+    footer.innerHTML = '<a href="#' + encodeURIComponent(id) + '" data-keep-popover="1">在术语表中打开 →</a>';
+    pop.appendChild(footer);
+
+    document.body.appendChild(pop);
+
+    // 测量后定位
+    var linkRect = termLink.getBoundingClientRect();
+    var popRect = pop.getBoundingClientRect();
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
+    var scrollY = window.scrollY || window.pageYOffset;
+    var scrollX = window.scrollX || window.pageXOffset;
+    var margin = 12;
+
+    // 移动端：屏幕窄时居中固定
+    if (vw < 720) {
+      pop.classList.add('term-popover-mobile');
+      pop.style.position = 'fixed';
+      pop.style.top = '50%';
+      pop.style.left = '50%';
+      pop.style.transform = 'translate(-50%, -50%)';
+    } else {
+      var top, left;
+      // 优先放在 link 下方
+      if (linkRect.bottom + popRect.height + margin < vh) {
+        top = linkRect.bottom + scrollY + 8;
+      } else if (linkRect.top - popRect.height - margin > 0) {
+        top = linkRect.top + scrollY - popRect.height - 8;
+      } else {
+        // 上下都放不下：贴顶部
+        top = scrollY + margin;
+      }
+      // 水平：尽量左对齐 link，但不要溢出
+      left = Math.max(margin, Math.min(linkRect.left + scrollX, scrollX + vw - popRect.width - margin));
+      pop.style.top = top + 'px';
+      pop.style.left = left + 'px';
+    }
+
+    currentPopover = pop;
+    closeBtn.addEventListener('click', closePopover);
+  }
+
+  // -------- 4. 事件代理 --------
+  document.addEventListener('click', function(e) {
+    var term = e.target.closest('a.term-ref');
+    if (term) {
+      e.preventDefault();
+      showPopover(term);
+      return;
+    }
+    // 在 popover 内点击"在术语表中打开"链接：允许默认跳转，但先关闭 popover
+    if (e.target.closest('[data-keep-popover]')) {
+      setTimeout(closePopover, 100);
+      return;
+    }
+    // 点击外部关闭 popover
+    if (currentPopover && !e.target.closest('.term-popover')) {
+      closePopover();
+    }
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closePopover();
+  });
+
+  window.addEventListener('hashchange', function() {
+    openHashTarget();
+    expandTocForHash();
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    initToc();
+    openHashTarget();
+  });
 })();
 </script>
 </body>

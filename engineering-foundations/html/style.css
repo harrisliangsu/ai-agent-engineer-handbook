@@ -620,3 +620,438 @@ header#title-block-header .date {
   h1, h2, h3, h4 { page-break-after: avoid; }
   table, figure, pre { page-break-inside: avoid; }
 }
+
+/* ========================================================================
+   Q&A 卡片样式（interview-questions.html 专属）
+   每道题视觉上是一个独立卡片：标题 + 答案 + 子点 + 来源
+   ======================================================================== */
+
+/* h3 作为问题卡片标题 */
+h3[id^="a"], h3[id^="b"], h3[id^="c"], h3[id^="d"],
+h3[id^="e"], h3[id^="f"], h3[id^="g"], h3[id^="h"],
+h3[id^="i"], h3[id^="j"] {
+  margin-top: 2.2em;
+  padding: 0.8em 1em 0.6em;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px 8px 0 0;
+  border-bottom: none;
+  font-size: 1.12em;
+  line-height: 1.5;
+}
+
+/* 紧跟 h3 的段落组成"答案体"——加左侧描边、统一内边距 */
+h3[id^="a"] + p, h3[id^="b"] + p, h3[id^="c"] + p, h3[id^="d"] + p,
+h3[id^="e"] + p, h3[id^="f"] + p, h3[id^="g"] + p, h3[id^="h"] + p,
+h3[id^="i"] + p, h3[id^="j"] + p {
+  margin-top: 0;
+}
+
+/* 答案/来源标签 — 加底色 badge */
+p > strong:first-child:where(
+  :is(p:has(> strong:first-child:is([data-label])))
+) { /* placeholder — JS 注入实际标签时用 */ }
+
+/* "答案"、"答案要点"、"问题背景"、"核心机制"、"工程取舍"、"延伸"、"来源" 等小标题段
+   惯例：以 <strong>xxx</strong>：开头的段落 */
+p > strong:first-child {
+  /* 默认 strong 在段首是子标题 */
+}
+
+/* 子标题段——p 的第一个子元素是 <strong>，让 strong 视觉更突出 */
+.qa-section-label {
+  display: inline-block;
+  font-size: 0.82em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--accent-deep);
+  background: var(--accent-soft);
+  padding: 0.15em 0.6em;
+  border-radius: 4px;
+  margin-right: 0.5em;
+  text-transform: uppercase;
+  vertical-align: 2px;
+}
+
+/* 子点有序列表 — 每项独立行、数字 badge */
+ol.qa-points {
+  counter-reset: qa-point;
+  list-style: none;
+  padding-left: 0;
+  margin: 0.7em 0 1.1em;
+}
+
+ol.qa-points > li {
+  counter-increment: qa-point;
+  position: relative;
+  padding: 0.55em 0.8em 0.55em 2.6em;
+  margin: 0.4em 0;
+  border-left: 2px solid var(--border);
+  background: var(--bg-soft);
+  border-radius: 0 6px 6px 0;
+}
+
+ol.qa-points > li::before {
+  content: counter(qa-point);
+  position: absolute;
+  left: 0.65em;
+  top: 0.55em;
+  width: 1.5em;
+  height: 1.5em;
+  line-height: 1.5em;
+  text-align: center;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 0.78em;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+ol.qa-points > li > p:first-child { margin-top: 0; }
+ol.qa-points > li > p:last-child { margin-bottom: 0; }
+
+ol.qa-points ul,
+ol.qa-points ol:not(.qa-points) {
+  margin: 0.4em 0;
+}
+
+/* 来源 footer 风格 */
+p.qa-source,
+p:where(:last-of-type):has(> strong:first-child) {
+  /* 占位：JS 给 来源 段加 .qa-source class */
+}
+
+p.qa-source {
+  font-size: 0.88em;
+  color: var(--text-muted);
+  background: var(--bg-soft);
+  border: 1px dashed var(--border);
+  border-radius: 0 0 8px 8px;
+  border-top: none;
+  padding: 0.55em 1em;
+  margin-top: -0.3em;
+  margin-bottom: 1.8em;
+}
+
+p.qa-source strong { color: var(--text-muted); font-weight: 600; }
+
+/* 术语链接 — 答案内 [术语] 的视觉提示 */
+a.term-ref {
+  border-bottom: 1px dotted var(--accent);
+  color: var(--inline-fg);
+  background: var(--accent-soft);
+  padding: 0.05em 0.32em 0.05em 0.32em;
+  border-radius: 3px;
+  font-size: 0.94em;
+  white-space: nowrap;
+  transition: background 0.12s ease;
+}
+
+a.term-ref::before {
+  content: "📖";
+  font-size: 0.72em;
+  margin-right: 0.18em;
+  opacity: 0.55;
+  vertical-align: 1px;
+}
+
+a.term-ref:hover {
+  background: var(--accent);
+  color: #fff;
+  border-bottom-color: var(--accent-deep);
+}
+
+a.term-ref:hover::before { opacity: 1; }
+
+/* ========================================================================
+   术语速查表（glossary）
+   每条术语用 <details> 折叠，默认收起
+   ======================================================================== */
+
+.glossary {
+  margin: 2em 0;
+}
+
+.glossary h3 {
+  margin-top: 1.6em;
+  font-size: 1.1em;
+  color: var(--accent-deep);
+  background: none;
+  border: none;
+  padding: 0 0 0.3em;
+  border-bottom: 1px dashed var(--border);
+}
+
+.glossary details {
+  margin: 0.45em 0;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border-strong);
+  border-radius: 6px;
+  padding: 0.55em 0.9em;
+  transition: border-left-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.glossary details[open] {
+  border-left-color: var(--accent);
+  box-shadow: var(--shadow-md);
+  padding-bottom: 0.9em;
+}
+
+.glossary details summary {
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--text-strong);
+  line-height: 1.55;
+  outline: none;
+  position: relative;
+  padding-left: 1.3em;
+  list-style: none;
+}
+
+.glossary details summary::-webkit-details-marker { display: none; }
+.glossary details summary::marker { content: ""; }
+
+.glossary details summary::before {
+  content: "▶";
+  position: absolute;
+  left: 0;
+  top: 0.05em;
+  font-size: 0.7em;
+  color: var(--accent);
+  transition: transform 0.15s ease;
+  display: inline-block;
+}
+
+.glossary details[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.glossary details summary strong {
+  color: var(--accent-deep);
+  font-weight: 700;
+  letter-spacing: 0.005em;
+}
+
+.glossary details summary .term-tag {
+  display: inline-block;
+  font-size: 0.72em;
+  color: var(--text-subtle);
+  background: var(--bg-soft);
+  padding: 0.05em 0.45em;
+  border-radius: 3px;
+  margin-left: 0.5em;
+  vertical-align: 2px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.glossary details > :not(summary) {
+  margin-top: 0.6em;
+  margin-bottom: 0.4em;
+  font-size: 0.96em;
+  color: var(--text);
+  line-height: 1.72;
+}
+
+.glossary details > p:first-of-type:not(:has(> strong:first-child)) {
+  margin-top: 0.7em;
+}
+
+.glossary details ul,
+.glossary details ol {
+  margin: 0.4em 0 0.5em;
+  padding-left: 1.4em;
+  font-size: 0.95em;
+}
+
+.glossary details li { margin: 0.18em 0; }
+
+.glossary details code {
+  font-size: 0.84em;
+}
+
+/* 通过 hash 跳转过来的术语，临时高亮 */
+.glossary details:target {
+  border-left-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+  animation: glossary-flash 1.6s ease;
+}
+
+/* ========================================================================
+   术语弹窗（点 a.term-ref 触发，浮在原文旁边而不跳转）
+   ======================================================================== */
+.term-popover {
+  position: absolute;
+  width: min(420px, calc(100vw - 24px));
+  max-height: min(60vh, 480px);
+  overflow-y: auto;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(40, 30, 10, 0.18), 0 2px 6px rgba(40, 30, 10, 0.08);
+  padding: 0.95em 1.1em 0.9em;
+  z-index: 9999;
+  font-size: 0.95em;
+  line-height: 1.7;
+  color: var(--text);
+  animation: term-pop-in 0.14s ease;
+}
+
+@keyframes term-pop-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.term-popover-close {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1.4em;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 4px;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+.term-popover-close:hover {
+  background: var(--bg-soft);
+  color: var(--accent-deep);
+}
+
+.term-popover-head {
+  font-size: 1em;
+  font-weight: 600;
+  color: var(--accent-deep);
+  padding-right: 1.8em;
+  margin-bottom: 0.55em;
+  border-bottom: 1px dashed var(--border);
+  padding-bottom: 0.55em;
+}
+.term-popover-head strong { color: var(--accent-deep); }
+.term-popover-head .term-tag {
+  display: inline-block;
+  font-size: 0.7em;
+  color: var(--text-subtle);
+  background: var(--bg-soft);
+  padding: 0.05em 0.45em;
+  border-radius: 3px;
+  margin-left: 0.5em;
+  vertical-align: 2px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.term-popover-body {
+  font-size: 0.95em;
+}
+.term-popover-body p:first-child { margin-top: 0; }
+.term-popover-body p:last-child  { margin-bottom: 0; }
+.term-popover-body ul,
+.term-popover-body ol {
+  margin: 0.35em 0;
+  padding-left: 1.3em;
+}
+.term-popover-body li { margin: 0.18em 0; }
+.term-popover-body code { font-size: 0.86em; }
+.term-popover-body a.term-ref {
+  /* 弹窗内的二级术语链接还能再点开下一层 */
+}
+
+.term-popover-footer {
+  margin-top: 0.75em;
+  padding-top: 0.5em;
+  border-top: 1px dashed var(--border);
+  font-size: 0.82em;
+  text-align: right;
+}
+.term-popover-footer a {
+  color: var(--text-muted);
+  border-bottom: none;
+}
+.term-popover-footer a:hover {
+  color: var(--accent);
+}
+
+/* 移动端：popover 居中固定 */
+.term-popover.term-popover-mobile {
+  position: fixed;
+  width: calc(100vw - 32px);
+  max-width: 420px;
+  max-height: 70vh;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%);
+}
+/* 移动端遮罩（通过 body 类切换，可选） */
+@media (max-width: 720px) {
+  .term-popover { font-size: 0.94em; }
+}
+
+@keyframes glossary-flash {
+  0%   { background: var(--accent-soft); }
+  100% { background: var(--bg-elev); }
+}
+
+/* "返回正文"链接 */
+.glossary details .back-to-top {
+  display: inline-block;
+  font-size: 0.82em;
+  color: var(--text-muted);
+  border: none;
+  margin-top: 0.5em;
+}
+
+.glossary details .back-to-top::before {
+  content: "↑ ";
+}
+
+/* 移动端 Q&A 卡片紧凑化 */
+@media (max-width: 640px) {
+  h3[id^="a"], h3[id^="b"], h3[id^="c"], h3[id^="d"],
+  h3[id^="e"], h3[id^="f"], h3[id^="g"], h3[id^="h"],
+  h3[id^="i"], h3[id^="j"] {
+    padding: 0.65em 0.8em 0.5em;
+    font-size: 1.04em;
+  }
+  ol.qa-points > li {
+    padding: 0.5em 0.6em 0.5em 2.3em;
+  }
+  ol.qa-points > li::before {
+    left: 0.5em;
+    width: 1.35em;
+    height: 1.35em;
+    line-height: 1.35em;
+    font-size: 0.72em;
+  }
+  p.qa-source {
+    padding: 0.5em 0.8em;
+    font-size: 0.85em;
+  }
+  a.term-ref {
+    white-space: normal;
+  }
+  .glossary details {
+    padding: 0.5em 0.7em;
+  }
+}
+
+
+
+@media print {
+  .glossary details { border: 1px solid #ccc; box-shadow: none; page-break-inside: avoid; }
+  .glossary details summary::before { content: ""; }
+  .glossary details > :not(summary) { display: block !important; }
+  ol.qa-points > li::before { background: #555; }
+  a.term-ref { background: transparent; border-bottom: 1px solid #888; }
+  a.term-ref::before { content: ""; }
+}
