@@ -328,7 +328,7 @@
 <body>
 
 <h1>🧠 AI Agent / LLM 应用工程师 · 全景知识图谱</h1>
-<div class="subtitle">仓库总览思维导图 · 91 题 / 工程四层 / 4 篇翻译 / 82 术语</div>
+<div class="subtitle">仓库总览思维导图 · 92 题 / 工程四层 / 4 篇翻译 / 83 术语</div>
 
 <div class="intro">
   <p>本图谱串起仓库全部内容。<strong>把工程四层、面试题分类、经典翻译、术语速查表四个 lens 交叉刷</strong>。</p>
@@ -340,7 +340,7 @@
   <a href="#l2">L2 上下文</a>
   <a href="#l3">L3 Agent</a>
   <a href="#l4">L4 Harness</a>
-  <a href="#interview">91 题</a>
+  <a href="#interview">92 题</a>
   <a href="#translations">翻译</a>
   <a href="#glossary">术语</a>
   <a href="#path">复习路径</a>
@@ -482,6 +482,7 @@
           <a class="pill-link" href="interview-prep/html/interview-questions.html#a7.-prefix-caching-与-kv-cache-的区别">A7 Prefix Caching</a>
           <a class="pill-link" href="interview-prep/html/interview-questions.html#a8.-flashattention-123-各解决了什么为什么-h100-上-fa3-能再快-1.5-2">A8 FlashAttention</a>
           <a class="pill-link" href="interview-prep/html/interview-questions.html#a9.-continuous-batching-vs-static-batching">A9 Continuous Batching</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.html#a11.-llm-推理为什么分-prefill-和-decode-两阶段两者瓶颈有何不同">A11 Prefill/Decode 两阶段</a>
         </li>
         <li>核心术语：
           <a class="term-chip" href="interview-prep/html/interview-questions.html#g-flash-attention">FlashAttention</a>
@@ -491,6 +492,7 @@
           <a class="term-chip" href="interview-prep/html/interview-questions.html#g-spec-decode">speculative decoding</a>
           <a class="term-chip" href="interview-prep/html/interview-questions.html#g-prefix-caching">prefix caching</a>
           <a class="term-chip" href="interview-prep/html/interview-questions.html#g-ttft">TTFT</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-tpot">TPOT</a>
         </li>
       </ul>
     </details>
@@ -718,7 +720,7 @@
 
 <hr />
 
-<h2 id="interview" style="color:var(--text-strong);">二、91 道面试题 · 11 大类</h2>
+<h2 id="interview" style="color:var(--text-strong);">二、92 道面试题 · 11 大类</h2>
 
 <section class="pillar" id="interview">
   <div class="pillar-body">
@@ -727,7 +729,7 @@
         <tr><th>分类</th><th>核心覆盖</th><th>难度</th><th>入口</th></tr>
       </thead>
       <tbody>
-        <tr><td><strong>A. LLM 基础</strong> (10)</td><td>Transformer / RoPE / KV cache / 长上下文 / 推理优化</td><td>1⭐ 7⭐⭐ 2⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.html#a.-llm-基础10-题">→ A</a></td></tr>
+        <tr><td><strong>A. LLM 基础</strong> (11)</td><td>Transformer / RoPE / KV cache / 长上下文 / 推理优化 / Prefill·Decode</td><td>1⭐ 8⭐⭐ 2⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.html#a.-llm-基础11-题">→ A</a></td></tr>
         <tr><td><strong>B. 训练 / 微调</strong> (10)</td><td>SFT / DPO / GRPO / LoRA / R1 涌现</td><td>1⭐ 7⭐⭐ 2⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.html#b.-训练--微调10-题">→ B</a></td></tr>
         <tr><td><strong>C. 提示词工程</strong> (9)</td><td>CoT / Self-Consistency / ReAct / 自动 prompt 优化</td><td>1⭐ 7⭐⭐ 1⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.html#c.-提示词工程9-题">→ C</a></td></tr>
         <tr><td><strong>D. RAG</strong> (10)</td><td>Hybrid / Reranker / GraphRAG / Self-RAG / RAGAS</td><td>1⭐ 7⭐⭐ 2⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.html#d.-rag10-题">→ D</a></td></tr>
@@ -766,7 +768,7 @@
 
 <hr />
 
-<h2 id="glossary" style="color:var(--text-strong);">四、术语速查表（82 条 × 10 主题）</h2>
+<h2 id="glossary" style="color:var(--text-strong);">四、术语速查表（83 条 × 10 主题）</h2>
 
 <section class="pillar" id="glossary">
   <div class="pillar-body">
@@ -816,7 +818,7 @@
     </details>
 
     <details>
-      <summary>推理加速（7）</summary>
+      <summary>推理加速（8）</summary>
       <p>
         <a class="term-chip" href="interview-prep/html/interview-questions.html#g-flash-attention">FlashAttention</a>
         <a class="term-chip" href="interview-prep/html/interview-questions.html#g-paged-attention">PagedAttention</a>
@@ -825,6 +827,7 @@
         <a class="term-chip" href="interview-prep/html/interview-questions.html#g-spec-decode">speculative decoding</a>
         <a class="term-chip" href="interview-prep/html/interview-questions.html#g-prefix-caching">prefix caching</a>
         <a class="term-chip" href="interview-prep/html/interview-questions.html#g-ttft">TTFT</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.html#g-tpot">TPOT</a>
       </p>
     </details>
 
@@ -925,7 +928,7 @@
 
     <div class="path-card">
       <h4>路径 A · 应届 / 入门（2-4 周）</h4>
-      <span class="week"><strong>Week 1</strong>：工程基础概念 — L1 §1.1-§1.3 + 术语速查（LLM 基础 + Transformer）+ A1-A10</span>
+      <span class="week"><strong>Week 1</strong>：工程基础概念 — L1 §1.1-§1.3 + 术语速查（LLM 基础 + Transformer）+ A1-A11</span>
       <span class="week"><strong>Week 2</strong>：提示词 + RAG 入门 — L1 §1.4 + L2 §2.4 + C1-C9 + D1-D5</span>
       <span class="week"><strong>Week 3</strong>：Agent 概念 — L3 §1-§3 + E1, E2, E3, E5, E8 + 翻译《Building Effective Agents》</span>
       <span class="week"><strong>Week 4</strong>：安全 + 实战 — L1 §1.6 + I1, I2 + J7（0-1 落地路线）</span>
@@ -969,8 +972,8 @@
 </section>
 
 <footer>
-  <p>调研日期 2026-05-02 · K 章节增补 2026-05-14 · 术语库 v82 · 知识图谱与 <a href="knowledge-map.md">knowledge-map.md</a> 同步</p>
-  <p>本图谱串联仓库全部内容（4 个工程层、91 道面试题、4 篇翻译、82 条术语）。按 lens 交叉复习效率最高。</p>
+  <p>调研日期 2026-05-02 · K 章节增补 2026-05-14 · 术语库 v83 · 知识图谱与 <a href="knowledge-map.md">knowledge-map.md</a> 同步</p>
+  <p>本图谱串联仓库全部内容（4 个工程层、92 道面试题、4 篇翻译、83 条术语）。按 lens 交叉复习效率最高。</p>
 </footer>
 
 </body>

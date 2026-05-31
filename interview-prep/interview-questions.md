@@ -2,7 +2,7 @@
 
 **调研日期**：2026-05-02（K 章节增补于 2026-05-14）
 **目标读者**：求职者（应届到 staff 级）+ 招聘方
-**覆盖**：11 大分类 / 91 道题 / 难度分级 / 含一手论文 + Anthropic / OpenAI / DeepSeek 官方资料
+**覆盖**：11 大分类 / 92 道题 / 难度分级 / 含一手论文 + Anthropic / OpenAI / DeepSeek 官方资料
 
 ---
 
@@ -18,7 +18,7 @@
 
 | 分类 | 题数 | 难度分布 | 重点 |
 |---|---|---|---|
-| **A. LLM 基础** | 10 | 1⭐ 7⭐⭐ 2⭐⭐⭐ | Transformer / RoPE / KV cache / 长上下文 / 推理优化 |
+| **A. LLM 基础** | 11 | 1⭐ 8⭐⭐ 2⭐⭐⭐ | Transformer / RoPE / KV cache / 长上下文 / 推理优化 / Prefill·Decode |
 | **B. 训练 / 微调** | 10 | 1⭐ 7⭐⭐ 2⭐⭐⭐ | SFT / DPO / GRPO / LoRA / R1 涌现 |
 | **C. 提示词工程** | 9 | 1⭐ 7⭐⭐ 1⭐⭐⭐ | CoT / Self-Consistency / ReAct / 自动 prompt 优化 |
 | **D. RAG** | 10 | 1⭐ 7⭐⭐ 2⭐⭐⭐ | Hybrid / Reranker / GraphRAG / Self-RAG / RAGAS |
@@ -38,7 +38,7 @@
 
 ---
 
-## A. LLM 基础（10 题）
+## A. LLM 基础（11 题）
 
 ### A1. ⭐⭐ 为什么 Transformer 用 Layer Norm 而不是 Batch Norm？
 
@@ -239,6 +239,42 @@
 **Anthropic 建议**：复杂多跳推理 32k 内最稳。
 
 **来源**：Hsieh et al. 2024《RULER》；Liu et al. 2023《Lost in the Middle》
+
+### A11. ⭐⭐ LLM 推理为什么分 Prefill 和 Decode 两阶段？两者瓶颈有何不同？
+
+**核心答案**：[prefill / decode](#g-prefill-decode) 是自回归推理的两个阶段——prefill 把整段 prompt 一次性并行算出 [KV cache](#g-kv-cache) 并吐出第一个 token，是 **compute-bound**（算力受限），决定 [TTFT](#g-ttft)；decode 逐个 token 自回归生成、每步只算 1 个 token 却要反复读全部 KV cache 与权重，是 **memory-bound**（显存带宽受限），决定 [TPOT](#g-tpot)。两阶段特性相反，所以现代推理框架把它们当作不同的优化对象。
+
+**Prefill 阶段**：
+
+1. **并行处理整段 prompt**：所有输入 token 一次性喂入，并行计算注意力，生成 KV cache。
+2. **compute-bound**：本质是一次大的并行矩阵运算，GPU 利用率高。
+3. **产出第一个 token**：对应延迟指标 TTFT（Time To First Token）。
+
+**Decode 阶段**：
+
+1. **自回归逐 token 生成**：每次只算 1 个新 token，但要读取之前所有 token 的 KV cache。
+2. **memory-bound**：瓶颈在反复读取 KV cache + 模型权重而非算力，GPU 利用率低。
+3. **对应延迟指标 TPOT**（Time Per Output Token）/ ITL（Inter-Token Latency）。
+
+**两者关键区别**：
+
+| 维度 | Prefill | Decode |
+|---|---|---|
+| 并行度 | 高（一次处理所有 token） | 低（一次 1 个 token） |
+| 瓶颈 | 算力（compute-bound） | 显存带宽（memory-bound） |
+| GPU 利用率 | 高 | 低 |
+| 延迟指标 | TTFT | TPOT / ITL |
+
+**为什么是推理优化的核心**：两阶段特性差异巨大，工程上才衍生出一系列优化手段：
+
+1. **PD 分离**（Prefill/Decode Disaggregation）：用不同 GPU 池分别处理两阶段，避免互相干扰（如 DistServe、Mooncake）。
+2. **[Continuous Batching](#g-continuous-batching)**：在 decode 阶段动态拼批，提升吞吐。
+3. **KV Cache 优化**：[PagedAttention](#g-paged-attention)（vLLM）、量化、[共享前缀](#g-prefix-caching)。
+4. **Chunked Prefill**：把长 prefill 切块，与 decode 混合调度，平衡延迟与吞吐（vLLM v0.6+ 默认）。
+
+**加分句**：prefill 决定 TTFT、decode 决定 TPOT，二者在 SLA 上往往要分别定指标、分别优化，所以 vLLM / SGLang / TensorRT-LLM 都把这两阶段当作独立的优化对象。
+
+**来源**：Kwon et al. 2023《PagedAttention / vLLM》<https://arxiv.org/abs/2309.06180>；Zhong et al. 2024《DistServe: Disaggregating Prefill and Decoding》<https://arxiv.org/abs/2401.09670>
 
 
 ---
@@ -2246,9 +2282,9 @@ Google SRE 体系定义的四个术语：
 <summary><strong>prefill / decode</strong> <span class="term-tag">LLM 基础</span> — LLM 推理的两阶段：处理输入 → 逐 token 生成</summary>
 
 - **Prefill**：把 prompt 所有 token 一次性喂入模型计算 KV cache。compute-bound（受 GPU 算力限制），一次能并行处理整段 prompt。延迟决定 [TTFT](#g-ttft)。
-- **Decode**：一次生成一个 token，每个 token 都要复用前面所有 token 的 [KV cache](#g-kv-cache)。memory-bound（受显存带宽限制），延迟决定 TBT（time between tokens）。
+- **Decode**：一次生成一个 token，每个 token 都要复用前面所有 token 的 [KV cache](#g-kv-cache)。memory-bound（受显存带宽限制），延迟决定 [TPOT](#g-tpot) / ITL（inter-token latency）。
 
-两个阶段瓶颈不同，调优策略也不同——prefill 优化靠并行 / [FlashAttention](#g-flash-attention)，decode 优化靠 [continuous batching](#g-continuous-batching) / [speculative decoding](#g-spec-decode)。
+两个阶段瓶颈不同，调优策略也不同——prefill 优化靠并行 / [FlashAttention](#g-flash-attention)，decode 优化靠 [continuous batching](#g-continuous-batching) / [speculative decoding](#g-spec-decode)。因为特性相反，工程上还有 **PD 分离**（Prefill/Decode Disaggregation，用不同 GPU 池分别处理，如 DistServe/Mooncake）和 **chunked prefill**（把长 prefill 切块与 decode 交错调度）两类调度优化。详见 [A11](#a11.-llm-推理为什么分-prefill-和-decode-两阶段两者瓶颈有何不同)。
 
 </details>
 
@@ -2501,7 +2537,19 @@ Leviathan et al. 2023。流程：
 - [Speculative decoding](#g-spec-decode)
 - Chunked prefill（不阻塞其他请求 decode）
 
-伴生指标：**TBT**（time between tokens，单 token 间隔）— 由 decode 决定。
+伴生指标：**[TPOT](#g-tpot)**（time per output token，单 token 间隔，也叫 TBT/ITL）— 由 decode 决定。
+
+</details>
+
+<details id="g-tpot">
+<summary><strong>TPOT / Time Per Output Token</strong> <span class="term-tag">推理加速</span> — decode 阶段每生成一个 token 的平均延迟（也叫 ITL / TBT）</summary>
+
+与 [TTFT](#g-ttft) 配对的另一核心延迟指标：TTFT 衡量"等多久看到第一个字"（由 prefill 决定），TPOT 衡量"后续每个字蹦多快"（由 [decode](#g-prefill-decode) 决定）。流式输出的体感速度 ≈ 1/TPOT（tokens/s）。
+
+- 别名：ITL（inter-token latency）、TBT（time between tokens）。
+- 瓶颈：decode 是 memory-bound，TPOT 主要受显存带宽 + batch 大小影响。
+- 降低手段：[continuous batching](#g-continuous-batching) 提吞吐、[speculative decoding](#g-spec-decode) 一步多吐、[GQA/MQA](#g-gqa-mqa) / KV 量化减小 KV cache 读取量。
+- SLA 实践：TTFT 与 TPOT 往往**分别定指标**（如 p99 TTFT < 1s、TPOT < 50ms），并通过 PD 分离 / chunked prefill 解耦优化。
 
 </details>
 
@@ -3315,7 +3363,7 @@ NVIDIA NeMo Guardrails 5 类：
 ## Methodology Appendix
 
 - **调研日期**：2026-05-02
-- **覆盖**：11 大分类 / 91 道题 / 难度分级 / 含一手论文 + Anthropic / OpenAI / DeepSeek 官方资料
+- **覆盖**：11 大分类 / 92 道题 / 难度分级 / 含一手论文 + Anthropic / OpenAI / DeepSeek 官方资料
 - **派遣 agent**：3 个并行 web-search-agent（A/B/C / D/E/F / G/H/I/J 各一），其中 D/E/F 由作者基于技术知识直接撰写（原 agent 因外部中断未完成）
 - **答案构建原则**：
   1. 优先引用一手论文 + 厂商官方文档（Anthropic / OpenAI / DeepSeek 等）

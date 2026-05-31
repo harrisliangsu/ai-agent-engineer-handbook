@@ -1,6 +1,6 @@
 # 🧠 AI Agent / LLM 应用工程师 全景知识图谱
 
-> 本仓库的"思维导图 / 复习地图"——把工程四层、91 道面试题、4 篇经典翻译、82 条术语速查表全部串起来，提供完整的知识体系坐标。
+> 本仓库的"思维导图 / 复习地图"——把工程四层、92 道面试题、4 篇经典翻译、83 条术语速查表全部串起来，提供完整的知识体系坐标。
 
 **怎么用**：
 
@@ -24,7 +24,7 @@ ai-agent-engineer-handbook/
 │   └── html/                     渲染版
 ├── interview-prep/              面试题与求职研究
 │   ├── jd-requirements.md        JD 调研（30+ 国内外岗位）
-│   ├── interview-questions.md    91 题 × 11 大类
+│   ├── interview-questions.md    92 题 × 11 大类
 │   └── html/                     渲染版（含交互式术语弹窗）
 ├── translations/                经典文章中译
 │   ├── building-effective-agents.md
@@ -74,7 +74,7 @@ ai-agent-engineer-handbook/
 | 主题 | 关键概念 | 对应章节 / 题目 |
 |---|---|---|
 | **长上下文物理学** | KV cache / Attention sink / Lost in the Middle / RULER | [L2 §2.2-§2.3](engineering-foundations/context-engineering.md#22-长上下文的物理学)、[A5](interview-prep/interview-questions.md#a5-lost-in-the-middle-是什么工程上怎么缓解)、[A10](interview-prep/interview-questions.md#a10-上下文越长效果越好吗工程上-128k-真能用吗)、[D8](interview-prep/interview-questions.md#d8-长上下文1mvs-rag到底怎么选) |
-| **推理加速** | PagedAttention / FlashAttention / vLLM / Continuous batching / Speculative decoding / Prefix caching | [A4](interview-prep/interview-questions.md#a4-vllm-的-pagedattention-解决了什么问题为什么吞吐能涨-24-倍)、[A6-A9](interview-prep/interview-questions.md#a6-speculative-decoding-原理什么场景收益最大) |
+| **推理加速** | PagedAttention / FlashAttention / vLLM / Continuous batching / Speculative decoding / Prefix caching | [A4](interview-prep/interview-questions.md#a4-vllm-的-pagedattention-解决了什么问题为什么吞吐能涨-24-倍)、[A6-A9](interview-prep/interview-questions.md#a6-speculative-decoding-原理什么场景收益最大)、[A11 Prefill/Decode](interview-prep/interview-questions.md#a11-llm-推理为什么分-prefill-和-decode-两阶段两者瓶颈有何不同) |
 | **RAG 全栈** | Chunking / Embedding / **Hybrid Search (BM25 + Dense)** / **Reranker** / Vector DB / **RAGAS** | [L2 §2.4](engineering-foundations/context-engineering.md#24-rag-全栈选型)、[D1-D10](interview-prep/interview-questions.md#d-rag10-题) |
 | **RAG 变体** | GraphRAG / Self-RAG / CRAG / Agentic RAG / Contextual Retrieval | [D6](interview-prep/interview-questions.md#d6-graphrag--self-rag--crag--agentic-rag-各解决什么问题)、[D2](interview-prep/interview-questions.md#d2-切分策略对比fixed--semantic--late-chunking-怎么选) |
 | **Embedding 模型选型** | BGE-M3 / Cohere v4 / Voyage-3 / OpenAI text-3 / Qwen3-Embedding | [D3](interview-prep/interview-questions.md#d3-2026-年-embedding-模型怎么选bge-m3--cohere-v4--voyage-3--openai-text-3-取舍)、[D9](interview-prep/interview-questions.md#d9-中文-rag-有什么特殊性) |
@@ -147,11 +147,11 @@ ai-agent-engineer-handbook/
 
 ---
 
-## 三、面试题 91 题 / 11 大类
+## 三、面试题 92 题 / 11 大类
 
 | 分类 | 题数 | 难度 | 核心覆盖 | 入口 |
 |---|---|---|---|---|
-| **A. LLM 基础** | 10 | 1⭐ 7⭐⭐ 2⭐⭐⭐ | Transformer / RoPE / KV cache / 长上下文 / 推理优化 | [→ A](interview-prep/interview-questions.md#a-llm-基础10-题) |
+| **A. LLM 基础** | 11 | 1⭐ 8⭐⭐ 2⭐⭐⭐ | Transformer / RoPE / KV cache / 长上下文 / 推理优化 / Prefill·Decode | [→ A](interview-prep/interview-questions.md#a-llm-基础11-题) |
 | **B. 训练 / 微调** | 10 | 1⭐ 7⭐⭐ 2⭐⭐⭐ | SFT / DPO / GRPO / LoRA / R1 涌现 | [→ B](interview-prep/interview-questions.md#b-训练--微调10-题) |
 | **C. 提示词工程** | 9 | 1⭐ 7⭐⭐ 1⭐⭐⭐ | CoT / Self-Consistency / ReAct / 自动 prompt 优化 | [→ C](interview-prep/interview-questions.md#c-提示词工程9-题) |
 | **D. RAG** | 10 | 1⭐ 7⭐⭐ 2⭐⭐⭐ | Hybrid / Reranker / GraphRAG / Self-RAG / RAGAS | [→ D](interview-prep/interview-questions.md#d-rag10-题) |
@@ -184,7 +184,7 @@ ai-agent-engineer-handbook/
 
 ---
 
-## 五、术语速查表（82 词条 × 10 主题）
+## 五、术语速查表（83 词条 × 10 主题）
 
 > 所有 HTML 页面右下角都内嵌完整术语库，点击文中橙色标记词条即弹浮窗，不离开当前位置。
 
@@ -222,7 +222,7 @@ ai-agent-engineer-handbook/
 - [MoE](interview-prep/html/interview-questions.html#g-moe)
 - [multi-head attention](interview-prep/html/interview-questions.html#g-multi-head-attention)
 
-### 推理加速（7）
+### 推理加速（8）
 
 - [FlashAttention](interview-prep/html/interview-questions.html#g-flash-attention)
 - [PagedAttention](interview-prep/html/interview-questions.html#g-paged-attention)
@@ -231,6 +231,7 @@ ai-agent-engineer-handbook/
 - [speculative decoding](interview-prep/html/interview-questions.html#g-spec-decode)
 - [prefix caching](interview-prep/html/interview-questions.html#g-prefix-caching)
 - [TTFT](interview-prep/html/interview-questions.html#g-ttft)
+- [TPOT / ITL](interview-prep/html/interview-questions.html#g-tpot)
 
 ### 量化（4）
 
@@ -308,7 +309,7 @@ ai-agent-engineer-handbook/
 
 ```
 Week 1: 工程基础概念
-  └─ L1 §1.1-§1.3 + 术语速查（LLM 基础 + Transformer 架构）+ A1-A10
+  └─ L1 §1.1-§1.3 + 术语速查（LLM 基础 + Transformer 架构）+ A1-A11
 
 Week 2: 提示词 + RAG 入门
   └─ L1 §1.4 + L2 §2.4 + C1-C9 + D1-D5
@@ -349,7 +350,7 @@ Week 4: 安全 + 实战
 | **LLM 应用 SaaS（客服 / 文档 QA）** | L2 RAG + L3 Agent + G1 (客服) + I (安全) + K5 (业务评测) |
 | **AI Coding 工具（Cursor / Devin / Augment 类）** | L3 + L4 全部 + G2 (Coding Agent) + E7 (harness) + 翻译《Effective Harnesses》《OpenAI Harness Engineering》 |
 | **多智能体业务系统（电商 / 旅行 / 金融）** | L3 §6 多 Agent + E4/E10 + K5 (业务领域评测) + G1/G3 + J1 STAR + 准备自己项目数据 |
-| **基础设施 / 推理 / 训练** | A4-A9 推理加速 + B1-B10 训练栈 + G4/G5 (网关 / 高并发) |
+| **基础设施 / 推理 / 训练** | A4-A9 + A11 推理加速 + B1-B10 训练栈 + G4/G5 (网关 / 高并发) |
 | **安全 / Red Team** | C7 + I1-I6 + L1 §1.6 + L4 三层防御 |
 
 ---
@@ -358,7 +359,7 @@ Week 4: 安全 + 实战
 
 - **调研日期**：2026-05-02
 - **K 章节增补**：2026-05-14（业务领域 Agent 评测）
-- **术语库版本**：82 条 × 10 主题
+- **术语库版本**：83 条 × 10 主题
 - **本文件**：knowledge-map.md（与 .html 同步）
 - **更新建议**：新模型 / 新论文 / 新工具出现时增补到对应章节，不破坏现有结构
 
