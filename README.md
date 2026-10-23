@@ -39,6 +39,8 @@ GitHub Topics（仓库已设置，此处只作索引）：`agent` · `ai-agent` 
 
 **https://harrisliangsu.github.io/ai-agent-engineer-handbook/**
 
+门户文件在仓库根目录（`index.html`）。在 GitHub **Settings → Pages** 里选择分支 `main`、目录 `/ (root)` 后，这个地址就会生效。`.nojekyll` 让现有 HTML 原样发布，不经 Jekyll。
+
 | 想先看什么 | 网页 |
 |---|---|
 | 门户（四层 + 面试 + 译文入口） | [首页](https://harrisliangsu.github.io/ai-agent-engineer-handbook/) |

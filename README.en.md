@@ -14,6 +14,8 @@ The HTML mirror is published from the repository root with GitHub Pages. Local f
 
 **https://harrisliangsu.github.io/ai-agent-engineer-handbook/**
 
+The site root is `index.html`, with `.nojekyll` so the existing HTML is served as-is. In **Settings → Pages**, choose branch `main` and folder `/ (root)`.
+
 ## What is inside
 
 | Section | Question it answers | Start here |
