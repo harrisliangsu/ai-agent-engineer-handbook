@@ -14,6 +14,8 @@
 
 **最近更新**：2026-05-31（正文） · **作者**：[harrisliangsu](https://github.com/harrisliangsu) · **License**：[MIT](./LICENSE)
 
+**支持 / Sponsor**：[爱发电](https://afdian.com/a/sharkchiligaga)
+
 关键词：AI Agent、LLM、RAG、prompt engineering、context engineering、harness engineering、MCP、面试、handbook、中文。
 
 GitHub Topics（仓库已设置，此处只作索引）：`agent` · `ai-agent` · `anthropic` · `chinese` · `handbook` · `interview` · `llm` · `openai` · `prompt-engineering` · `rag`
