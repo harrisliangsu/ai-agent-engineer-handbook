@@ -12,13 +12,15 @@
 
 **适合谁**：在 AI Agent / LLM 应用方向求职、转型或带队的工程师；招聘方校准岗位；面试官按层出题。
 
-**最近更新**：2026-05-31（正文） · **作者**：[harrisliangsu](https://github.com/harrisliangsu) · **License**：[MIT](./LICENSE)
+**怎么读**：在线门户、仓库里的 Markdown，或本地 HTML。步骤见 [如何阅读](#如何阅读)。
+
+**最近更新**：正文最近实质性更新：2026-05-31（此后仅 2026-09-21 增补一处网关参考） · 仓库元数据/门户：2026-10-23 · **作者**：[harrisliangsu](https://github.com/harrisliangsu) · **License**：[MIT](./LICENSE)
 
 **支持 / Sponsor**：[爱发电](https://afdian.com/a/sharkchiligaga)
 
 关键词：AI Agent、LLM、RAG、prompt engineering、context engineering、harness engineering、MCP、面试、handbook、中文。
 
-GitHub Topics（仓库已设置，此处只作索引）：`agent` · `ai-agent` · `anthropic` · `chinese` · `handbook` · `interview` · `llm` · `openai` · `prompt-engineering` · `rag`
+GitHub Topics（仓库已设置，此处只作索引）：`agent` · `ai-agent` · `anthropic` · `awesome` · `career` · `chinese` · `context-engineering` · `handbook` · `interview` · `interview-prep` · `llm` · `mcp` · `openai` · `prompt-engineering` · `rag`
 
 ## 目录
 
@@ -213,10 +215,12 @@ cd interview-prep/html && python3 -m http.server 8000
 | 指出具体错误、断链，或提交一处改动 | [Issue](https://github.com/harrisliangsu/ai-agent-engineer-handbook/issues) / [Pull request](https://github.com/harrisliangsu/ai-agent-engineer-handbook/pulls) |
 | 问怎么读、交流求职进度、还没落到文件上的想法 | [Discussions](https://github.com/harrisliangsu/ai-agent-engineer-handbook/discussions) |
 | 提议新的题型或章节 | Discussions 的 **Ideas** |
-| 用法和阅读问题 | Discussions 的 **Q&A** |
+| 用法和阅读问题 | [GitHub Discussions（Q&A）](https://github.com/harrisliangsu/ai-agent-engineer-handbook/discussions) |
 | 随便聊聊 | Discussions 的 **General** |
 
-欢迎帖：[自我介绍 / 求职进度 / 纠错建议](https://github.com/harrisliangsu/ai-agent-engineer-handbook/discussions/4)。需要改文件的纠错请开 Issue 或 PR，方便对到具体段落；开放式讨论留在 Discussions。
+欢迎帖：[自我介绍 / 求职进度 / 纠错建议](https://github.com/harrisliangsu/ai-agent-engineer-handbook/discussions/4)。用法和阅读上的提问，请到 [GitHub Discussions（Q&A）](https://github.com/harrisliangsu/ai-agent-engineer-handbook/discussions)。
+
+欢迎纠错：事实、断链或过时表述，请开 [Issue](https://github.com/harrisliangsu/ai-agent-engineer-handbook/issues/new/choose)，方便对到具体段落。
 
 ---
 
