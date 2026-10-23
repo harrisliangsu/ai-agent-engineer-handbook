@@ -1,0 +1,38 @@
+name: 面试题或 JD
+description: 提议新增一道面试题，或一条带来源的岗位摘录
+title: "[内容] "
+labels: ["enhancement"]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: 类型
+      options:
+        - 面试题
+        - JD 摘录
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: 放在哪一类
+      description: 面试题写分类字母（A–K）；JD 写市场（中国 / 北美 / 欧洲）和岗位类型
+      placeholder: E. Agent
+    validations:
+      required: true
+  - type: textarea
+    id: draft
+    attributes:
+      label: 草稿
+      description: |
+        面试题：题干、难度（⭐ / ⭐⭐ / ⭐⭐⭐）、约 200–500 字答案。
+        JD：公司名、岗位名、摘录、抓取日期。只拿到摘要时请标明。
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: 来源 URL
+      description: 论文、官方文档，或 JD 页面。薪资请注明出处和日期
+    validations:
+      required: true

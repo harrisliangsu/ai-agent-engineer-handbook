@@ -27,7 +27,7 @@ harness-engineering.md     → agent 在什么环境里运行、出错时如何�
 | `context-engineering.md` | 定义起源 / 长上下文物理学 / Lost-in-the-Middle / RULER / RAG 全栈选型（解析→切分→嵌入→向量库→检索→重排→改写→GraphRAG / Self-RAG / CRAG / Agentic RAG / 多模态）/ 记忆系统四强对比 / 上下文管理策略 / MCP / A2A | ~13 K 中文字 |
 | `agent-engineering.md` ⭐ | Agent 定义与坐标系 / 范式演进 / 四层架构 / 类型分类 / 10 个主流框架矩阵 / 多 agent 协作 5 种模式 / 评估基准（SWE-bench / GAIA / WebArena / OSWorld 2026 排名）/ 真实产品案例（Claude Code / Cursor / Devin / Manus / Computer Use）/ 失败模式与真实事故（Amazon Kiro / Replit / Loop of Death）/ 安全权限模型 | ~12 K 中文字 |
 | `harness-engineering.md` | 起源（Hashimoto 2026-02 命名）/ 两条核心法则（强约束 + 自愈循环）/ 四大支柱（上下文架构 / Agent 专业化 / 持久化记忆 / 结构化执行）/ §3.3.1-§3.3.3 harness 强约束的直接实现（MCP / 沙箱 / 护栏）/ 完整生产栈架构图 / 成熟度模型 L0-L4 / 综合演进叙事 / 三类场景选型清单 / 限制 / 参考文献全集 / 方法论 | ~13 K 中文字 |
-| `article.md` | v1 合并版（4 文件未拆分前的原稿，保留为参考） | ~30 K 中文字 |
+| `overview.md` | v1 合并版（4 文件未拆分前的原稿，保留为参考；文件名曾为 `article.md`） | ~30 K 中文字 |
 | `run_manifest.json` | 调研元数据：query / mode / search 路数 / claim 验证表 | 小 |
 | `sources.jsonl` | 引用源注册表（45 条） | 小 |
 
@@ -61,7 +61,7 @@ harness-engineering.md     → agent 在什么环境里运行、出错时如何�
 
 ### 与 v1（合并版）的差异
 
-| 变化 | v1（`article.md`） | v2 / v3（4 文件） |
+| 变化 | v1（现为 `overview.md`，曾名 `article.md`） | v2 / v3（4 文件） |
 |---|---|---|
 | 章节数 | 3 大篇 | 4 大篇 |
 | Agent 内容 | 散落在各章 | 独立成章 |
@@ -91,6 +91,6 @@ harness-engineering.md     → agent 在什么环境里运行、出错时如何�
 ## 复现命令
 
 ```bash
-ls -la ~/Documents/Prompt_Context_Harness_Engineering_Article_20260501/
-wc -m ~/Documents/Prompt_Context_Harness_Engineering_Article_20260501/0[1-4]_*.md
+# 公开副本就在本目录。最初的 deep-research 落盘路径只在作者本机，不随仓库分发。
+wc -m prompt-engineering.md context-engineering.md agent-engineering.md harness-engineering.md overview.md
 ```

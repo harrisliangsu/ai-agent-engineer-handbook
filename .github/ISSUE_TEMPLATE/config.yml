@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 阅读、求职与开放讨论
+    url: https://github.com/harrisliangsu/ai-agent-engineer-handbook/discussions
+    about: 还没落到具体文件的问题，请用 Discussions（Q&A、Ideas 或 General），不要开 Issue。

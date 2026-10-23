@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+  <rect width="1280" height="640" fill="#faf8f3"/>
+  <rect width="1280" height="8" fill="#b85c00"/>
+  <text x="72" y="128" fill="#8a4500" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, sans-serif" font-size="18" letter-spacing="3.2">AI AGENT ENGINEER HANDBOOK</text>
+  <text x="72" y="214" fill="#0a0a0c" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, sans-serif" font-size="60" font-weight="700">AI Agent åKŒ</text>
+  <text x="72" y="268" fill="#5a5d63" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, sans-serif" font-size="26">-‡åbÕKŒ</text>
+  <text x="72" y="328" fill="#1d1d1f" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, sans-serif" font-size="28">Prompt  ’  Context  ’  Agent  ’  Harness</text>
+  <g font-family="WenQuanYi Micro Hei, Droid Sans Fallback, sans-serif">
+    <rect x="72" y="390" width="268" height="132" rx="12" fill="#ffffff" stroke="#e6e1d6"/>
+    <rect x="72" y="390" width="268" height="6" fill="#c44a3d"/>
+    <text x="96" y="442" fill="#c44a3d" font-size="18">01</text>
+    <text x="96" y="482" fill="#0a0a0c" font-size="26">Ð:Íå</text>
+    <rect x="360" y="390" width="268" height="132" rx="12" fill="#ffffff" stroke="#e6e1d6"/>
+    <rect x="360" y="390" width="268" height="6" fill="#2d7d6f"/>
+    <text x="384" y="442" fill="#2d7d6f" font-size="18">02</text>
+    <text x="384" y="482" fill="#0a0a0c" font-size="26">
+‡å</text>
+    <rect x="648" y="390" width="268" height="132" rx="12" fill="#ffffff" stroke="#e6e1d6"/>
+    <rect x="648" y="390" width="268" height="6" fill="#6a4c93"/>
+    <text x="672" y="442" fill="#6a4c93" font-size="18">03</text>
+    <text x="672" y="482" fill="#0a0a0c" font-size="26">Agent å</text>
+    <rect x="936" y="390" width="268" height="132" rx="12" fill="#ffffff" stroke="#e6e1d6"/>
+    <rect x="936" y="390" width="268" height="6" fill="#b85c00"/>
+    <text x="960" y="442" fill="#b85c00" font-size="18">04</text>
+    <text x="960" y="482" fill="#0a0a0c" font-size="26">~må</text>
+  </g>
+  <text x="72" y="586" fill="#8a8d93" font-family="WenQuanYi Micro Hei, Droid Sans Fallback, sans-serif" font-size="18">LLM · RAG · Interview · Handbook · MIT</text>
+</svg>

@@ -1,0 +1,43 @@
+name: 事实纠错或断链
+description: 某一段过时、有误、缺少来源，或链接打不开
+title: "[纠错] "
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请指向具体位置。开放式的「怎么读」请改到 Discussions 的 Q&A。
+  - type: dropdown
+    id: kind
+    attributes:
+      label: 类型
+      options:
+        - 事实错误或过时
+        - 缺少来源
+        - 断链
+        - 网页阅读问题
+        - 其他
+    validations:
+      required: true
+  - type: input
+    id: location
+    attributes:
+      label: 位置
+      description: 文件路径，加上章节标题或题号
+      placeholder: engineering-foundations/context-engineering.md · §2.4
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: 现在的问题
+      description: 引用原文一小段，说明哪里不对
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: 可核对的来源
+      description: 论文、厂商文档或标准的 URL。只是断链时，写期望的新地址
+    validations:
+      required: true
