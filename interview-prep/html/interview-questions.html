@@ -1573,7 +1573,7 @@ id="a4.-vllm-的-pagedattention-解决了什么问题为什么吞吐能涨-24-�
 <li><strong>可观测</strong>：每条请求 trace_id 串起 prompt/response/latency/cost，采样存 ClickHouse。</li>
 <li><strong>Streaming</strong>：SSE 透传，网关不缓冲整段 response。</li>
 </ol>
-<p><strong>典型架构参考</strong>：LiteLLM Proxy / Portkey / Helicone。</p>
+<p><strong>典型架构参考</strong>：LiteLLM Proxy / Portkey / Helicone / Bifrost <a href="https://github.com/maximhq/bifrost" class="uri">https://github.com/maximhq/bifrost</a>。</p>
 <p><strong>关键 metric</strong>：p99 <a class="term-ref" href="#g-ttft">TTFT</a>、cache hit rate、fallback 触发率、每千 token 成本。</p>
 <p class="qa-source"><strong>来源</strong>：Anthropic Prompt Caching <a href="https://docs.claude.com/en/docs/build-with-claude/prompt-caching" class="uri">https://docs.claude.com/en/docs/build-with-claude/prompt-caching</a></p>
 <h3 id="g5.-高并发-llm-服务qps-万级-token-流式-长尾延迟">G5. ⭐⭐⭐
