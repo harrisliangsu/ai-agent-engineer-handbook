@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Agent Engineer Handbook · AI Agent 工程师手册</title>
+  <meta name="description" content="中文 AI Agent / LLM 应用工程师手册：Prompt、Context、Agent、Harness 四层工程，以及 JD 与面试题。Chinese handbook for production LLM agent systems." />
+  <link rel="canonical" href="https://harrisliangsu.github.io/ai-agent-engineer-handbook/" />
+  <meta property="og:title" content="AI Agent Engineer Handbook · AI Agent 工程师手册" />
+  <meta property="og:description" content="中文手册：四层工程（Prompt → Context → Agent → Harness）、真实 JD 与面试题库。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://harrisliangsu.github.io/ai-agent-engineer-handbook/" />
+  <meta property="og:image" content="https://harrisliangsu.github.io/ai-agent-engineer-handbook/assets/social-preview.png" />
+  <meta property="og:image:width" content="1280" />
+  <meta property="og:image:height" content="640" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="AI Agent Engineer Handbook · AI Agent 工程师手册" />
+  <meta name="twitter:description" content="Chinese handbook: prompt, context, agent, and harness engineering, plus interviews." />
+  <meta name="twitter:image" content="https://harrisliangsu.github.io/ai-agent-engineer-handbook/assets/social-preview.png" />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <style>
+    :root {
+      --bg: #faf8f3;
+      --elev: #ffffff;
+      --text: #1d1d1f;
+      --strong: #0a0a0c;
+      --muted: #5a5d63;
+      --subtle: #8a8d93;
+      --border: #e6e1d6;
+      --accent: #b85c00;
+      --accent-deep: #8a4500;
+      --accent-soft: #fdecd9;
+      --link: #0d6cad;
+      --l1: #c44a3d;
+      --l2: #2d7d6f;
+      --l3: #6a4c93;
+      --l4: #b85c00;
+      --shadow: 0 1px 2px rgba(60, 50, 30, 0.04), 0 8px 24px rgba(60, 50, 30, 0.05);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC",
+        "Source Han Sans SC", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.65;
+    }
+    a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    a:hover { color: var(--accent-deep); }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 40px 24px 80px; }
+    .kicker {
+      margin: 0 0 12px;
+      color: var(--accent-deep);
+      font-size: 13px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(32px, 5vw, 48px);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      color: var(--strong);
+      font-weight: 700;
+    }
+    .lead { margin: 0; font-size: 18px; max-width: 42em; }
+    .en {
+      margin: 14px 0 0;
+      color: var(--muted);
+      max-width: 46em;
+    }
+    .meta { margin: 18px 0 0; color: var(--subtle); font-size: 14px; }
+    .row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+    .btn {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--elev);
+      color: var(--strong);
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn:hover { border-color: var(--accent); color: var(--accent-deep); }
+    .btn.primary:hover { color: #fff; filter: brightness(1.05); }
+    h2 { margin: 48px 0 8px; font-size: 22px; color: var(--strong); }
+    .section-note { margin: 0 0 16px; color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .grid.two { grid-template-columns: 1fr 1fr; }
+    .grid.three { grid-template-columns: repeat(3, 1fr); }
+    .card {
+      display: block;
+      background: var(--elev);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 16px 14px;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: var(--shadow);
+      border-top: 4px solid var(--accent);
+      min-height: 148px;
+    }
+    .card:hover { border-color: #d8c9b0; color: inherit; }
+    .card .no { font-size: 12px; letter-spacing: 0.08em; color: var(--accent); }
+    .card h3 { margin: 8px 0 6px; font-size: 18px; color: var(--strong); }
+    .card p { margin: 0; color: var(--muted); font-size: 14px; }
+    .card.l1 { border-top-color: var(--l1); } .card.l1 .no { color: var(--l1); }
+    .card.l2 { border-top-color: var(--l2); } .card.l2 .no { color: var(--l2); }
+    .card.l3 { border-top-color: var(--l3); } .card.l3 .no { color: var(--l3); }
+    .card.l4 { border-top-color: var(--l4); } .card.l4 .no { color: var(--l4); }
+    .path {
+      display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+      margin: 8px 0 0; color: var(--muted); font-size: 14px;
+    }
+    .path span {
+      background: var(--accent-soft); color: var(--accent-deep);
+      border-radius: 999px; padding: 2px 10px;
+    }
+    footer {
+      margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border);
+      color: var(--subtle); font-size: 14px;
+    }
+    footer nav { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 8px; }
+    @media (max-width: 860px) {
+      .grid, .grid.three { grid-template-columns: 1fr 1fr; }
+      .grid.two { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      .grid, .grid.three { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="kicker">Handbook · 中文为主</p>
+    <h1>AI Agent 工程师手册</h1>
+    <p class="lead">从 Prompt、Context、Agent 到 Harness，四层工程坐标，加上真实 JD 与面试题库。</p>
+    <p class="en">A Chinese-primary field guide for engineers who build or interview for production LLM agent systems. The long chapters are in Chinese; the map below is bilingual.</p>
+    <p class="meta">内容更新 2026-05-31 · MIT · <a href="https://github.com/harrisliangsu/ai-agent-engineer-handbook">GitHub</a></p>
+    <div class="row">
+      <a class="btn primary" href="engineering-foundations/html/prompt-engineering.html">从提示词工程读起</a>
+      <a class="btn" href="interview-prep/html/interview-questions.html">面试题 A–K</a>
+      <a class="btn" href="knowledge-map.html">知识图谱</a>
+      <a class="btn" href="README.en.md">English</a>
+    </div>
+    <p class="path" aria-label="四层顺序"><span>Prompt</span>→<span>Context</span>→<span>Agent</span>→<span>Harness</span></p>
+
+    <h2>四层工程</h2>
+    <p class="section-note">每层一篇长文。网页带左侧目录和章节切换。历史合并稿是 overview，现行文本是下面四章。</p>
+    <div class="grid">
+      <a class="card l1" href="engineering-foundations/html/prompt-engineering.html">
+        <div class="no">01 · PROMPT</div>
+        <h3>提示词工程</h3>
+        <p>单次调用如何写稳：训练栈、解码、CoT、ReAct、评估。</p>
+      </a>
+      <a class="card l2" href="engineering-foundations/html/context-engineering.html">
+        <div class="no">02 · CONTEXT</div>
+        <h3>上下文工程</h3>
+        <p>这一轮模型该看见什么：RAG、长上下文、记忆、MCP。</p>
+      </a>
+      <a class="card l3" href="engineering-foundations/html/agent-engineering.html">
+        <div class="no">03 · AGENT</div>
+        <h3>Agent 工程</h3>
+        <p>多步任务怎么跑完：模式、框架、失败与权限。</p>
+      </a>
+      <a class="card l4" href="engineering-foundations/html/harness-engineering.html">
+        <div class="no">04 · HARNESS</div>
+        <h3>驾驭工程</h3>
+        <p>强约束和自愈循环，外加四大支柱与成熟度。</p>
+      </a>
+    </div>
+
+    <h2>求职与复习</h2>
+    <div class="grid two">
+      <a class="card" href="interview-prep/html/jd-requirements.html">
+        <div class="no">JOB DESCRIPTIONS</div>
+        <h3>中外岗位 JD</h3>
+        <p>中国与北美、欧洲岗位摘录，高频考察点，以及证据限度。</p>
+      </a>
+      <a class="card" href="interview-prep/html/interview-questions.html">
+        <div class="no">A–K · 92 QUESTIONS</div>
+        <h3>面试题与答案</h3>
+        <p>每题有难度和来源 URL。从基础、RAG、Agent 到评测与安全。</p>
+      </a>
+      <a class="card" href="knowledge-map.html">
+        <div class="no">MAP</div>
+        <h3>全景知识图谱</h3>
+        <p>把四层、题库、译文和术语串成一张复习地图。</p>
+      </a>
+      <a class="card" href="engineering-foundations/html/overview.html">
+        <div class="no">V1 ARCHIVE</div>
+        <h3>综述（历史稿）</h3>
+        <p>四章拆分前的合并版，只作对照，不替代现行章节。</p>
+      </a>
+    </div>
+
+    <h2>经典译文</h2>
+    <p class="section-note">非官方中译，技术解释以英文原文为准。</p>
+    <div class="grid two">
+      <a class="card" href="translations/html/building-effective-agents.html">
+        <div class="no">ANTHROPIC</div>
+        <h3>构建高效的 Agent</h3>
+        <p>Building Effective Agents</p>
+      </a>
+      <a class="card" href="translations/html/multi-agent-research-system.html">
+        <div class="no">ANTHROPIC</div>
+        <h3>多 Agent 研究系统</h3>
+        <p>How we built our multi-agent research system</p>
+      </a>
+      <a class="card" href="translations/html/effective-harnesses-for-long-running-agents.html">
+        <div class="no">ANTHROPIC</div>
+        <h3>长时程 Agent 的 Harness</h3>
+        <p>Effective harnesses for long-running agents</p>
+      </a>
+      <a class="card" href="translations/html/openai-harness-engineering.html">
+        <div class="no">OPENAI</div>
+        <h3>Harness 工程</h3>
+        <p>Harness engineering: leveraging Codex in an agent-first world</p>
+      </a>
+    </div>
+
+    <footer>
+      <nav>
+        <a href="https://github.com/harrisliangsu/ai-agent-engineer-handbook">仓库</a>
+        <a href="README.md">中文 README</a>
+        <a href="README.en.md">English</a>
+        <a href="CONTRIBUTING.md">贡献</a>
+        <a href="https://github.com/harrisliangsu/ai-agent-engineer-handbook/discussions">Discussions</a>
+        <a href="LICENSE">MIT</a>
+      </nav>
+      <div>关键词：AI Agent、LLM、RAG、prompt engineering、context engineering、harness engineering、interview、handbook、中文。</div>
+    </footer>
+  </div>
+</body>
+</html>

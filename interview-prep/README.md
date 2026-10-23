@@ -22,13 +22,13 @@
 - **岗位变种**：中国 7 类 + 北美 6 类区分（含薪资带）
 - **海外 / 中国对比观察**
 
-### [interview-questions.md](./interview-questions.md) — 86 道面试题与答案
+### [interview-questions.md](./interview-questions.md) — 92 道面试题与答案
 
-**10 大分类**，每题 ⭐ 难度分级 + 200-500 字技术答案 + 一手论文/官方文档 URL：
+**11 大分类（A–K）**，每题 ⭐ 难度分级 + 200-500 字技术答案 + 一手论文/官方文档 URL：
 
 | 分类 | 题数 | 重点 |
 |---|---|---|
-| A. LLM 基础 | 10 | Transformer / RoPE / KV cache / 长上下文 / 推理优化 |
+| A. LLM 基础 | 11 | Transformer / RoPE / KV cache / 长上下文 / 推理优化 / Prefill-Decode |
 | B. 训练 / 微调 | 10 | SFT / DPO / GRPO / LoRA / R1 涌现 |
 | C. 提示词工程 | 9 | CoT / Self-Consistency / ReAct / 自动 prompt 优化 |
 | D. RAG | 10 | Hybrid / Reranker / GraphRAG / Self-RAG / RAGAS |
@@ -38,6 +38,7 @@
 | H. 评估 | 6 | judge bias / pairwise / benchmark hack / 漂移 |
 | I. 安全 / 护栏 | 6 | OWASP / Prompt Injection / NeMo Guardrails / EU AI Act |
 | J. 行为题 / 实战 | 7 | Hashimoto harness 闭环 / 0-1 落地路线 |
+| K. Agent 评测 | 5 | benchmark 全景 / trajectory / tool-use / 上线 SLO / 业务评测 |
 
 ---
 
