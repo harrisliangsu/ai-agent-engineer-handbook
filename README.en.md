@@ -6,6 +6,8 @@ A Chinese-primary handbook for engineers who design, ship, or interview for prod
 
 **Updated:** 2026-05-31 · **License:** [MIT](./LICENSE) · **Author:** [harrisliangsu](https://github.com/harrisliangsu)
 
+**Sponsor:** [Afdian](https://afdian.com/a/sharkchiligaga)
+
 It is for working engineers changing into AI agent roles, candidates preparing interviews, and interviewers who want a shared outline. It is not a framework, and it is not a vendor tutorial.
 
 ## Read online
