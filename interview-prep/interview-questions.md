@@ -1420,7 +1420,7 @@ Claude Code 有内置 `/compact` 命令，是这一思路的成熟实现。
 6. **可观测**：每条请求 trace_id 串起 prompt/response/latency/cost，采样存 ClickHouse。
 7. **Streaming**：SSE 透传，网关不缓冲整段 response。
 
-**典型架构参考**：LiteLLM Proxy / Portkey / Helicone。
+**典型架构参考**：LiteLLM Proxy / Portkey / Helicone / Bifrost <https://github.com/maximhq/bifrost>。
 
 **关键 metric**：p99 [TTFT](#g-ttft)、cache hit rate、fallback 触发率、每千 token 成本。
 
