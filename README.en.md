@@ -4,11 +4,13 @@
 
 A Chinese-primary handbook for engineers who design, ship, or interview for production LLM applications. The long chapters stay in Chinese. This page is only a map.
 
-**Updated:** 2026-05-31 · **License:** [MIT](./LICENSE) · **Author:** [harrisliangsu](https://github.com/harrisliangsu)
+**Who it's for:** working engineers changing into AI agent roles, candidates preparing interviews, and interviewers who want a shared outline. It is not a framework, and it is not a vendor tutorial.
+
+**How to read:** the browser portal, Markdown in the repo, or local HTML. See [Read online](#read-online).
+
+**Updated:** substantive handbook text 2026-05-31 (one gateway reference added 2026-09-21) · repo metadata / portal 2026-10-23 · **License:** [MIT](./LICENSE) · **Author:** [harrisliangsu](https://github.com/harrisliangsu)
 
 **Sponsor:** [Afdian](https://afdian.com/a/sharkchiligaga)
-
-It is for working engineers changing into AI agent roles, candidates preparing interviews, and interviewers who want a shared outline. It is not a framework, and it is not a vendor tutorial.
 
 ## Read online
 
@@ -45,11 +47,11 @@ Claims in the essays are meant to rest on primary sources (papers, vendor docs, 
 
 ## Topics
 
-Repository topics already set on GitHub: `agent`, `ai-agent`, `anthropic`, `chinese`, `handbook`, `interview`, `llm`, `openai`, `prompt-engineering`, `rag`.
+Repository topics already set on GitHub: `agent`, `ai-agent`, `anthropic`, `awesome`, `career`, `chinese`, `context-engineering`, `handbook`, `interview`, `interview-prep`, `llm`, `mcp`, `openai`, `prompt-engineering`, `rag`.
 
 ## Contribute
 
-Factual corrections and new questions belong in an issue or pull request, with a source URL. Open-ended reading and job-search talk belongs in [Discussions](https://github.com/harrisliangsu/ai-agent-engineer-handbook/discussions) (Q&A, Ideas, or General). See [CONTRIBUTING.md](./CONTRIBUTING.md).
+Reading questions and job-search talk belong in [GitHub Discussions (Q&A)](https://github.com/harrisliangsu/ai-agent-engineer-handbook/discussions). Factual corrections, broken links, and stale wording: please open an [Issue](https://github.com/harrisliangsu/ai-agent-engineer-handbook/issues/new/choose) or a pull request, with a source URL. See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 Local preview from the repo root:
 
