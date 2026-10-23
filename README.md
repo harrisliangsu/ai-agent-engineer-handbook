@@ -50,7 +50,9 @@ GitHub Topics（仓库已设置，此处只作索引）：`agent` · `ai-agent` 
 | 驾驭工程 | [harness-engineering.html](https://harrisliangsu.github.io/ai-agent-engineer-handbook/engineering-foundations/html/harness-engineering.html) |
 | JD 拆解 | [jd-requirements.html](https://harrisliangsu.github.io/ai-agent-engineer-handbook/interview-prep/html/jd-requirements.html) |
 | 面试题 | [interview-questions.html](https://harrisliangsu.github.io/ai-agent-engineer-handbook/interview-prep/html/interview-questions.html) |
-| 全景知识图谱 | [knowledge-map.html](https://harrisliangsu.github.io/ai-agent-engineer-handbook/knowledge-map.html) |
+| 全景知识图谱（复习地图） | [knowledge-map.html](https://harrisliangsu.github.io/ai-agent-engineer-handbook/knowledge-map.html) |
+
+首页是站点门户，用来进入各章。全景知识图谱是另一页复习地图，把四层、题库、译文和术语串成一张图，不是门户的替代页。
 
 站点从仓库**根目录**发布。章节 HTML 仍在原来的 `html/` 目录，本地双击或 `python3 -m http.server` 的读法不变。根目录的 `.nojekyll` 让 Pages 按原文件提供这些手写 HTML，而不再走 Jekyll。
 
@@ -186,7 +188,7 @@ cd interview-prep/html && python3 -m http.server 8000
 | [长时程 Agent 的 Harness](./translations/effective-harnesses-for-long-running-agents.md) | [Anthropic · Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) |
 | [Harness 工程](./translations/openai-harness-engineering.md) | [OpenAI · Harness engineering](https://openai.com/index/harness-engineering/) |
 
-网页版在 [`translations/html/`](./translations/html/)。全景复习地图：[`knowledge-map.md`](./knowledge-map.md) / [`knowledge-map.html`](./knowledge-map.html)。
+网页版在 [`translations/html/`](./translations/html/)。全景复习地图：[`knowledge-map.md`](./knowledge-map.md) / [`knowledge-map.html`](./knowledge-map.html)。地图用来把体系串成一张图；站点入口仍是根目录门户 [`index.html`](./index.html)。
 
 ---
 

@@ -8,6 +8,7 @@
 - 看到不熟悉的术语跳到术语速查表展开
 - 看到不熟的题跳到 [`interview-prep/`](interview-prep/) 对应章节
 - 看到陌生的概念跳到 [`engineering-foundations/`](engineering-foundations/) 对应小节
+- 站点阅读入口是根目录门户 [`index.html`](index.html)；本文件是复习地图，不是门户的替代页
 
 ---
 
