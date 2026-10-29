@@ -1,5 +1,7 @@
 # AI Agent 岗位面试 JD 要求研究报告
 
+> **中文** · [English](./jd-requirements.en.md)
+
 **调研日期**：2026-05-02
 **覆盖范围**：中国大陆 + 北美 / 欧洲市场，BOSS 直聘 / 拉勾 / 51job / 智联 / V2EX / 猎聘 / Hacker News / LinkedIn / Greenhouse / Ashby / Glassdoor / Levels.fyi
 **目标读者**：求职者、招聘方、转型 AI Agent 方向的工程师

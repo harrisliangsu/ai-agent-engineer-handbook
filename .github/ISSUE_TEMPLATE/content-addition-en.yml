@@ -1,0 +1,42 @@
+name: Interview question or job description
+description: Propose a new interview question, or a sourced job-description excerpt
+title: "[content] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Chinese template: choose「面试题或 JD」instead. Add the English wording in the matching `*.en.md` when you send a pull request. Chinese job excerpts stay quoted in Chinese.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Type
+      options:
+        - Interview question
+        - Job-description excerpt
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: Where it belongs
+      description: For a question, the category letter (A–K). For a job post, the market (China / North America / Europe) and the role type.
+      placeholder: E. Agent
+    validations:
+      required: true
+  - type: textarea
+    id: draft
+    attributes:
+      label: Draft
+      description: |
+        Question: prompt, difficulty (⭐ / ⭐⭐ / ⭐⭐⭐), and an answer of the same depth as the existing ones.
+        Job post: company, role, excerpt, capture date. If you only captured a summary, say so.
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Source URLs
+      description: Paper, official doc, or the job page. For pay figures, name the source and the date.
+    validations:
+      required: true

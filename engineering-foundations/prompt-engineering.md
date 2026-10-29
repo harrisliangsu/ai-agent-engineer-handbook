@@ -1,5 +1,7 @@
 # 提示词工程：含 Transformer 与 LLM 训练 / 推理基础
 
+> **中文** · [English](./prompt-engineering.en.md)
+
 **位置**：LLM 应用工程四层演进的第一层（最底层基础）
 **调研日期**：2026-05-01
 

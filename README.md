@@ -2,7 +2,7 @@
 
 中文 AI Agent / LLM 应用工程师的一站式手册：先建立 **Prompt → Context → Agent → Harness** 四层工程坐标，再落到真实 JD 与面试题库。
 
-> **English:** A Chinese-primary handbook for engineers who design, ship, or interview for production LLM agent systems — four engineering layers, real job descriptions, and a question bank. [Short English guide](./README.en.md)
+> **English:** The same handbook in English — four engineering layers, real job descriptions, and the question bank. Chinese stays the default. [Full English README](./README.en.md) · [English portal](./index.en.html)
 
 [![Stars](https://img.shields.io/github/stars/harrisliangsu/ai-agent-engineer-handbook?style=flat-square)](https://github.com/harrisliangsu/ai-agent-engineer-handbook/stargazers)
 [![Forks](https://img.shields.io/github/forks/harrisliangsu/ai-agent-engineer-handbook?style=flat-square)](https://github.com/harrisliangsu/ai-agent-engineer-handbook/forks)
@@ -19,6 +19,8 @@
 **支持 / Sponsor**：[爱发电](https://afdian.com/a/sharkchiligaga)
 
 关键词：AI Agent、LLM、RAG、prompt engineering、context engineering、harness engineering、MCP、面试、handbook、中文。
+
+**建议的 GitHub About（中英都适用，不要写成「仅中文」）：** Field guide for production LLM agent systems — prompt, context, agent, and harness engineering, plus real job descriptions and an interview bank. Chinese is the default; a full English parallel edition ships beside it. Topics 可以保留 `chinese`。
 
 GitHub Topics（仓库已设置，此处只作索引）：`agent` · `ai-agent` · `anthropic` · `awesome` · `career` · `chinese` · `context-engineering` · `handbook` · `interview` · `interview-prep` · `llm` · `mcp` · `openai` · `prompt-engineering` · `rag`
 
@@ -48,7 +50,7 @@ GitHub Topics（仓库已设置，此处只作索引）：`agent` · `ai-agent` 
 
 | 想先看什么 | 网页 |
 |---|---|
-| 门户（四层 + 面试 + 译文入口） | [首页](https://harrisliangsu.github.io/ai-agent-engineer-handbook/) |
+| 门户（四层 + 面试 + 译文入口） | [中文首页](https://harrisliangsu.github.io/ai-agent-engineer-handbook/) · [English](https://harrisliangsu.github.io/ai-agent-engineer-handbook/index.en.html) |
 | 提示词工程 | [prompt-engineering.html](https://harrisliangsu.github.io/ai-agent-engineer-handbook/engineering-foundations/html/prompt-engineering.html) |
 | 上下文工程 / RAG | [context-engineering.html](https://harrisliangsu.github.io/ai-agent-engineer-handbook/engineering-foundations/html/context-engineering.html) |
 | Agent 工程 | [agent-engineering.html](https://harrisliangsu.github.io/ai-agent-engineer-handbook/engineering-foundations/html/agent-engineering.html) |
@@ -89,10 +91,13 @@ ai-agent-engineer-handbook/
 │   ├── openai-harness-engineering.md
 │   └── html/
 │
-├── knowledge-map.md           ← 全景复习地图（另有 knowledge-map.html）
-├── index.html                 ← GitHub Pages 门户
-└── README.en.md               ← 英文短导览
+├── knowledge-map.md           ← 全景复习地图（另有 knowledge-map.html / knowledge-map.en.html）
+├── index.html                 ← GitHub Pages 门户（中文默认）
+├── index.en.html              ← 英文门户
+└── README.en.md               ← 与本文件对齐的英文 README
 ```
+
+英文不是另一套目录，而是同目录下的平行文件：`章节.md` 旁是 `章节.en.md`，`html/章节.html` 旁是 `html/章节.en.html`。`translations/` 仍是英文原文的中译，不再另写英文稿。约定见 [CONTRIBUTING.md](./CONTRIBUTING.md)。
 
 ---
 
@@ -209,7 +214,7 @@ cd interview-prep/html && python3 -m http.server 8000
 
 ## 社区
 
-怎么参与，见 [CONTRIBUTING.md](./CONTRIBUTING.md)。
+怎么参与，见 [CONTRIBUTING.md](./CONTRIBUTING.md) · [English](./CONTRIBUTING.en.md)。
 
 | 你想做的事 | 去哪里 |
 |---|---|

@@ -632,6 +632,24 @@ header#title-block-header .date {
   nav#TOC { padding: 0.85em 1em; }
 }
 
+html[lang="en"] nav#TOC::before {
+  content: "Contents";
+}
+
+a.lang-switch {
+  display: inline-block;
+  margin-left: 0.6em;
+  font-size: 0.82em;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: 0.1em 0.55em;
+  color: var(--accent-deep);
+  background: var(--bg-elev);
+}
+
 /* ========================================================================
    打印样式
    ======================================================================== */

@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>AI Agent / LLM application engineer · knowledge map</title>
+  <style>
+    :root {
+      --bg:           #faf8f3;
+      --bg-elev:      #ffffff;
+      --bg-soft:      #f5f1e9;
+      --text:         #1d1d1f;
+      --text-strong:  #0a0a0c;
+      --text-muted:   #5a5d63;
+      --text-subtle:  #8a8d93;
+      --border:       #e6e1d6;
+      --border-soft:  #efeae0;
+      --border-strong:#d6d0c2;
+      --accent:       #b85c00;
+      --accent-soft:  #fdecd9;
+      --accent-deep:  #8a4500;
+      --link:         #0d6cad;
+      --shadow-sm:    0 1px 2px rgba(60, 50, 30, 0.04);
+      --shadow-md:    0 2px 8px rgba(60, 50, 30, 0.06), 0 1px 2px rgba(60, 50, 30, 0.04);
+      --shadow-lg:    0 8px 24px rgba(60, 50, 30, 0.12);
+
+      /* four-layer colors */
+      --c-l1: #c44a3d; /* prompts - red */
+      --c-l2: #2d7d6f; /* context - teal */
+      --c-l3: #6a4c93; /* Agent - purple */
+      --c-l4: #b85c00; /* Harness - orange */
+      --c-int: #1a6fcc; /* interview - blue */
+      --c-tr:  #5a7a3d; /* translations - green */
+      --c-gl:  #8a6d4a; /* glossary - brown */
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+                   "Source Han Sans SC", "SF Pro Text", -apple-system, BlinkMacSystemFont,
+                   "Segoe UI", Roboto, sans-serif;
+      font-size: 15.5px;
+      line-height: 1.75;
+      color: var(--text);
+      background: var(--bg);
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 48px 32px 100px;
+      font-feature-settings: "kern", "calt";
+    }
+
+    h1 {
+      font-size: 2.2em;
+      margin: 0 0 0.3em;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      color: var(--text-strong);
+    }
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.05em;
+      margin-bottom: 1.6em;
+    }
+    .intro {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 1.1em 1.4em;
+      margin-bottom: 2em;
+      font-size: 0.96em;
+    }
+    .intro p { margin: 0.4em 0; }
+    .intro code {
+      background: var(--bg-soft);
+      padding: 0.1em 0.4em;
+      border-radius: 3px;
+      font-size: 0.86em;
+      color: var(--accent-deep);
+    }
+
+    /* top-level section cards */
+    section.pillar {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--c-color, var(--accent));
+      border-radius: 10px;
+      margin: 1.4em 0;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.15s ease;
+    }
+    section.pillar:hover { box-shadow: var(--shadow-md); }
+    section.pillar > h2 {
+      margin: 0;
+      padding: 0.85em 1.2em;
+      font-size: 1.4em;
+      font-weight: 700;
+      color: var(--c-color, var(--accent-deep));
+      border-bottom: 1px solid var(--border-soft);
+    }
+    section.pillar > h2 .badge {
+      display: inline-block;
+      margin-left: 0.6em;
+      padding: 0.1em 0.55em;
+      background: var(--c-color, var(--accent));
+      color: #fff;
+      font-size: 0.62em;
+      font-weight: 700;
+      border-radius: 12px;
+      letter-spacing: 0.04em;
+      vertical-align: 4px;
+    }
+    section.pillar > .pillar-body {
+      padding: 0.5em 1.2em 1.2em;
+    }
+    section.pillar > .pillar-body > p:first-child {
+      margin-top: 0.8em;
+      color: var(--text-muted);
+      font-style: normal;
+    }
+
+    /* four-layer colors */
+    section#l1 { --c-color: var(--c-l1); }
+    section#l2 { --c-color: var(--c-l2); }
+    section#l3 { --c-color: var(--c-l3); }
+    section#l4 { --c-color: var(--c-l4); }
+    section#interview { --c-color: var(--c-int); }
+    section#translations { --c-color: var(--c-tr); }
+    section#glossary { --c-color: var(--c-gl); }
+    section#path { --c-color: var(--accent); }
+
+    /* details tree */
+    details {
+      margin: 0.5em 0;
+      background: transparent;
+      border-left: 2px solid var(--border);
+      padding-left: 0.9em;
+      transition: border-left-color 0.15s ease;
+    }
+    details[open] {
+      border-left-color: var(--c-color, var(--accent));
+    }
+    details > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 0.35em 0.4em 0.35em 1.2em;
+      position: relative;
+      font-weight: 500;
+      color: var(--text-strong);
+      border-radius: 4px;
+      transition: background 0.1s ease;
+    }
+    details > summary:hover {
+      background: var(--bg-soft);
+    }
+    details > summary::-webkit-details-marker { display: none; }
+    details > summary::before {
+      content: "▶";
+      position: absolute;
+      left: 0;
+      top: 0.5em;
+      font-size: 0.7em;
+      color: var(--c-color, var(--accent));
+      transition: transform 0.15s ease;
+    }
+    details[open] > summary::before {
+      transform: rotate(90deg);
+    }
+    details > summary .tag {
+      display: inline-block;
+      font-size: 0.72em;
+      color: var(--text-subtle);
+      background: var(--bg-soft);
+      padding: 0.05em 0.45em;
+      border-radius: 3px;
+      margin-left: 0.6em;
+      vertical-align: 2px;
+      letter-spacing: 0.03em;
+    }
+    details > summary .note {
+      color: var(--text-muted);
+      font-weight: 400;
+      font-size: 0.93em;
+    }
+
+    /* leaf-node table style */
+    table.topics {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.7em 0 0.4em;
+      font-size: 0.92em;
+      background: transparent;
+    }
+    table.topics th, table.topics td {
+      padding: 0.45em 0.7em;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    table.topics th {
+      font-size: 0.82em;
+      color: var(--text-subtle);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: transparent;
+      border-bottom: 1px solid var(--border);
+    }
+    table.topics td:nth-child(1) {
+      font-weight: 600;
+      color: var(--text-strong);
+      white-space: nowrap;
+      width: 8.5em;
+    }
+    table.topics td:nth-child(2) { color: var(--text-muted); }
+    table.topics td:nth-child(3) { width: 11em; }
+    table.topics td:last-child { white-space: nowrap; }
+
+    /* links */
+    a {
+      color: var(--link);
+      text-decoration: none;
+      border-bottom: 1px dotted rgba(13, 108, 173, 0.4);
+      transition: color 0.1s ease, border-color 0.1s ease;
+    }
+    a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+    .pill-link {
+      display: inline-block;
+      padding: 0.1em 0.55em;
+      margin: 0.1em 0.15em 0.1em 0;
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 0.86em;
+      color: var(--text-strong);
+    }
+    .pill-link:hover {
+      background: var(--c-color, var(--accent));
+      color: #fff;
+      border-color: var(--c-color, var(--accent));
+    }
+
+    /* term chips */
+    .term-chip {
+      display: inline-block;
+      padding: 0.05em 0.5em;
+      margin: 0.18em 0.1em 0.18em 0;
+      background: var(--accent-soft);
+      color: var(--accent-deep);
+      border-radius: 3px;
+      font-size: 0.86em;
+      border-bottom: none;
+    }
+    .term-chip:hover { background: var(--accent); color: #fff; }
+
+    /* top nav */
+    nav.toc {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1em 1.4em;
+      margin: 0 0 1.6em;
+      font-size: 0.93em;
+    }
+    nav.toc a {
+      display: inline-block;
+      margin: 0.18em 0.35em 0.18em 0;
+      padding: 0.15em 0.65em;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    nav.toc a:hover { background: var(--bg-soft); }
+
+    /* review paths */
+    .path-card {
+      background: var(--bg-elev);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.9em 1.2em;
+      margin: 0.8em 0;
+    }
+    .path-card h4 {
+      margin: 0 0 0.4em;
+      color: var(--accent-deep);
+      font-size: 1.02em;
+    }
+    .path-card .week {
+      display: block;
+      margin: 0.3em 0;
+      color: var(--text-muted);
+    }
+    .path-card .week strong { color: var(--text-strong); font-weight: 600; }
+
+    code {
+      font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+      font-size: 0.86em;
+      background: var(--bg-soft);
+      color: var(--accent-deep);
+      padding: 0.1em 0.4em;
+      border-radius: 3px;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2.4em 0;
+    }
+
+    footer {
+      margin-top: 3em;
+      padding-top: 1.5em;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.9em;
+    }
+
+    @media (max-width: 720px) {
+      body { padding: 24px 16px 64px; font-size: 14.5px; }
+      h1 { font-size: 1.6em; }
+      section.pillar > h2 { font-size: 1.15em; padding: 0.75em 1em; }
+      section.pillar > .pillar-body { padding: 0.4em 1em 1em; }
+      table.topics td:nth-child(1) { width: auto; white-space: normal; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>🧠 AI Agent / LLM application engineer: panoramic knowledge map</h1>
+<div class="subtitle">Repository mind map · 92 questions / four engineering layers / 4 translations / 83 glossary entries · <a href="knowledge-map.html">中文</a></div>
+
+<div class="intro">
+  <p>This map threads together everything in the repository. <strong>Cross-drill four lenses: the four engineering layers, the interview categories, the classic translations, and the glossary.</strong></p>
+  <p>Click each node's <code>▶</code> to expand the next level. Any blue link jumps straight to the matching HTML chapter, question, or glossary entry. Glossary links also open a popover without leaving the current page.</p>
+  <p>The reading entrance is the <a href="index.en.html">English portal</a>. <a href="index.html">index.html</a> is the Chinese portal. This page is the review map, not a substitute for the portal.</p>
+</div>
+
+<nav class="toc">
+  <a href="#l1">L1 Prompts</a>
+  <a href="#l2">L2 Context</a>
+  <a href="#l3">L3 Agent</a>
+  <a href="#l4">L4 Harness</a>
+  <a href="#interview">92 questions</a>
+  <a href="#translations">Translations</a>
+  <a href="#glossary">Glossary</a>
+  <a href="#path">Review paths</a>
+</nav>
+
+<h2 style="margin-top:1em;color:var(--text-strong);">1. The four engineering layers (the core skeleton)</h2>
+<p style="color:var(--text-muted);margin-top:-0.3em;">
+  <strong>prompt → context → agent → harness</strong> is a four-layer stack of abstractions. Each layer is its own discipline, and a production system needs all four.
+</p>
+
+<section class="pillar" id="l1">
+  <h2>🎯 Layer 1 · Prompt engineering <span class="badge">Prompt</span></h2>
+  <div class="pillar-body">
+    <p><strong>Core question</strong>: How do you get an LLM to produce controllable, high-quality output in a single call?</p>
+
+    <details open>
+      <summary>Transformer foundations <span class="note">— Attention / Multi-head / Position encoding</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/prompt-engineering.en.html#s1-1">L1 §1.1 Transformer and attention</a></li>
+        <li>Matching questions:
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#a1">A1 LayerNorm vs BatchNorm</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#a2">A2 Multi-head attention</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#a3">A3 RoPE</a>
+        </li>
+        <li>Core terms:
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-layernorm-rmsnorm">LayerNorm</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-rope">RoPE</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-yarn">YaRN</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-gqa-mqa">GQA/MQA</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-moe">MoE</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-multi-head-attention">multi-head attention</a>
+        </li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Training stack <span class="note">— Pretrain → Post-train → SFT → RLHF/DPO/GRPO/RLVR</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/prompt-engineering.en.html#s1-2">L1 §1.2 LLM training stack</a></li>
+        <li>Matching questions: Category B, 10 questions <a class="pill-link" href="interview-prep/html/interview-questions.en.html#cat-b">→ all</a></li>
+        <li>Core terms:
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-sft">SFT</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-lora">LoRA</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-qlora">QLoRA</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-rlhf">RLHF</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-dpo">DPO</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-ppo">PPO</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-grpo">GRPO</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-rlvr">RLVR</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-rm">RM</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-catastrophic-forgetting">catastrophic forgetting</a>
+        </li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Inference and decoding <span class="note">— Greedy / Top-k / Top-p / Temperature / Beam</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/prompt-engineering.en.html#s1-3">L1 §1.3 Inference and decoding</a></li>
+        <li>Core terms:
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-temperature">temperature</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-logit">logit</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-autoregressive">autoregressive</a>
+        </li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Classic prompting techniques <span class="note">— CoT / Self-Consistency / ToT / ReAct / Self-Refine / Reflexion / Long CoT</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/prompt-engineering.en.html#s1-4">L1 §1.4 Classic techniques</a></li>
+        <li>Matching questions: Category C, 9 questions <a class="pill-link" href="interview-prep/html/interview-questions.en.html#cat-c">→ all</a></li>
+        <li>Core terms:
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-cot">CoT</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-self-consistency">Self-Consistency</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-tot">ToT</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-react">ReAct</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-self-refine">Self-Refine</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-reflexion">Reflexion</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-few-shot">few-shot</a>
+        </li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Automatic optimization <span class="note">— DSPy / OPRO / APE / prompt versioning</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/prompt-engineering.en.html#s1-5">L1 §1.5 Automatic optimization</a></li>
+        <li><a href="interview-prep/html/interview-questions.en.html#c8">C8 DSPy / OPRO / APE</a></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Evaluation and red teaming <span class="note">— LLM-as-judge / Prompt Injection / Jailbreak</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/prompt-engineering.en.html#s1-6">L1 §1.6 Evaluation and red teaming</a></li>
+        <li>Matching: <a class="pill-link" href="interview-prep/html/interview-questions.en.html#c7">C7 Prompt Injection</a> <a class="pill-link" href="interview-prep/html/interview-questions.en.html#cat-i">I Safety, 6 questions</a></li>
+        <li>Core terms:
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-llm-judge">LLM-as-judge</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-eval">Eval</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-prompt-injection">prompt injection</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-jailbreak">jailbreak</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-guardrails">guardrails</a>
+        </li>
+      </ul>
+    </details>
+  </div>
+</section>
+
+<section class="pillar" id="l2">
+  <h2>🧱 Layer 2 · Context engineering <span class="badge">Context</span></h2>
+  <div class="pillar-body">
+    <p><strong>Core question</strong>: How do you fit the most relevant information into a limited context window?</p>
+
+    <details open>
+      <summary>Physics of long context <span class="note">— KV cache / Attention sink / Lost in the Middle / RULER</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/context-engineering.en.html#s2-2">L2 §2.2 Physics of long context</a> · <a href="engineering-foundations/html/context-engineering.en.html#s2-3">§2.3 RULER</a></li>
+        <li>Matching:
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#a5">A5 Lost in the Middle</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#a10">A10 Does 128k actually work?</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#d8">D8 Long context vs RAG</a>
+        </li>
+        <li>Core terms:
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-context-window">context window</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-kv-cache">KV cache</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-attention-sink">attention sink</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-lost-in-middle">Lost in the Middle</a>
+        </li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Inference acceleration <span class="note">— PagedAttention / FlashAttention / vLLM / continuous batching / prefix caching</span></summary>
+      <ul>
+        <li>Matching:
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#a4">A4 PagedAttention</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#a6">A6 Speculative</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#a7">A7 Prefix Caching</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#a8">A8 FlashAttention</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#a9">A9 Continuous Batching</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#a11">A11 Prefill/decode two phases</a>
+        </li>
+        <li>Core terms:
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-flash-attention">FlashAttention</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-paged-attention">PagedAttention</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-vllm">vLLM</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-continuous-batching">continuous batching</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-spec-decode">speculative decoding</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-prefix-caching">prefix caching</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-ttft">TTFT</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-tpot">TPOT</a>
+        </li>
+      </ul>
+    </details>
+
+    <details open>
+      <summary>Full-stack RAG <span class="note">— Chunking / Embedding / Hybrid Search / Reranker / Vector DB / RAGAS</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/context-engineering.en.html#s2-4">L2 §2.4 Full-stack RAG selection</a></li>
+        <li>Matching: Category D, 10 questions <a class="pill-link" href="interview-prep/html/interview-questions.en.html#cat-d">→ all</a></li>
+        <li>Core terms:
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-rag">RAG</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-chunking">chunking</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-embedding">embedding</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-embed-models">embed models</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-bm25">BM25</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-hybrid-search">hybrid search</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-reranker">reranker</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-vector-db">vector DB</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-rag-variants">RAG variants</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-ragas">RAGAS</a>
+        </li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Memory systems <span class="note">— MemGPT / Letta / Mem0 / Zep / working vs episodic vs semantic</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/context-engineering.en.html#s2-5">L2 §2.5 Memory systems</a></li>
+        <li>Matching: Category F, 8 questions <a class="pill-link" href="interview-prep/html/interview-questions.en.html#cat-f">→ all</a></li>
+        <li>Core terms:
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-sub-agent">sub-agent</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-progress-file">progress file</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-memory-corruption">Memory Corruption</a>
+        </li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Context management <span class="note">— sliding window / summarization / sub-agent isolation / compaction</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/context-engineering.en.html#s2-6">L2 §2.6 Context management</a></li>
+        <li>Matching:
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#f5">F5 progress file</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#f7">F7 Context Compaction</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#j3">J3 Context overflow</a>
+        </li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>MCP / A2A protocols <span class="note">— Resources / Tools / Prompts / cross-vendor</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/context-engineering.en.html#s2-7">L2 §2.7 MCP / A2A</a></li>
+        <li>Matching: <a class="pill-link" href="interview-prep/html/interview-questions.en.html#e5">E5 MCP protocol</a></li>
+        <li>Core terms: <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-mcp">MCP</a></li>
+      </ul>
+    </details>
+  </div>
+</section>
+
+<section class="pillar" id="l3">
+  <h2>🤖 Layer 3 · Agent engineering <span class="badge">Agent</span></h2>
+  <div class="pillar-body">
+    <p><strong>Core question</strong>: How do you let an LLM decide on its own, call tools, and finish a task across many steps?</p>
+
+    <details open>
+      <summary>Anthropic's 6 patterns <span class="note">— Augmented LLM / Prompt Chaining / Routing / Parallelization / Orchestrator-Workers / Evaluator-Optimizer</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/agent-engineering.en.html#s3">L3 §3 Agent architecture</a></li>
+        <li>Matching:
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#e1">E1 Workflow vs Agent</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#e2">E2 Six patterns</a>
+        </li>
+        <li>Required reading: <a href="translations/html/building-effective-agents.html">Building Effective Agents (Chinese notes)</a> · <a href="https://www.anthropic.com/research/building-effective-agents">original</a></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>How agent paradigms evolved <span class="note">— ReAct → Plan-and-Execute → Reflexion → long-horizon autonomy</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/agent-engineering.en.html#s2">L3 §2 Paradigm evolution</a></li>
+        <li><a class="pill-link" href="interview-prep/html/interview-questions.en.html#e3">E3 ReAct vs Plan-and-Execute vs Reflexion</a></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Agent frameworks <span class="note">— LangChain / LangGraph / LlamaIndex / Haystack / Anthropic SDK</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/agent-engineering.en.html#s5">L3 §5 Framework comparison</a></li>
+        <li>Core terms: <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-langchain">LangChain / LangGraph</a></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Multi-agent collaboration <span class="note">— Supervisor (recommended) / Hierarchical / Swarm (anti-pattern)</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/agent-engineering.en.html#s6">L3 §6 Multi-agent</a></li>
+        <li>Matching:
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#e4">E4 Choosing a collaboration pattern</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#j5">J5 Conflict handling</a>
+        </li>
+        <li>Required reading: <a href="translations/html/multi-agent-research-system.html">Multi-Agent Research System (Chinese notes)</a> · <a href="https://www.anthropic.com/engineering/built-multi-agent-research-system">original</a></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Tool Use / Function Calling <span class="note">— schema design / granularity / Deny-first / Error as prompt</span></summary>
+      <ul>
+        <li><a class="pill-link" href="interview-prep/html/interview-questions.en.html#e8">E8 Tool use design</a></li>
+        <li>Core terms:
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-tool-use">tool use</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-deny-first">deny-first</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-computer-use">Computer Use</a>
+        </li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Four major agent failure modes + Loop of Death <span class="note">— Anthropic's empirical summary</span></summary>
+      <ul>
+        <li>Matching:
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#e6">E6 Four failure modes</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#e10">E10 Loop of Death</a>
+        </li>
+        <li>Required reading: <a href="translations/html/effective-harnesses-for-long-running-agents.html">Effective Harnesses (Chinese notes)</a> · <a href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents">original</a></li>
+        <li>Core terms: <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-loop-of-death">Loop of Death</a></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Agent evaluation <span class="note">— general benchmarks vs business domains</span></summary>
+      <ul>
+        <li>Matching: Category K, 5 questions <a class="pill-link" href="interview-prep/html/interview-questions.en.html#cat-k">→ all</a></li>
+        <li>Focus:
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#k1">K1 General benchmark landscape</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#k5">K5 Business-domain evaluation</a>
+        </li>
+      </ul>
+    </details>
+  </div>
+</section>
+
+<section class="pillar" id="l4">
+  <h2>🛡️ Layer 4 · Harness engineering <span class="badge">Harness</span></h2>
+  <div class="pillar-body">
+    <p><strong>Core question</strong>: How do you engineer the environment so the agent is physically unable to repeat a mistake?<br />
+    <em>"anytime you find an agent makes a mistake, take the time to engineer a solution such that the agent never makes that mistake again."</em> — Hashimoto</p>
+
+    <details open>
+      <summary>Naming the harness, and where it sits <span class="note">— Hashimoto 2026-02 · boundary with the other three layers</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/harness-engineering.en.html#s3-1">L4 §3.1 Origin</a> · <a href="engineering-foundations/html/harness-engineering.en.html#s3-2">§3.2 Boundary</a></li>
+        <li><a class="pill-link" href="interview-prep/html/interview-questions.en.html#e7">E7 Core harness idea</a></li>
+      </ul>
+    </details>
+
+    <details open>
+      <summary>Two core laws + four pillars <span class="note">— strong constraints / self-healing loop · context / specialization / persistence / structure</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/harness-engineering.en.html#s3-3">L4 §3.3 Methodology + supporting infrastructure</a></li>
+        <li>Matching:
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#e12">E12 Harness components</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#j4">J4 Stop repeating the same mistake</a>
+        </li>
+        <li>Core terms:
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-harness">harness</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-agents-md">AGENTS.md</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-progress-file">progress file</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-sub-agent">sub-agent</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-deny-first">deny-first</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-lint">lint</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-type-check">type check</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-cicd">CI/CD</a>
+        </li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Supporting infrastructure <span class="note">— MCP / Sandbox / Guardrails</span></summary>
+      <ul>
+        <li>Matching:
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#g7">G7 Sandbox selection</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#i4">I4 NeMo Guardrails</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#i5">I5 Deny-first defense in depth</a>
+        </li>
+        <li>Core terms:
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-mcp">MCP</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-sandbox">sandbox</a>
+          <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-guardrails">guardrails</a>
+        </li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Production-stack reference architecture + maturity model L0–L4 <span class="note">— full 8-layer stack / role matrix / self-diagnosis</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/harness-engineering.en.html#s3-4">L4 §3.4 Production stack</a></li>
+        <li><a href="engineering-foundations/html/harness-engineering.en.html#s3-4-6">L4 §3.4.6 Maturity model</a></li>
+        <li>Required reading: <a href="translations/html/openai-harness-engineering.html">OpenAI Harness Engineering (Chinese notes)</a> · <a href="https://openai.com/index/harness-engineering/">original</a></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>2026 model comparison + cost optimization <span class="note">— 8 ROI levers</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/harness-engineering.en.html#s3-5-5">L4 §3.5.5 Model comparison</a></li>
+        <li><a href="engineering-foundations/html/harness-engineering.en.html#s3-5-6">L4 §3.5.6 Cost optimization</a></li>
+        <li>Matching: <a class="pill-link" href="interview-prep/html/interview-questions.en.html#g6">G6 Cut cost by 80%</a></li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Scenario selection checklist <span class="note">— internal tools / customer support / coding / multi-agent business systems</span></summary>
+      <ul>
+        <li><a href="engineering-foundations/html/harness-engineering.en.html#s3-6">L4 §3.6 Scenario selection</a></li>
+        <li>Matching:
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#g1">G1 Customer-support agent</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#g2">G2 Coding Agent</a>
+          <a class="pill-link" href="interview-prep/html/interview-questions.en.html#k5">K5 Business-domain evaluation</a>
+        </li>
+      </ul>
+    </details>
+  </div>
+</section>
+
+<hr />
+
+<h2 id="interview" style="color:var(--text-strong);">2. 92 interview questions · 11 categories</h2>
+
+<section class="pillar" id="interview">
+  <div class="pillar-body">
+    <table class="topics">
+      <thead>
+        <tr><th>Category</th><th>Core coverage</th><th>Difficulty</th><th>Entry</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>A. LLM fundamentals</strong> (11)</td><td>Transformer / RoPE / KV cache / long context / inference optimization / prefill·decode</td><td>1⭐ 8⭐⭐ 2⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.en.html#cat-a">→ A</a></td></tr>
+        <tr><td><strong>B. Training / fine-tuning</strong> (10)</td><td>SFT / DPO / GRPO / LoRA / R1 emergence</td><td>1⭐ 7⭐⭐ 2⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.en.html#cat-b">→ B</a></td></tr>
+        <tr><td><strong>C. Prompt engineering</strong> (9)</td><td>CoT / Self-Consistency / ReAct / automatic prompt optimization</td><td>1⭐ 7⭐⭐ 1⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.en.html#cat-c">→ C</a></td></tr>
+        <tr><td><strong>D. RAG</strong> (10)</td><td>Hybrid / Reranker / GraphRAG / Self-RAG / RAGAS</td><td>1⭐ 7⭐⭐ 2⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.en.html#cat-d">→ D</a></td></tr>
+        <tr><td><strong>E. Agent</strong> (12) core</td><td>6 patterns / multi-agent / failure modes / harness</td><td>1⭐ 6⭐⭐ 5⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.en.html#cat-e">→ E</a></td></tr>
+        <tr><td><strong>F. Memory</strong> (8)</td><td>MemGPT / Letta / Mem0 / progress files / corruption</td><td>1⭐ 5⭐⭐ 2⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.en.html#cat-f">→ F</a></td></tr>
+        <tr><td><strong>G. System design</strong> (8)</td><td>customer support / coding / search / gateway / high concurrency / cost / sandbox / closed loop</td><td>0⭐ 1⭐⭐ 7⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.en.html#cat-g">→ G</a></td></tr>
+        <tr><td><strong>H. Evaluation</strong> (6)</td><td>judge bias / pairwise / benchmark hacking / drift</td><td>0⭐ 2⭐⭐ 4⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.en.html#cat-h">→ H</a></td></tr>
+        <tr><td><strong>I. Safety / guardrails</strong> (6)</td><td>OWASP / Prompt Injection / NeMo / EU AI Act</td><td>0⭐ 1⭐⭐ 5⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.en.html#cat-i">→ I</a></td></tr>
+        <tr><td><strong>J. Behavioral / practice</strong> (7)</td><td>Hashimoto closed loop / 0-to-1 rollout path / debug hallucination</td><td>0⭐ 2⭐⭐ 5⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.en.html#cat-j">→ J</a></td></tr>
+        <tr><td><strong>K. Agent evaluation</strong> (5)</td><td>general benchmarks / trajectory / tool-use / production monitoring / business domains</td><td>0⭐ 2⭐⭐ 3⭐⭐⭐</td><td><a href="interview-prep/html/interview-questions.en.html#cat-k">→ K</a></td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:1.4em;color:var(--text-muted);"><strong>JD research</strong>: 30+ roles in China and abroad → <a href="interview-prep/html/jd-requirements.en.html">JD Requirements chapter</a></p>
+  </div>
+</section>
+
+<hr />
+
+<h2 id="translations" style="color:var(--text-strong);">3. Chinese translations of classic essays</h2>
+
+<section class="pillar" id="translations">
+  <div class="pillar-body">
+    <table class="topics">
+      <thead>
+        <tr><th>Essay</th><th>Core idea</th><th></th><th>Entry</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Building Effective Agents</strong></td><td>Workflow vs Agent / 6 patterns / simplicity first</td><td>Anthropic 2024</td><td><a href="translations/html/building-effective-agents.html">→ Chinese notes</a> · <a href="https://www.anthropic.com/research/building-effective-agents">original</a></td></tr>
+        <tr><td><strong>Effective Harnesses</strong></td><td>4 failure modes and countermeasures / progress files / 5-step startup protocol</td><td>Anthropic 2025</td><td><a href="translations/html/effective-harnesses-for-long-running-agents.html">→ Chinese notes</a> · <a href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents">original</a></td></tr>
+        <tr><td><strong>Multi-Agent Research System</strong></td><td>Orchestrator-Workers / sub-agent isolation / Verifier</td><td>Anthropic 2025</td><td><a href="translations/html/multi-agent-research-system.html">→ Chinese notes</a> · <a href="https://www.anthropic.com/engineering/built-multi-agent-research-system">original</a></td></tr>
+        <tr><td><strong>OpenAI Harness Engineering</strong></td><td>Agent = Model + Harness / Humans steer, Agents execute</td><td>OpenAI 2026</td><td><a href="translations/html/openai-harness-engineering.html">→ Chinese notes</a> · <a href="https://openai.com/index/harness-engineering/">original</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<hr />
+
+<h2 id="glossary" style="color:var(--text-strong);">4. Glossary (83 entries × 10 topics)</h2>
+
+<section class="pillar" id="glossary">
+  <div class="pillar-body">
+    <p>Every HTML page embeds the full glossary in the lower-right corner. Click an orange marked term in the text and a popover opens without leaving the page. Grouped by topic below (click to jump):</p>
+
+    <details open>
+      <summary>Software engineering basics (10)</summary>
+      <p>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-lint">lint</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-type-check">type check</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-cicd">CI/CD</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-sandbox">sandbox</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-canary">canary</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-abtest">A/B test</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-hitl">HITL</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-slo">SLO/SLI/SLA</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-ttl">TTL</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-biz-metrics">GMV / UV / CSAT / NPS / conversion rate</a>
+      </p>
+    </details>
+
+    <details>
+      <summary>LLM fundamentals (9)</summary>
+      <p>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-token">token</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-embedding">embedding</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-context-window">context window</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-prefill-decode">prefill/decode</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-kv-cache">KV cache</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-autoregressive">autoregressive</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-logit">logit</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-temperature">temperature</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-attention-sink">attention sink</a>
+      </p>
+    </details>
+
+    <details>
+      <summary>Transformer architecture (5)</summary>
+      <p>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-layernorm-rmsnorm">LayerNorm/RMSNorm</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-rope">RoPE</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-yarn">YaRN/NTK</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-gqa-mqa">GQA/MQA</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-moe">MoE</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-multi-head-attention">multi-head attention</a>
+      </p>
+    </details>
+
+    <details>
+      <summary>Inference acceleration (8)</summary>
+      <p>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-flash-attention">FlashAttention</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-paged-attention">PagedAttention</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-vllm">vLLM</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-continuous-batching">continuous batching</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-spec-decode">speculative decoding</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-prefix-caching">prefix caching</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-ttft">TTFT</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-tpot">TPOT</a>
+      </p>
+    </details>
+
+    <details>
+      <summary>Quantization (4)</summary>
+      <p>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-fp16-bf16-fp8">FP16/BF16/FP8</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-int4-int8">INT4/INT8/NF4</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-awq">AWQ</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-gptq">GPTQ</a>
+      </p>
+    </details>
+
+    <details>
+      <summary>Fine-tuning and alignment (10)</summary>
+      <p>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-sft">SFT</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-lora">LoRA</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-qlora">QLoRA</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-rlhf">RLHF</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-rm">RM</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-dpo">DPO</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-ppo">PPO</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-grpo">GRPO</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-rlvr">RLVR</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-catastrophic-forgetting">catastrophic forgetting</a>
+      </p>
+    </details>
+
+    <details>
+      <summary>Prompting and reasoning paradigms (7)</summary>
+      <p>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-cot">CoT</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-tot">ToT</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-react">ReAct</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-reflexion">Reflexion</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-self-refine">Self-Refine</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-self-consistency">Self-Consistency</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-few-shot">few-shot/zero-shot</a>
+      </p>
+    </details>
+
+    <details>
+      <summary>RAG (9)</summary>
+      <p>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-rag">RAG</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-chunking">chunking</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-bm25">BM25</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-hybrid-search">hybrid search</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-reranker">reranker</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-vector-db">vector DB</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-embed-models">embed models</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-rag-variants">RAG variants</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-ragas">RAGAS</a>
+      </p>
+    </details>
+
+    <details>
+      <summary>Agent engineering (11)</summary>
+      <p>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-harness">harness</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-mcp">MCP</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-tool-use">tool use</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-computer-use">Computer Use</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-sub-agent">sub-agent</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-agents-md">AGENTS.md</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-deny-first">deny-first</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-progress-file">progress file</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-loop-of-death">Loop of Death</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-memory-corruption">Memory Corruption</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-langchain">LangChain</a>
+      </p>
+    </details>
+
+    <details>
+      <summary>Evaluation and safety (10)</summary>
+      <p>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-eval">Eval</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-llm-judge">LLM-as-judge</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-llm-benchmarks">eval benchmarks</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-tracing-tools">Trace + Eval tool stack</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-lost-in-middle">Lost in the Middle</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-prompt-injection">prompt injection</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-hallucination">hallucination</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-guardrails">guardrails</a>
+        <a class="term-chip" href="interview-prep/html/interview-questions.en.html#g-jailbreak">jailbreak</a>
+      </p>
+    </details>
+  </div>
+</section>
+
+<hr />
+
+<h2 id="path" style="color:var(--text-strong);">5. Suggested review paths</h2>
+
+<section class="pillar" id="path">
+  <div class="pillar-body">
+
+    <div class="path-card">
+      <h4>Path A · New graduate / beginner (2–4 weeks)</h4>
+      <span class="week"><strong>Week 1</strong>: Engineering foundation concepts — L1 §1.1–§1.3 + glossary (LLM basics + Transformer) + A1–A11</span>
+      <span class="week"><strong>Week 2</strong>: Prompting + RAG introduction — L1 §1.4 + L2 §2.4 + C1–C9 + D1–D5</span>
+      <span class="week"><strong>Week 3</strong>: Agent concepts — L3 §1–§3 + E1, E2, E3, E5, E8 + translation <a href="translations/html/building-effective-agents.html">Building Effective Agents (Chinese notes)</a> (<a href="https://www.anthropic.com/research/building-effective-agents">original</a>)</span>
+      <span class="week"><strong>Week 4</strong>: Safety + practice — L1 §1.6 + I1, I2 + J7 (0-to-1 rollout path)</span>
+    </div>
+
+    <div class="path-card">
+      <h4>Path B · Mid-level (3–6 years, 1–2 months)</h4>
+      <span class="week">Foundations (already in place) → deepen:</span>
+      <span class="week">• All of categories A–F</span>
+      <span class="week">• Read L1–L4 straight through</span>
+      <span class="week">• Parts of G/H (system design + evaluation)</span>
+      <span class="week">• Read all 4 translations</span>
+      <span class="week">• Prepare category J behavioral answers from your own projects</span>
+    </div>
+
+    <div class="path-card">
+      <h4>Path C · Senior / staff (depth + breadth)</h4>
+      <span class="week">• All 11 categories (A–K)</span>
+      <span class="week">• L4 §3.4 production-stack architecture + §3.4.6 maturity-model self-check</span>
+      <span class="week">• §3.5.6 eight cost-optimization levers</span>
+      <span class="week">• §3.6 scenario selection checklist</span>
+      <span class="week">• <strong>Memorize</strong>: Hashimoto's and Anthropic's own wording on harnesses</span>
+      <span class="week">• <strong>Have ready</strong>: 1–2 quantified project cases (GMV / conversion rate / accuracy, with numbers)</span>
+    </div>
+
+    <div class="path-card">
+      <h4>Path D · Scenario-driven (tailored to the target role)</h4>
+      <table class="topics" style="margin-top:0.4em;">
+        <thead><tr><th>Target role</th><th>Focus chapters</th></tr></thead>
+        <tbody>
+          <tr><td><strong>LLM application SaaS (customer support / document QA)</strong></td><td>L2 RAG + L3 Agent + G1 (customer support) + I (safety) + K5 (business evaluation)</td></tr>
+          <tr><td><strong>AI coding tools</strong></td><td>All of L3 + L4 + G2 (Coding Agent) + E7 (harness) + translations of Effective Harnesses and OpenAI Harness Engineering</td></tr>
+          <tr><td><strong>Multi-agent business systems</strong></td><td>L3 §6 multi-agent + E4/E10 + K5 (business-domain evaluation) + G1/G3 + J1 STAR + numbers from your projects</td></tr>
+          <tr><td><strong>Infrastructure / inference / training</strong></td><td>A4–A9 inference acceleration + B1–B10 training stack + G4/G5 gateway and high concurrency</td></tr>
+          <tr><td><strong>Security / red team</strong></td><td>C7 + I1–I6 + L1 §1.6 + L4 three-layer defense</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <p>Research date 2026-05-02 · Category K added 2026-05-14 · Glossary v83 · Kept in sync with <a href="knowledge-map.en.md">knowledge-map.en.md</a> (Chinese source: <a href="knowledge-map.md">knowledge-map.md</a>)</p>
+  <p>This map threads together everything in the repository (4 engineering layers, 92 interview questions, 4 translations, 83 glossary entries). Cross-reviewing by lens is the most efficient path.</p>
+</footer>
+
+</body>
+</html>

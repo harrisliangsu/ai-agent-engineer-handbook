@@ -1,5 +1,7 @@
 # AI Agent / LLM 应用工程师面试题与答案研究报告
 
+> **中文** · [English](./interview-questions.en.md)
+
 **调研日期**：2026-05-02（K 章节增补于 2026-05-14）
 **目标读者**：求职者（应届到 staff 级）+ 招聘方
 **覆盖**：11 大分类 / 92 道题 / 难度分级 / 含一手论文 + Anthropic / OpenAI / DeepSeek 官方资料

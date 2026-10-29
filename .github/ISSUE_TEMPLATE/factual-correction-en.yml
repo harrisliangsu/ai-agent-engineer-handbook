@@ -1,0 +1,45 @@
+name: Factual correction or broken link
+description: A passage is stale, wrong, missing a source, or the link does not open
+title: "[correction] "
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Point at a specific place. Open-ended "how do I read this?" belongs in Discussions → Q&A.
+        Chinese template: choose「事实纠错或断链」. If both language editions have the error, name both files.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Type
+      options:
+        - Factual error or stale claim
+        - Missing source
+        - Broken link
+        - Reading problem on the HTML page
+        - English parallel out of date
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: location
+    attributes:
+      label: Location
+      description: File path, plus the heading or question id. English files use the `.en.md` / `.en.html` suffix.
+      placeholder: engineering-foundations/context-engineering.en.md · §2.4
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong
+      description: Quote a short passage and say what is off
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Source to check
+      description: URL of a paper, vendor doc, or standard. For a broken link, give the URL that should replace it.
+    validations:
+      required: true

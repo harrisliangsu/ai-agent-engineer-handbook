@@ -1,5 +1,7 @@
 # 🧠 AI Agent / LLM 应用工程师 全景知识图谱
 
+> **中文** · [English](./knowledge-map.en.md) · [English HTML](./knowledge-map.en.html)
+
 > 本仓库的"思维导图 / 复习地图"——把工程四层、92 道面试题、4 篇经典翻译、83 条术语速查表全部串起来，提供完整的知识体系坐标。
 
 **怎么用**：

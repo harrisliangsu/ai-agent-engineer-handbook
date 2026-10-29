@@ -1,5 +1,7 @@
 # 02 · 求职实战：JD + 面试题
 
+> **中文** · [English](./README.en.md)
+
 返回主目录：[../README.md](../README.md)
 
 ---

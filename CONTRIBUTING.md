@@ -2,7 +2,23 @@
 
 欢迎校正事实、补来源、加面试题和 JD。正文是给读者用的手册，改动以小、可核对为准。
 
-英文短导览见 [README.en.md](./README.en.md)。行为上的完整说明以本文件为准。
+英文说明见 [CONTRIBUTING.en.md](./CONTRIBUTING.en.md)。行为上的约定中英两份一致，以本文件的中文规则为准。
+
+## 中英双语
+
+中文是默认语言。英文是平行文件，不替换中文，也不单独做一套 `en/` 目录：
+
+| 中文（默认） | 英文 |
+|---|---|
+| `章节.md` | 同目录 `章节.en.md` |
+| `*/html/章节.html` | `*/html/章节.en.html` |
+| `index.html` | `index.en.html` |
+| `knowledge-map.md` / `.html` | `knowledge-map.en.md` / `.en.html` |
+| `404.html` | 同一页中英双语（GitHub Pages 只认根目录这一份 404） |
+
+`translations/` 是英文原文的中译，不要再写一份英文稿，页内链到原文即可。
+
+改了实质内容，中文稿和英文稿一起改，并分别同步到对应 HTML。只改一边会让另一种语言的网页落后。`overview.md` 与 `overview.en.md` 都是冻结的 v1 合并稿。
 
 ## 用哪种方式开口
 
