@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Four layers of LLM application engineering</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header class="site-nav" role="banner">
+  <div class="site-nav-inner">
+    <a href="README.en.html" class="site-nav-brand">LLM application engineering</a>
+    <nav class="site-nav-links" aria-label="Chapters">
+      <a href="README.en.html">Overview</a>
+      <a href="prompt-engineering.en.html"><span class="ch-no">01</span><span class="ch-name">Prompt</span></a>
+      <a href="context-engineering.en.html"><span class="ch-no">02</span><span class="ch-name">Context</span></a>
+      <a href="agent-engineering.en.html"><span class="ch-no">03</span><span class="ch-name">Agent</span></a>
+      <a href="harness-engineering.en.html"><span class="ch-no">04</span><span class="ch-name">Harness</span></a>
+      <a href="overview.en.html" class="site-nav-extra">Survey</a>
+      <a class="lang-switch" href="README.html">中文</a>
+    </nav>
+  </div>
+</header>
+<script>
+(function(){
+  var here = (location.pathname.split('/').pop() || 'README.en.html').toLowerCase();
+  document.querySelectorAll('.site-nav a').forEach(function(a){
+    if ((a.getAttribute('href') || '').toLowerCase() === here) a.setAttribute('aria-current', 'page');
+  });
+})();
+</script>
+
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#four-layers-of-llm-application-engineering-series-guide" id="toc-four-layers-of-llm-application-engineering-series-guide">Four layers of LLM application engineering · series guide</a>
+<ul>
+<li><a href="#what-this-is" id="toc-what-this-is">What this is</a></li>
+<li><a href="#reading-map" id="toc-reading-map">Reading map</a></li>
+<li><a href="#files" id="toc-files">Files</a></li>
+<li><a href="#suggested-order" id="toc-suggested-order">Suggested order</a></li>
+<li><a href="#version-history" id="toc-version-history">Version history</a>
+<ul>
+<li><a href="#what-v3-added-on-top-of-v2" id="toc-what-v3-added-on-top-of-v2">What v3 added on top of v2</a></li>
+<li><a href="#how-this-differs-from-v1-the-merged-edition" id="toc-how-this-differs-from-v1-the-merged-edition">How this differs from v1 (the merged edition)</a></li>
+</ul></li>
+<li><a href="#selected-primary-sources" id="toc-selected-primary-sources">Selected primary sources</a></li>
+<li><a href="#reproduce-the-counts" id="toc-reproduce-the-counts">Reproduce the counts</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="four-layers-of-llm-application-engineering-series-guide">Four layers of LLM application engineering · series guide</h1>
+<blockquote>
+<p><strong>English</strong> · <a href="README.html">中文</a></p>
+</blockquote>
+<p><strong>Research date:</strong> 2026-05-01 · <strong>Revision:</strong> 2026-05-01 (v3: each chapter deepened with formulas, code, production configs, and a GitHub reading path)</p>
+<h2 id="what-this-is">What this is</h2>
+<p>A technical survey of how to run an LLM in production, organized from lower engineering abstractions to higher ones. Each layer is its own discipline. A production system needs all four.</p>
+<h2 id="reading-map">Reading map</h2>
+<pre><code>prompt-engineering.en.md      → how to write one LLM call
+              ↓
+context-engineering.en.md     → what the model can see at the moment it runs
+              ↓
+agent-engineering.en.md       → how an LLM finishes a multi-step task on its own (goal → loop → memory)
+              ↓
+harness-engineering.en.md     → what environment the agent runs in, and how a mistake is prevented from happening again</code></pre>
+<h2 id="files">Files</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>File</th>
+<th>Contents</th>
+<th>Length</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>README.en.md</code></td>
+<td>This file: contents and how to read</td>
+<td>short</td>
+</tr>
+<tr class="even">
+<td><code>prompt-engineering.en.md</code></td>
+<td>Transformer / attention / training stack (pretraining / SFT / DPO / GRPO / RLAIF / RLVR / LoRA / QLoRA / distillation) / decoding / CoT / ReAct / ToT / Self-Refine / automatic prompts / evaluation and failure modes</td>
+<td>~10k Chinese characters in the source</td>
+</tr>
+<tr class="odd">
+<td><code>context-engineering.en.md</code></td>
+<td>Definition and origin / physics of long context / Lost-in-the-Middle / RULER / full-stack RAG choices (parse → chunk → embed → vector store → retrieve → rerank → rewrite → GraphRAG / Self-RAG / CRAG / Agentic RAG / multimodal) / four memory systems compared / context-management tactics / MCP / A2A</td>
+<td>~13k Chinese characters in the source</td>
+</tr>
+<tr class="even">
+<td><code>agent-engineering.en.md</code></td>
+<td>Definition and coordinates / how the pattern evolved / four-layer architecture / type taxonomy / matrix of 10 frameworks / 5 multi-agent collaboration modes / benchmarks (SWE-bench / GAIA / WebArena / OSWorld 2026 ranks) / product cases (Claude Code / Cursor / Devin / Manus / Computer Use) / failure modes and real incidents (Amazon Kiro / Replit / Loop of Death) / permission model</td>
+<td>~12k Chinese characters in the source</td>
+</tr>
+<tr class="odd">
+<td><code>harness-engineering.en.md</code></td>
+<td>Origin (Hashimoto named it in 2026-02) / two laws (strong constraints + self-healing loop) / four pillars (context architecture / agent specialization / persistent memory / structured execution) / §3.3.1–§3.3.3 direct implementations of strong constraints (MCP / sandbox / guardrails) / production-stack diagram / maturity L0–L4 / synthesis / three scenario checklists / limits / full references / methodology</td>
+<td>~13k Chinese characters in the source</td>
+</tr>
+<tr class="even">
+<td><code>overview.en.md</code></td>
+<td>v1 merged edition (the draft before the split; kept as a reference; the file was once named <code>article.md</code>)</td>
+<td>~30k Chinese characters in the source</td>
+</tr>
+<tr class="odd">
+<td><code>run_manifest.json</code></td>
+<td>Research metadata: query / mode / search paths / claim-verification table. Not translated</td>
+<td>short</td>
+</tr>
+<tr class="even">
+<td><code>sources.jsonl</code></td>
+<td>Citation registry (45 entries). Not translated</td>
+<td>short</td>
+</tr>
+</tbody>
+</table>
+<h2 id="suggested-order">Suggested order</h2>
+<p><strong>Straight through:</strong> 01 → 02 → 03 → 04 (abstractions from low to high; the four layers stack).</p>
+<p><strong>By role:</strong></p>
+<ul>
+<li><strong>AI product manager:</strong> 03 (agent types, product cases) → 02 (RAG choices) → 04 (production stack)</li>
+<li><strong>Backend engineer moving into AI:</strong> 01 (foundations) → 02 (RAG) → 03 (frameworks) → 04 (observability / eval)</li>
+<li><strong>Research / ML engineer:</strong> 01.2 training stack → all of 02 → 03 benchmarks → 04.3.4 inference servers</li>
+<li><strong>DevOps / platform engineer:</strong> all of 04 → 03.10 permissions → 02.7 MCP</li>
+<li><strong>Founder choosing a stack:</strong> the “startup MVP” recommendations in 04 → framework choice in 03 → memory-system choice in 02</li>
+</ul>
+<h2 id="version-history">Version history</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Version</th>
+<th>Date</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>v1</strong></td>
+<td>2026-05-01 17:30</td>
+<td>Original merged draft of 3 parts (<code>article.md</code>), about 30k Chinese characters</td>
+</tr>
+<tr class="even">
+<td><strong>v2</strong></td>
+<td>2026-05-01 19:00</td>
+<td>Split into 4 documents, plus a new agent-engineering chapter (real incidents, benchmarks, permissions), about 48k Chinese characters</td>
+</tr>
+<tr class="odd">
+<td><strong>v3</strong></td>
+<td>2026-05-01, later</td>
+<td><strong>Each chapter deepened</strong> after feedback that the series was not systematic enough: formulas, code, production configs, GitHub tutorials, about 75k Chinese characters</td>
+</tr>
+</tbody>
+</table>
+<h3 id="what-v3-added-on-top-of-v2">What v3 added on top of v2</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Chapter</th>
+<th>Added in v3</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>01 Prompt engineering</strong></td>
+<td>Full attention math (<code>softmax(QK^T/√d_k)V</code> + multi-head formula + PyTorch) / library analogy for Q-K-V / full transformer-block diagram (Pre-Norm + RMSNorm + RoPE + SwiGLU + GQA + MoE) / RLHF objective (4-model table) / full DPO loss derivation / GRPO + RLVR flow and code / DPO variants (IPO/KTO/SimPO/CPO) / three-algorithm comparison / <strong>GitHub tutorial section</strong> (karpathy nn-zero-to-hero / build-nanogpt / Sebastian Raschka LLMs-from-scratch / HuggingFace TRL / unsloth, 13 items + a paper list)</td>
+</tr>
+<tr class="even">
+<td><strong>02 Context engineering</strong></td>
+<td>~100-line Python skeleton of a RAG pipeline (parse → chunk → embed → hybrid retrieve → rewrite → rerank → generate) / <strong>GitHub RAG section</strong> (NirDiamant RAG_Techniques / RAGFlow / LightRAG / Awesome-RAG, 8 items)</td>
+</tr>
+<tr class="odd">
+<td><strong>03 Agent engineering</strong></td>
+<td><strong>Anthropic’s 6 composable patterns in full</strong> (Augmented LLM / Prompt Chaining / Routing / Parallelization / Orchestrator-Workers / Evaluator-Optimizer / Agents, each with a figure, a setting, and when to pick it) + a pattern decision tree / Hello World comparison for LangGraph, CrewAI, and the OpenAI Agents SDK, plus a philosophy table / <strong>~100-line end-to-end agent</strong> (RAG + memory + 4 Loop-of-Death gates + checkpoint + observability) / <strong>GitHub agent section</strong> (microsoft AI agents for beginners / agent-framework / hello-agents / Anthropic essays / 8 frameworks, 12 items + papers)</td>
+</tr>
+<tr class="even">
+<td><strong>04 Harness engineering</strong></td>
+<td><strong>Two laws + four pillars</strong> + direct strong-constraint implementations (MCP / sandbox / guardrails) + the §3.9 appendix of 4 related infrastructure kinds (LLM gateway / inference / observability / evaluation, explicitly marked as not the harness) + <strong>config set</strong>: LiteLLM <code>config.yaml</code> (routing + fallback + caching) / vLLM vs SGLang launch commands / three ways to attach Langfuse / Promptfoo <code>promptfooconfig.yaml</code> (CI gating) / RAGAS in Python / NeMo Guardrails Colang / E2B sandbox / minimal MCP server / pre-commit hook (strong constraint) / evaluator-optimizer (self-healing loop) / harness maturity L0–L4 / <strong>GitHub harness section</strong> (7 infrastructure categories, 30+ items)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="how-this-differs-from-v1-the-merged-edition">How this differs from v1 (the merged edition)</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Change</th>
+<th>v1 (now <code>overview.md</code>, once <code>article.md</code>)</th>
+<th>v2 / v3 (4 files)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Chapters</td>
+<td>3 parts</td>
+<td>4 parts</td>
+</tr>
+<tr class="even">
+<td>Agent material</td>
+<td>Scattered</td>
+<td>Its own chapter</td>
+</tr>
+<tr class="odd">
+<td>Real incidents</td>
+<td>Not covered</td>
+<td>Added (Amazon Kiro / Replit / Loop of Death)</td>
+</tr>
+<tr class="even">
+<td>Formulas and code</td>
+<td>Description only</td>
+<td>v3 has full formulas and runnable code</td>
+</tr>
+<tr class="odd">
+<td>Production configs</td>
+<td>Description only</td>
+<td>v3 has yaml/python per component</td>
+</tr>
+<tr class="even">
+<td>GitHub resources</td>
+<td>Very few</td>
+<td>v3 has 50+ classified links</td>
+</tr>
+<tr class="odd">
+<td>Length</td>
+<td>~30k Chinese characters</td>
+<td>v2 ~48k → v3 ~75k</td>
+</tr>
+</tbody>
+</table>
+<h2 id="selected-primary-sources">Selected primary sources</h2>
+<ul>
+<li>Karpathy: <em>Software Is Changing (Again)</em> (where “context engineering” is named)</li>
+<li>Anthropic: <em>Effective Context Engineering for AI Agents</em></li>
+<li>Mitchell Hashimoto / Augment Code: <em>Harness Engineering for AI Coding Agents</em> (where “harness engineering” is named)</li>
+<li>Vaswani et al. (2017): <em>Attention Is All You Need</em></li>
+<li>Liu et al. (2024): <em>Lost in the Middle</em> (TACL)</li>
+<li>Asai et al. (2023): <em>Self-RAG</em></li>
+<li>Yao et al. (2022): <em>ReAct</em></li>
+<li>Madaan et al. (2023): <em>Self-Refine</em> (NeurIPS)</li>
+<li>Packer et al. (2023): <em>MemGPT</em></li>
+<li>Sebastian Raschka: <em>State of LLMs 2025</em></li>
+<li>llm-stats: <em>Post-Training in 2026: GRPO, DAPO, RLVR &amp; Beyond</em></li>
+<li>Berkeley RDI: <em>How We Broke Top AI Agent Benchmarks</em> (a credibility audit of benchmarks)</li>
+</ul>
+<p>The full set of 45 is in each chapter’s bibliography and in <code>sources.jsonl</code>.</p>
+<h2 id="reproduce-the-counts">Reproduce the counts</h2>
+<pre class="bash"><code># The public copy is this directory. The original deep-research output path lived only on the author&#39;s machine and is not in the repo.
+wc -m prompt-engineering.md context-engineering.md agent-engineering.md harness-engineering.md overview.md</code></pre>
+
+<hr />
+<h2 id="glossary">Glossary</h2>
+<blockquote>
+<p>Concepts marked <code>[term]</code> in the answers jump to the matching entry in this table and expand it. The table groups 60+ high-frequency terms under 10 topics and is <strong>collapsed by default</strong> — expand a term only when you don’t know it, and read the short explanation, so you are not buried in information.</p>
+</blockquote>
+<h3 id="software-engineering-fundamentals">Software engineering fundamentals</h3>
+<details id="g-lint">
+<summary>
+<strong>lint</strong> <span class="term-tag">Software engineering</span> — a static code checker that scans source for potential bugs and style problems
+</summary>
+<p>Analyze source without actually running it, and flag potential bugs, unused variables, style violations, and suspicious usage. Common tools:</p>
+<ul>
+<li><strong>JavaScript/TypeScript</strong>: ESLint, Biome</li>
+<li><strong>Python</strong>: Pylint, Ruff, Flake8</li>
+<li><strong>Go</strong>: golangci-lint</li>
+<li><strong>Rust</strong>: clippy</li>
+<li><strong>Shell</strong>: shellcheck</li>
+</ul>
+<p>In agent engineering, lint is often used as a <strong>hard constraint in the harness</strong> — feeding lint errors back to the model to rewrite the code is much more reliable than merely saying “please follow the coding standards” in the prompt (Augment Code calls this a Constraint Harness).</p>
+</details>
+<details id="g-type-check">
+<summary>
+<strong>type check / type checking</strong> <span class="term-tag">Software engineering</span> — check that the types of variables, parameters, and return values match
+</summary>
+<p>Make sure types are consistent across assignments and function calls:</p>
+<ul>
+<li><strong>Statically typed languages</strong>: TypeScript / Go / Rust / Java check at compile time</li>
+<li><strong>Dynamic languages plus annotations</strong>: Python uses mypy / pyright / Pyre; Ruby uses Sorbet</li>
+</ul>
+<p>For an agent: after the agent finishes writing code, force a run of <code>tsc --noEmit</code> / <code>mypy .</code> / <code>cargo check</code>, and feed type errors back to the model to keep fixing. That is much more reliable than letting the agent “claim it checked the types” — a typical practice of <a class="term-ref" href="#g-harness">harness</a> engineering.</p>
+</details>
+<details id="g-cicd">
+<summary>
+<strong>CI/CD</strong> <span class="term-tag">Software engineering</span> — continuous integration / continuous deployment pipelines
+</summary>
+<p><strong>CI</strong> (Continuous Integration): on every commit, automatically run tests, builds, lint, type check, and other checks. <strong>CD</strong> (Continuous Deployment): after the checks pass, automatically deploy to test / staging / production.</p>
+<p>Common tools: GitHub Actions, GitLab CI, Jenkins, CircleCI, Buildkite.</p>
+<p>In agent engineering, CI is the most important <strong>deterministic feedback source</strong> — an LLM’s self-assessment is unreliable, but CI pass/fail is a 0/1 signal and can be used directly as ground truth. Hashimoto’s harness engineering stresses that whether a problem gets solved is strongly tied to whether the agent can verify its own work.</p>
+</details>
+<details id="g-sandbox">
+<summary>
+<strong>sandbox / sandbox</strong> <span class="term-tag">Software engineering</span> — an isolated code-execution environment that limits access to external resources
+</summary>
+<p>Run untrusted code (user uploads, LLM-generated code) in a restricted environment so it cannot damage the host. Isolation strength, from weak to strong:</p>
+<ul>
+<li><strong>Docker (runc)</strong>: shared kernel, weak isolation, startup &lt;1s</li>
+<li><strong>gVisor</strong>: user-space syscall interception, medium isolation</li>
+<li><strong>Firecracker / microVM</strong>: its own kernel, strong isolation, ~100–300ms cold start</li>
+<li><strong>E2B</strong>: Firecracker-based SaaS, the default choice for LLM agent code execution</li>
+<li><strong>Full VM</strong>: the strongest isolation, cold start on the order of seconds to minutes</li>
+</ul>
+<p>An agent that runs user- or LLM-generated code must be sandboxed, with defense in depth on top: a network-egress allowlist + a read-only filesystem + time/memory quotas + no host credentials mounted.</p>
+</details>
+<details id="g-canary">
+<summary>
+<strong>canary / canary release</strong> <span class="term-tag">Software engineering</span> — send a small slice of traffic to the new version first, and roll out fully only after nothing looks wrong
+</summary>
+<p>The name comes from using canaries in coal mines to detect poison gas. A typical deploy sequence is: shadow (dual-run, do not return the result) → 1% → 5% → 25% → 50% → 100%, and each stage advances only if the core metrics show no regression.</p>
+<p>For LLM applications, a new prompt / new model / new agent harness must go out through a canary. If any key metric (resolution rate, CSAT, refusal rate, p99 latency, cost per request) worsens past a threshold, roll back. The non-determinism of LLM applications makes canaries more important than they are for traditional software.</p>
+</details>
+<details id="g-abtest">
+<summary>
+<strong>A/B test</strong> <span class="term-tag">Software engineering</span> — a controlled experiment that splits traffic into two groups, one on the old version and one on the new, and compares key metrics
+</summary>
+<p>Hash on user_id to split traffic so a given user always lands in the same bucket (avoiding a flickering experience). What to judge:</p>
+<ul>
+<li><strong>Business metrics</strong>: conversion rate, CSAT, retention — these test the hypothesis</li>
+<li><strong>Proxy metrics</strong>: thumbs up/down, refusal rate, number of conversation turns</li>
+<li><strong>Guardrail metric</strong>: cost and latency must not worsen past a threshold</li>
+<li><strong>Observation window</strong>: at least 1–2 weeks, covering a business cycle</li>
+<li><strong>Statistical significance</strong>: a t-test / Mann-Whitney test</li>
+</ul>
+<p>Prompt changes, model swaps, and RAG changes in an LLM application should all go through an A/B test. Shipping on offline eval alone often fails in production (the live traffic distribution differs a lot from the gold set).</p>
+</details>
+<details id="g-biz-metrics">
+<summary>
+<strong>GMV / UV / CSAT / NPS / conversion rate</strong> <span class="term-tag">Business metrics</span> — the north-star metrics most often used in e-commerce / travel / customer support
+</summary>
+<p>The metrics the business side watches most closely when deciding whether an agent should launch:</p>
+<ul>
+<li><strong>GMV (Gross Merchandise Value)</strong>: total value of merchandise sold, the core e-commerce metric. Daily GMV, monthly GMV, and incremental GMV (how much more the A/B treatment produced than the control) are all common ways of stating it.</li>
+<li><strong>UV (Unique Visitor) / DAU (Daily Active User)</strong>: unique visitors / daily active users. UV measures traffic; DAU measures stickiness.</li>
+<li><strong>PV (Page View)</strong>: page views, UV × views per person.</li>
+<li><strong>CTR (Click-Through Rate)</strong>: the share of impressions that are clicked; a core metric for recommender systems.</li>
+<li><strong>Conversion rate</strong>: conversion at each step of the funnel — list page → detail page, detail page → order page, detail page → payment. In e-commerce / travel, +1pp is already significant, and +1.5–2pp counts as a large gain.</li>
+<li><strong>CSAT (Customer Satisfaction Score)</strong>: a user satisfaction score (1–5 or 1–10). A customer-support agent must watch this.</li>
+<li><strong>NPS (Net Promoter Score)</strong>: “how likely are you to recommend this to a friend”, from −100 to 100.</li>
+<li><strong>First-contact resolution rate / FCR (First Contact Resolution)</strong>: the share of issues solved on the first interaction. A key metric for a customer-support agent.</li>
+</ul>
+<p><strong>What agent engineering watches</strong>: put model / prompt / RAG changes into an A/B test and look at these business metrics, not only offline benchmark scores. It is very common for a change to raise the benchmark while GMV / CSAT fall.</p>
+</details>
+<details id="g-hitl">
+<summary>
+<strong>HITL / human-in-the-loop</strong> <span class="term-tag">Software engineering</span> — bring a human in to review or confirm at critical decision points
+</summary>
+<p>Pause an autonomous agent at a critical node and wait for a human:</p>
+<ul>
+<li><strong>Before high-risk actions</strong>: transfers, sending email, deleting data, merging a PR</li>
+<li><strong>When confidence is low</strong>: the model’s self-rated confidence is below a threshold</li>
+<li><strong>When regulation requires it</strong>: medical diagnosis, credit decisions, hiring screens (high-risk systems under the EU AI Act)</li>
+</ul>
+<p>Design principle: “Humans steer. Agents execute.” (OpenAI Harness Engineering). An agent does not replace a person; it amplifies a person’s judgment — the person sets the plan, sets the constraints, and reviews the result, and the agent does the execution.</p>
+</details>
+<details id="g-slo">
+<summary>
+<strong>SLO / SLI / SLA / Error Budget</strong> <span class="term-tag">Software engineering</span> — the SRE quartet of “objective / indicator / contract / budget” for service quality
+</summary>
+<p>Four terms defined by Google’s SRE practice:</p>
+<ul>
+<li><strong>SLI (Service Level Indicator)</strong>: an <strong>indicator</strong> — an observable number. For example “success rate 99.5%”, “p99 latency 280ms”, “task completion rate 92%”.</li>
+<li><strong>SLO (Service Level Objective)</strong>: a <strong>target set on an SLI</strong>. For example “success-rate SLO = 99.9% (30-day sliding window)”. An internal commitment of the engineering team.</li>
+<li><strong>SLA (Service Level Agreement)</strong>: a <strong>contract with the user or customer</strong>. Breaking it means paying money or refunding the service fee. It is usually looser than the SLO (SLO 99.9% → SLA 99.5%), leaving a buffer.</li>
+<li><strong>Error Budget</strong>: <code>1 - SLO</code>. An SLO of 99.9% means 43.2 minutes of “budget” in 30 days during which the target can be missed. Once the budget is spent, non-essential releases are frozen.</li>
+</ul>
+<p><strong>How to use this for an agent application</strong>:</p>
+<ol class="qa-points" type="1">
+<li><strong>Set 1–3 SLOs per agent scenario</strong>: for example “customer-support agent resolution-rate SLO = 85%”, “p99 end-to-end latency SLO ≤ 5s”, “average cost per task SLO ≤ $0.05”</li>
+<li><strong>Alert</strong>: warn when the live SLI drops below 80% of the SLO, and page oncall when it drops below the SLO</li>
+<li><strong>Freeze releases</strong>: once the error budget is burned, do not merge anything that is not an emergency fix</li>
+<li><strong>Business SLO vs technical SLO</strong>: business SLOs (conversion rate / CSAT / GMV) are product acceptance; technical SLOs (latency / error rate / cost) are the engineering backstop. Both layers are required</li>
+</ol>
+<p><strong>Rule of thumb</strong>: a stricter SLO is not automatically better — 99.99% costs 5–10× more than 99.9%, and it is likely past the threshold users can perceive. Google recommends the level that is just high enough that users don’t complain.</p>
+</details>
+<details id="g-ttl">
+<summary>
+<strong>TTL / Time To Live</strong> <span class="term-tag">Software engineering</span> — how long data, a cache entry, or a credential stays valid
+</summary>
+<p>It expires automatically. Common uses:</p>
+<ul>
+<li><strong>Cache TTL</strong>: a Redis cache set to 1h / 24h</li>
+<li><strong>Prompt Caching TTL</strong>: Anthropic defaults to 5 minutes, with an optional 1 hour</li>
+<li><strong>Session TTL</strong>: a user session of 24h–7d</li>
+<li><strong>Credential TTL</strong>: JWTs and temporary AWS credentials are usually 1h</li>
+<li><strong>Memory TTL</strong>: a short TTL for low-confidence memories and a long TTL for high-confidence ones (one defense against <a class="term-ref" href="#g-memory-corruption">memory corruption</a>)</li>
+</ul>
+</details>
+<h3 id="llm-fundamentals">LLM fundamentals</h3>
+<details id="g-token">
+<summary>
+<strong>token</strong> <span class="term-tag">LLM basics</span> — the smallest input/output unit of an LLM, produced by a tokenizer
+</summary>
+<ul>
+<li>English: one token usually corresponds to one common word or half of a long word (about 4 characters)</li>
+<li>Chinese: one token corresponds to about 0.5–2 characters (depending on how the tokenizer was trained)</li>
+<li>Code: punctuation, indentation, and symbols each take tokens</li>
+</ul>
+<p><strong>A rule-of-thumb conversion</strong>: 1000 English words ≈ 1300 tokens; 1000 Chinese characters ≈ 1500–2000 tokens.</p>
+<p>Why it matters: the context window, API billing, and inference speed are all counted in tokens. Controlling the token count = controlling cost and latency. Anthropic, OpenAI, and Google each have their own tokenizer, and a ±20% difference in token count for the same text is common.</p>
+</details>
+<details id="g-embedding">
+<summary>
+<strong>embedding</strong> <span class="term-tag">LLM basics</span> — map text or an image to a high-dimensional dense vector; semantically similar vectors sit close together
+</summary>
+<p>Text → a neural network → a vector of 768 / 1024 / 1536 / 3072 floating-point numbers. Vectors for synonyms or same-topic text sit close together in that space (high cosine similarity).</p>
+<p>Main uses:</p>
+<ul>
+<li><strong>Retrieval</strong>: a query embedding → find the most similar document embeddings (RAG recall)</li>
+<li><strong>Clustering</strong>: automatically group documents on similar topics</li>
+<li><strong>Classification</strong>: zero-shot classification by similarity</li>
+<li><strong>Dedup</strong>: similarity above a threshold counts as a duplicate</li>
+</ul>
+<p>Mainstream models in 2026: OpenAI text-embedding-3-large, Cohere v4, Voyage-3, BGE-M3 (open-source SOTA; Chinese–English bilingual, combining dense / sparse / multi-vector).</p>
+</details>
+<details id="g-context-window">
+<summary>
+<strong>context window / context window</strong> <span class="term-tag">LLM basics</span> — the token limit a model can process in one call
+</summary>
+<p>It includes the system prompt, conversation history, user input, and model output; all of them count. Mainstream models in 2026:</p>
+<ul>
+<li>GPT-4o: 128k</li>
+<li>Claude 3.5 Sonnet / Opus: 200k</li>
+<li>Gemini 1.5 Pro: 1M–2M</li>
+<li>Llama 3.1: 128k</li>
+</ul>
+<p><strong>Note</strong>: the advertised window ≠ the effective window. The RULER benchmark shows that most models’ performance drops sharply beyond 1/4 of the window (<a class="term-ref" href="#g-lost-in-middle">Lost in the Middle</a>). Engineering guidance sets the threshold for “what should go into context” at 8–32k; anything longer goes through RAG or hierarchical summarization.</p>
+</details>
+<details id="g-prefill-decode">
+<summary>
+<strong>prefill / decode</strong> <span class="term-tag">LLM basics</span> — the two phases of LLM inference: process the input, then generate token by token
+</summary>
+<ul>
+<li><strong>Prefill</strong>: feed every prompt token into the model at once and compute the KV cache. Compute-bound (limited by GPU compute); the whole prompt can be processed in parallel in one shot. Its latency determines <a class="term-ref" href="#g-ttft">TTFT</a>.</li>
+<li><strong>Decode</strong>: generate one token at a time, and each token reuses the <a class="term-ref" href="#g-kv-cache">KV cache</a> of every preceding token. Memory-bound (limited by memory bandwidth). Its latency determines <a class="term-ref" href="#g-tpot">TPOT</a> / ITL (inter-token latency).</li>
+</ul>
+<p>The two phases have different bottlenecks, so the tuning strategies differ too — prefill is optimized with parallelism / <a class="term-ref" href="#g-flash-attention">FlashAttention</a>, and decode is optimized with <a class="term-ref" href="#g-continuous-batching">continuous batching</a> / <a class="term-ref" href="#g-spec-decode">speculative decoding</a>. Because the two phases have opposite characteristics, engineering also uses two kinds of scheduling optimization: <strong>PD disaggregation</strong> (Prefill/Decode Disaggregation, handling the phases on different GPU pools, as in DistServe/Mooncake) and <strong>chunked prefill</strong> (split a long prefill into chunks and interleave them with decode). See <a href="#a11">A11</a> for detail.</p>
+</details>
+<details id="g-kv-cache">
+<summary>
+<strong>KV cache</strong> <span class="term-tag">LLM basics</span> — a cache of the K (Key) and V (Value) matrices already computed for attention
+</summary>
+<p>Generating token t needs the K/V of every earlier token in the attention computation. Caching them so they are not recomputed every time is the most basic optimization in LLM inference.</p>
+<p>Memory use: <code>2 × num_layers × num_heads × head_dim × seq_len × batch × bytes_per_elem</code>. On a 70B model, the KV cache for a 128k context can reach tens of GB, far more than the model weights themselves.</p>
+<p>Further optimizations:</p>
+<ul>
+<li><a class="term-ref" href="#g-paged-attention">PagedAttention</a>: manage it in blocks and remove fragmentation</li>
+<li><a class="term-ref" href="#g-gqa-mqa">GQA/MQA</a>: fewer K/V heads, shrinking the KV cache to 1/8 ~ 1/H</li>
+<li>KV-cache quantization: an FP8 KV cache (native on H100) cuts memory in half</li>
+<li><a class="term-ref" href="#g-prefix-caching">prefix caching</a>: reuse the KV of an identical prefix across requests</li>
+</ul>
+</details>
+<details id="g-autoregressive">
+<summary>
+<strong>autoregressive / autoregressive</strong> <span class="term-tag">LLM basics</span> — generate one token at a time; the next token depends on every token before it
+</summary>
+<p>How GPT-style decoder-only models generate: <code>P(x_t | x_1, ..., x_{t-1})</code>. Every generated token runs a full forward pass (even though the KV cache can be reused), so <strong>output length directly determines latency</strong>.</p>
+<p>By comparison: BERT is non-autoregressive (masked LM: it predicts every masked position at once), and diffusion models are also non-autoregressive (they denoise the whole span in one shot).</p>
+<p>The cost of autoregression produced a large family of speedups: <a class="term-ref" href="#g-spec-decode">speculative decoding</a>, parallel decoding, Medusa, EAGLE, and others.</p>
+</details>
+<details id="g-logit">
+<summary>
+<strong>logit</strong> <span class="term-tag">LLM basics</span> — the model’s raw unnormalized scores, one value per vocabulary token
+</summary>
+<p>The last decoder layer outputs a logit vector of dimension <code>[vocab_size]</code>; after softmax it is the probability distribution of the next token.</p>
+<p>Places engineering can get the logits (or top-k logprobs):</p>
+<ul>
+<li>Computing perplexity (how “surprised” the model is by the text)</li>
+<li>Self-Consistency weighting candidates by logprob</li>
+<li>An LLM-as-judge using the yes/no logit difference as confidence</li>
+<li>The DPO loss computed directly from logprobs</li>
+<li>Speculative decoding using logits for rejection sampling</li>
+</ul>
+<p>Note: commercial OpenAI / Anthropic APIs return only the sampled result by default; you have to turn the logprobs option on explicitly.</p>
+</details>
+<details id="g-temperature">
+<summary>
+<strong>temperature</strong> <span class="term-tag">LLM basics</span> — a hyperparameter that controls sampling randomness; 0 = deterministic, &gt;1 = highly random
+</summary>
+<p><code>P(token) ∝ exp(logit / T)</code>:</p>
+<ul>
+<li><strong>T=0</strong>: greedy, always pick the argmax, reproducible (same input, same output)</li>
+<li><strong>T=0.7–1.0</strong>: the recommended range for general chat</li>
+<li><strong>T&gt;1</strong>: higher means more random; diversity goes up, but so does nonsense</li>
+</ul>
+<p>Turn it up when: <a class="term-ref" href="#g-self-consistency">Self-Consistency</a> needs diverse paths, creative writing, brainstorming. Turn it down when: code generation, math reasoning, strict formatted output, T=0.1–0.3.</p>
+<p>Trap: T=0 is not fully identical to deterministic — non-determinism of floating-point GPU kernels plus concurrent scheduling can still leave tiny differences for the same prompt.</p>
+</details>
+<details id="g-attention-sink">
+<summary>
+<strong>attention sink</strong> <span class="term-tag">LLM basics</span> — the phenomenon where the model concentrates a large share of attention on the first few tokens of the sequence
+</summary>
+<p>Xiao et al. 2023 found that during long-sequence inference, later tokens often assign a disproportionate share of attention to the first few tokens of the sequence (even when those tokens are semantically unrelated). Those tokens become a “sink” and absorb the normalization mass that softmax is required to distribute.</p>
+<p>Why it matters in engineering:</p>
+<ul>
+<li><strong>StreamingLLM</strong>: sliding-window inference that keeps the leading sink tokens, so it can handle sequences of unbounded length</li>
+<li>It explains <a class="term-ref" href="#g-lost-in-middle">Lost in the Middle</a>: attention on middle tokens is squeezed by the head and the tail</li>
+<li>It explains why truncating the start of the sequence hurts performance sharply — the sink is gone</li>
+</ul>
+</details>
+<h3 id="transformer-architecture">Transformer architecture</h3>
+<details id="g-layernorm-rmsnorm">
+<summary>
+<strong>LayerNorm / RMSNorm</strong> <span class="term-tag">Architecture</span> — the mainstream normalization layers in Transformers; normalize a single sample along the feature dimension
+</summary>
+<p><strong>LayerNorm</strong>: <code>y = (x - μ) / σ * g + b</code>, mean and variance taken along the hidden dimension. Independent of the batch, so it naturally supports variable-length sequences and single-example inference — which is why Transformers use LayerNorm rather than BatchNorm.</p>
+<p><strong>RMSNorm</strong> (Zhang &amp; Sennrich 2019): <code>y = x / sqrt(mean(x²)+ε) * g</code>, dropping the mean subtraction and the bias. Modern LLMs such as Llama, PaLM, and Mistral have almost all switched to RMSNorm, saving 7–64% of normalization time without hurting quality.</p>
+<p><strong>Pre-LN vs Post-LN</strong>: doing LN before the residual (Pre-LN) trains more stably than doing it after the residual (Post-LN), and warmup can be dropped. From GPT-2 onward, Pre-LN is nearly universal.</p>
+</details>
+<details id="g-rope">
+<summary>
+<strong>RoPE / Rotary Position Embedding</strong> <span class="term-tag">Architecture</span> — rotary position embeddings; encode position into a rotation matrix applied to Q/K
+</summary>
+<p>Su et al. 2021. Represent position m as a rotation matrix R_m applied to Q/K, so that <code>&lt;R_m·q, R_n·k&gt; = f(q, k, m-n)</code> — <strong>the attention score depends only on relative distance</strong>.</p>
+<p>Advantages: (1) no extra parameters; (2) relative position is encoded naturally; (3) compatible with linear attention. It has become the position-encoding scheme of the great majority of modern LLMs, including Llama, Qwen, and Mistral.</p>
+<p><strong>The extrapolation problem</strong>: naive extrapolation from 2k to 32k collapses — the rotation angles of high-frequency components fall into regions never seen in training. Mitigations:</p>
+<ul>
+<li><strong>NTK-aware scaling</strong>: interpolate low-frequency dimensions and leave high frequencies approximately unchanged</li>
+<li><strong>YaRN</strong> (Peng 2023): add an attention temperature and scale by dimension bands. Llama-3.1 128k and Qwen2.5 use this scheme</li>
+</ul>
+</details>
+<details id="g-yarn">
+<summary>
+<strong>NTK-aware scaling / YaRN</strong> <span class="term-tag">Architecture</span> — RoPE length-extrapolation schemes that let a model trained at 2k run a 32k / 128k context
+</summary>
+<p>Naive extrapolation of <a class="term-ref" href="#g-rope">RoPE</a> collapses — the rotation angles of high-frequency components fall into regions never seen outside the training context. Two engineering schemes:</p>
+<ul>
+<li><strong>NTK-aware scaling</strong> (NTK = Neural Tangent Kernel): interpolate the low-frequency dimensions (stretch the base) and leave the high-frequency dimensions nearly unchanged. Simple and effective; no retraining required.</li>
+<li><strong>YaRN</strong> (Peng et al. 2023): on top of NTK, add an <strong>attention temperature</strong> adjustment and <strong>piecewise scaling by frequency dimension</strong> (high frequencies kept strictly, low frequencies interpolated hard). It needs a small amount of long-context fine-tuning (samples on the order of tens of thousands of tokens).</li>
+</ul>
+<p><strong>Where they are used</strong>:</p>
+<ul>
+<li>Llama-3.1 128k → YaRN</li>
+<li>Qwen2.5 / Qwen3 → YaRN</li>
+<li>Early Mistral-7B 32k → NTK</li>
+<li>GPT-4 / Claude → closed source; they may use an in-house scheme plus continued long-context training</li>
+</ul>
+<p><strong>Numbers from practice</strong>: YaRN is nearly lossless at a 4× context extension (2k→8k or 32k→128k); beyond 8× there is still a performance drop. Extreme long context (1M+) usually needs retraining rather than YaRN alone.</p>
+</details>
+<details id="g-gqa-mqa">
+<summary>
+<strong>GQA / MQA</strong> <span class="term-tag">Architecture</span> — Grouped/Multi Query Attention; several Q heads share one set of K/V heads
+</summary>
+<p>Standard multi-head attention: each of the H heads has its own Q/K/V.</p>
+<ul>
+<li><strong>MQA</strong>: every Q head shares one set of K/V (the extreme form)</li>
+<li><strong>GQA</strong>: split the H Q heads into G groups, and each group shares one set of K/V (a compromise). G=H/8 is a common setting</li>
+</ul>
+<p>The gain: the <a class="term-ref" href="#g-kv-cache">KV cache</a> shrinks to 1/8 ~ 1/H, inference throughput rises substantially, and quality is almost unchanged. Llama-2 70B, Llama-3, Mistral, Qwen2, and others use GQA.</p>
+</details>
+<details id="g-moe">
+<summary>
+<strong>MoE / Mixture of Experts</strong> <span class="term-tag">Architecture</span> — a mixture-of-experts model; each token activates only some of the expert FFNs
+</summary>
+<p>Replace the traditional dense FFN with N parallel expert FFNs plus a router. Each token picks the top-k experts through the router (k is usually 1–2) and only those experts are activated for the compute.</p>
+<p>Advantage: <strong>a large parameter count with little compute</strong>. Mixtral 8x7B has 47B total parameters and only 13B activated; DeepSeek-V3 has 671B total parameters and only 37B activated. At the same inference cost, capacity far exceeds a dense model.</p>
+<p>Challenges: (1) load balancing during training (so one or two experts are not overused); (2) memory is counted by total parameters, not activated parameters; (3) communication cost is high (expert parallelism).</p>
+</details>
+<details id="g-multi-head-attention">
+<summary>
+<strong>multi-head attention / multi-head attention</strong> <span class="term-tag">Architecture</span> — split d_model into h independent Q/K/V projections; each head learns relations in a different subspace
+</summary>
+<p>Single-head attention produces one attention distribution for each pair of tokens — one “relational viewpoint”. Multiple heads (h=8/32/64/128) let the model learn several relations at once: syntactic heads attend to short-range dependencies, and semantic heads attend to coreference and long-range entities.</p>
+<p><strong>Why a single head with a larger dimension does not work</strong>: multi-head is a mixture of h low-rank attentions and is strictly more expressive; a single head is one high-rank attention and has fewer degrees of freedom.</p>
+<p>A further variant: <a class="term-ref" href="#g-gqa-mqa">GQA / MQA</a> drops heads on the KV side to save memory, while the Q side stays multi-head.</p>
+</details>
+<h3 id="inference-acceleration">Inference acceleration</h3>
+<details id="g-flash-attention">
+<summary>
+<strong>FlashAttention</strong> <span class="term-tag">Inference acceleration</span> — attention computed with tiling + online softmax, without materializing the full attention matrix
+</summary>
+<p>Dao 2022. Standard attention uses O(N²) memory (it stores an N×N attention matrix), which bottlenecks long sequences. FlashAttention loads Q/K/V in blocks into GPU SRAM for the compute and <strong>does not write out the full attention matrix</strong>. Memory drops to O(N), and it is also faster — attention is memory-bound, so reading less HBM makes it faster.</p>
+<p><strong>The line of work</strong>:</p>
+<ul>
+<li><strong>FA1</strong> (2022): ~25% of peak FLOPS on A100</li>
+<li><strong>FA2</strong> (2023): better parallel partitioning and warp scheduling, ~50–72% of peak on A100</li>
+<li><strong>FA3</strong> (Shah 2024): targets the H100 with WGMMA asynchronous tensor cores + TMA + producer/consumer warps. BF16 reaches 740 TFLOPS (75% of peak), and FP8 approaches 1.2 PFLOPS</li>
+</ul>
+</details>
+<details id="g-paged-attention">
+<summary>
+<strong>PagedAttention</strong> <span class="term-tag">Inference acceleration</span> — proposed by vLLM; manage the KV cache as fixed-size blocks, the way an OS manages virtual memory
+</summary>
+<p>Kwon et al. 2023. It addresses three kinds of fragmentation in the traditional inference <a class="term-ref" href="#g-kv-cache">KV cache</a>:</p>
+<ul>
+<li><strong>Internal fragmentation</strong>: max_seq_len is preallocated, but only a small part is actually used</li>
+<li><strong>External fragmentation</strong>: gaps between requests cannot be reused</li>
+<li><strong>Shared prefixes cannot be deduplicated</strong></li>
+</ul>
+<p>Mechanism: cut the KV cache into fixed-size blocks (for example 16 tokens), and each sequence keeps a block table (a logical→physical mapping). Memory utilization rises from ~20% to &gt;96%; multiple samples of the same prompt share prefix blocks; together with <a class="term-ref" href="#g-continuous-batching">continuous batching</a>, throughput is 2–4× HuggingFace TGI and 24× FasterTransformer.</p>
+</details>
+<details id="g-vllm">
+<summary>
+<strong>vLLM</strong> <span class="term-tag">Inference acceleration</span> — UC Berkeley’s open-source high-throughput LLM inference engine, which implements PagedAttention
+</summary>
+<p>The de facto standard open-source inference server since 2023. Core features:</p>
+<ul>
+<li><a class="term-ref" href="#g-paged-attention">PagedAttention</a> memory management</li>
+<li><a class="term-ref" href="#g-continuous-batching">Continuous batching</a></li>
+<li><a class="term-ref" href="#g-prefix-caching">Prefix caching</a>, on by default</li>
+<li>Chunked prefill (the default in v0.6+, interleaving prefill and decode to cut jitter)</li>
+<li>FP8 KV cache (H100/H200)</li>
+<li>Support for <a class="term-ref" href="#g-gptq">GPTQ</a> / <a class="term-ref" href="#g-awq">AWQ</a> quantization</li>
+</ul>
+<p>Compared with: TGI (HuggingFace), TensorRT-LLM (NVIDIA; proprietary and faster), SGLang (more thorough prefix reuse), LMDeploy (from OpenCompass).</p>
+</details>
+<details id="g-continuous-batching">
+<summary>
+<strong>continuous batching</strong> <span class="term-tag">Inference acceleration</span> — dynamic scheduling at token granularity; a request leaves as soon as it finishes, and a new request can join at any time
+</summary>
+<p>Also called in-flight batching, proposed by Yu et al., ORCA, 2022. Compared with static batching (wait until the batch is full and then run together; when short and long requests are mixed, GPU utilization is often &lt;30%), continuous batching:</p>
+<ul>
+<li>After each decode step, finished requests leave immediately</li>
+<li>A newly arrived request immediately takes a free slot, runs prefill first, then joins the decode batch</li>
+<li>Together with <a class="term-ref" href="#g-paged-attention">PagedAttention</a>, there is no memory fragmentation</li>
+</ul>
+<p>vLLM’s numbers: throughput is 5–23× static batching. It is now the default in every modern inference engine.</p>
+</details>
+<details id="g-spec-decode">
+<summary>
+<strong>speculative decoding</strong> <span class="term-tag">Inference acceleration</span> — a small draft model quickly guesses K tokens, and the large model verifies them in parallel with one forward pass
+</summary>
+<p>Leviathan et al. 2023. The procedure:</p>
+<ol class="qa-points" type="1">
+<li>A small draft model (1–7B) autoregressively generates K tokens (K=5 is typical)</li>
+<li>The large target model (70B+) verifies K+1 positions in <strong>parallel</strong> with one forward pass</li>
+<li>The first j are accepted and the (j+1)th is rejected → keep the first j and sample one new token</li>
+</ol>
+<p>Mathematically this guarantees the output distribution matches the original model exactly (rejection sampling).</p>
+<p>When it pays off: (1) the draft and target distributions are similar (acceptance rate &gt;60%); (2) the large model is memory-bandwidth bound, so parallel verification does not add latency. Acceptance rate is 70–90% for code generation and 30–50% for open-ended generation. Variants: EAGLE-2/3, Medusa, Llama 3.1 self-speculative.</p>
+</details>
+<details id="g-prefix-caching">
+<summary>
+<strong>prefix caching</strong> <span class="term-tag">Inference acceleration</span> — cache the KV cache of a shared prefix across requests and skip recomputing the prefill
+</summary>
+<p>The <a class="term-ref" href="#g-kv-cache">KV cache</a> is reuse within a single request; prefix caching is reuse <strong>across requests</strong>. When many requests share a system prompt / few-shot examples / agent history, compute that KV once, cache it, and later requests hit the cache and skip prefill.</p>
+<p>Effect: in agent / RAG / multi-turn settings, the system prompt is usually 1–4k tokens and shared by almost every request, so <a class="term-ref" href="#g-ttft">TTFT</a> can drop 10–100×.</p>
+<p>Implementations: vLLM <code>--enable-prefix-caching</code>, SGLang RadixAttention (a radix tree that automatically manages every historical prefix), the Anthropic prompt caching API (5-minute TTL; the cached portion is priced at 0.1×).</p>
+</details>
+<details id="g-ttft">
+<summary>
+<strong>TTFT / Time to First Token</strong> <span class="term-tag">Inference acceleration</span> — latency from sending the request to the first token coming back
+</summary>
+<p>Driven mainly by prefill (processing every input token). One of the core metrics for billing and monitoring.</p>
+<p>Ways to lower TTFT:</p>
+<ul>
+<li><a class="term-ref" href="#g-prefix-caching">Prefix caching</a> (after a hit, TTFT drops 80%+)</li>
+<li>Shorten the prompt (once RAG recall is accurate enough, chunks can be cut)</li>
+<li><a class="term-ref" href="#g-flash-attention">FlashAttention</a> / newer hardware</li>
+<li><a class="term-ref" href="#g-spec-decode">Speculative decoding</a></li>
+<li>Chunked prefill (does not block other requests’ decode)</li>
+</ul>
+<p>Companion metric: <strong><a class="term-ref" href="#g-tpot">TPOT</a></strong> (time per output token, the gap between tokens, also called TBT/ITL) — determined by decode.</p>
+</details>
+<details id="g-tpot">
+<summary>
+<strong>TPOT / Time Per Output Token</strong> <span class="term-tag">Inference acceleration</span> — average latency per generated token in the decode phase (also called ITL / TBT)
+</summary>
+<p>The other core latency metric, paired with <a class="term-ref" href="#g-ttft">TTFT</a>: TTFT measures “how long until the first character appears” (determined by prefill), and TPOT measures “how fast each following character appears” (determined by <a class="term-ref" href="#g-prefill-decode">decode</a>). Perceived speed of streaming ≈ 1/TPOT (tokens/s).</p>
+<ul>
+<li>Aliases: ITL (inter-token latency), TBT (time between tokens).</li>
+<li>Bottleneck: decode is memory-bound; TPOT is driven mainly by memory bandwidth and batch size.</li>
+<li>Ways to lower it: <a class="term-ref" href="#g-continuous-batching">continuous batching</a> raises throughput, <a class="term-ref" href="#g-spec-decode">speculative decoding</a> emits several tokens per step, and <a class="term-ref" href="#g-gqa-mqa">GQA/MQA</a> / KV quantization shrink how much KV cache is read.</li>
+<li>SLA practice: TTFT and TPOT are often <strong>given separate targets</strong> (for example p99 TTFT &lt; 1s, TPOT &lt; 50ms) and optimized independently via PD disaggregation / chunked prefill.</li>
+</ul>
+</details>
+<h3 id="quantization">Quantization</h3>
+<details id="g-fp16-bf16-fp8">
+<summary>
+<strong>FP16 / BF16 / FP8</strong> <span class="term-tag">Quantization</span> — low-precision floating-point formats that save memory and compute
+</summary>
+<ul>
+<li><strong>FP16</strong> (half): 5-bit exponent + 10-bit mantissa, narrow dynamic range, training overflows easily</li>
+<li><strong>BF16</strong> (brain float): 8-bit exponent + 7-bit mantissa, the same dynamic range as FP32, lower precision but stable training; the default training precision from A100/H100 onward</li>
+<li><strong>FP8</strong> (native on H100/H200): E4M3 (forward) + E5M2 (backward), a dynamic range ~10⁴× larger than INT8, almost no accuracy loss, and throughput is 2× BF16</li>
+</ul>
+<p>Mixed-precision training: weights and gradients in BF16/FP16, optimizer state still in FP32.</p>
+</details>
+<details id="g-int4-int8">
+<summary>
+<strong>INT4 / INT8 / NF4</strong> <span class="term-tag">Quantization</span> — integer quantization that compresses FP16 weights to 4/8-bit integers
+</summary>
+<p>At deployment, quantize weights to low-bit integers and dequantize back to floating point for inference.</p>
+<ul>
+<li><strong>INT8</strong>: accuracy loss is usually &lt;1%, and deployment is straightforward</li>
+<li><strong>INT4</strong> (<a class="term-ref" href="#g-gptq">GPTQ</a> / <a class="term-ref" href="#g-awq">AWQ</a>): a 7B model shrinks from 14GB to ~4GB, so a consumer GPU can run a large model</li>
+<li><strong>NF4</strong> (NormalFloat 4-bit, used by <a class="term-ref" href="#g-qlora">QLoRA</a>): information-theoretically optimal quantization for a normal distribution, designed for LLM weight distributions</li>
+</ul>
+<p>INT8 / INT4 quantization usually needs a calibration set (128–512 samples); AWQ is smarter (it protects the 1% salient channels). For extreme memory budgets, use GGUF (the llama.cpp format) plus 3-bit / 2-bit quantization to run on phones.</p>
+</details>
+<details id="g-awq">
+<summary>
+<strong>AWQ / Activation-aware Weight Quantization</strong> <span class="term-tag">Quantization</span> — INT4 weight quantization that protects the 1% salient channels
+</summary>
+<p>Lin et al. 2023. The core observation: protecting only ~1% of the “important weight channels” (identified by activation magnitude) is enough to hold accuracy. Scale those channels up per channel, then quantize.</p>
+<p>Compared with <a class="term-ref" href="#g-gptq">GPTQ</a>: simpler to implement, lower perplexity on Llama-2, and now the default in vLLM / TensorRT-LLM.</p>
+</details>
+<details id="g-gptq">
+<summary>
+<strong>GPTQ</strong> <span class="term-tag">Quantization</span> — an earlier post-training 4-bit weight quantization method
+</summary>
+<p>Frantar 2022. Layer-wise minimization of quantization error, inspired by OBQ, with a small calibration set (128 samples). Pros: early, and the ecosystem is complete (exllama / vllm / TGI all support it). Cons: sensitive to the activation distribution; important channels can be crushed.</p>
+<p>Deployment choices in 2026: H100/H200 → <a class="term-ref" href="#g-fp16-bf16-fp8">FP8</a>; A100/3090 → <a class="term-ref" href="#g-awq">AWQ</a> INT4; phones/edge → INT4 + GGUF.</p>
+</details>
+<h3 id="fine-tuning-and-alignment">Fine-tuning and alignment</h3>
+<details id="g-sft">
+<summary>
+<strong>SFT / Supervised Fine-Tuning</strong> <span class="term-tag">Fine-tuning</span> — supervised fine-tuning: train the model on (prompt, response) pairs
+</summary>
+<p>The most basic form of instruction tuning: treat (input, desired output) pairs as supervised samples and use cross-entropy loss to teach instruction following.</p>
+<p>Data volumes from practice:</p>
+<ul>
+<li>Format/style adaptation on a chat model: 500–5000 high-quality samples</li>
+<li>Inject new domain knowledge: 10k–100k samples mixed with 5–20% general data</li>
+<li>Full instruct tuning from a base model: millions of samples (Llama 3 uses ~10 million)</li>
+</ul>
+<p><strong>The LIMA paper</strong>: 1000 curated samples can bring a 65B base close to GPT-4 conversation quality — quality &gt;&gt; quantity.</p>
+</details>
+<details id="g-lora">
+<summary>
+<strong>LoRA / Low-Rank Adaptation</strong> <span class="term-tag">Fine-tuning</span> — freeze the original weights and train only low-rank adapter matrices
+</summary>
+<p>Hu et al. 2021. Factor the weight update into two low-rank matrices <code>ΔW = BA</code> (r=8/16/64) and train only those matrices, cutting trainable parameters by 100–10000×.</p>
+<p>Memory:</p>
+<ul>
+<li>Full fine-tuning ≈ 16–20× the parameter bytes; a 7B model needs &gt;100GB</li>
+<li>LoRA: the frozen original weights still load in FP16, so a 7B model needs ~14GB plus the adapter</li>
+</ul>
+<p>Advantages: few trainable parameters / multiple adapters can be hot-swapped / mitigates <a class="term-ref" href="#g-catastrophic-forgetting">catastrophic forgetting</a>.</p>
+</details>
+<details id="g-qlora">
+<summary>
+<strong>QLoRA</strong> <span class="term-tag">Fine-tuning</span> — 4-bit quantized frozen weights plus a LoRA adapter; fine-tune a 65B model on a single 24GB GPU
+</summary>
+<p>Dettmers et al. 2023. Three key pieces:</p>
+<ol class="qa-points" type="1">
+<li><strong>4-bit NF4 quantization of the frozen weights</strong>: a 7B model shrinks from 14GB to ~4GB</li>
+<li><strong>Double Quantization</strong>: quantize the quantization constants too, saving ~0.4 bit/param</li>
+<li><strong>Paged Optimizer</strong>: NVIDIA unified memory; on OOM, spill to CPU</li>
+</ol>
+<p>QLoRA for a 65B model is about 33GB and fits on one A100-48G or two RTX 3090s. Cost: training is 30–40% slower (dequantization overhead).</p>
+</details>
+<details id="g-rlhf">
+<summary>
+<strong>RLHF</strong> <span class="term-tag">Alignment</span> — Reinforcement Learning from Human Feedback: RL training from human preferences
+</summary>
+<p>Three steps: (1) SFT trains a base policy; (2) humans label (chosen, rejected) preference pairs to train a <a class="term-ref" href="#g-rm">Reward Model</a>; (3) the RM scores policy outputs, and algorithms such as PPO/RLOO/REINFORCE update the policy.</p>
+<p>InstructGPT and ChatGPT brought RLHF into the mainstream. <strong>Three major pain points</strong>:</p>
+<ul>
+<li>Training the RM needs a large amount of human preference labels (on the order of 100k pairs), which is expensive</li>
+<li>The RM is easy to hack (the policy learns to flatter the RM’s surface preferences)</li>
+<li>Preferences on subjective tasks are noisy to begin with</li>
+</ul>
+<p>This produced simplifications and improvements such as <a class="term-ref" href="#g-dpo">DPO</a>, <a class="term-ref" href="#g-grpo">GRPO</a>, and <a class="term-ref" href="#g-rlvr">RLVR</a>.</p>
+</details>
+<details id="g-rm">
+<summary>
+<strong>RM / Reward Model</strong> <span class="term-tag">Alignment</span> — a “scoring model” trained on human preferences that scores LLM outputs
+</summary>
+<p>Trained in step two of <a class="term-ref" href="#g-rlhf">RLHF</a>. Input: (prompt, response). Output: a scalar reward. The training loss is Bradley-Terry: make the RM score chosen higher than rejected on (chosen, rejected) pairs.</p>
+<p>Common weaknesses:</p>
+<ul>
+<li><strong>Reward hacking</strong>: the policy learns to flatter the RM’s surface preferences (length, a particular opening)</li>
+<li><strong>Goodhart’s Law</strong>: once the RM becomes the RL objective, it no longer represents true human preference</li>
+<li><strong>Poor generalization</strong>: RM scores are not trustworthy outside the training distribution</li>
+</ul>
+<p>Alternatives: <a class="term-ref" href="#g-dpo">DPO</a> removes the RM entirely, and <a class="term-ref" href="#g-rlvr">RLVR</a> uses a programmatically judged reward.</p>
+</details>
+<details id="g-dpo">
+<summary>
+<strong>DPO / Direct Preference Optimization</strong> <span class="term-tag">Alignment</span> — a mathematical proof that you can skip the RM and optimize preferences with a supervised loss
+</summary>
+<p>Rafailov et al. 2023. It proves that under a Bradley-Terry preference model plus a KL constraint, the optimal policy has a closed form, so preference pairs (chosen, rejected) can be used directly as a supervised loss:</p>
+<p><code>L_DPO = -log σ(β(log π(y_w)/π_ref(y_w) - log π(y_l)/π_ref(y_l)))</code></p>
+<p><strong>Advantages</strong>: (1) no <a class="term-ref" href="#g-rm">RM</a> / no online sampling / no critic; only the policy and a reference model; (2) uses the same training stack as SFT; (3) hyperparameters are stable.</p>
+<p><strong>Disadvantages</strong>: depends heavily on preference-data quality; easy to overfit surface patterns of the chosen answers; high reward-hacking risk.</p>
+<p>The main post-training path for Llama-3 and Qwen2 is DPO or a variant (IPO, KTO, SimPO).</p>
+</details>
+<details id="g-ppo">
+<summary>
+<strong>PPO / Proximal Policy Optimization</strong> <span class="term-tag">Alignment</span> — the classic RLHF algorithm: actor-critic plus a clipped objective
+</summary>
+<p>Schulman 2017. The actor learns the policy, the critic learns a value function to estimate advantage, and clipping limits how far the policy can move each step so it doesn’t collapse.</p>
+<p>RLHF must load four models at once — actor / ref / critic / reward — so memory is ≥4× a single model. Hyperparameters are sensitive (KL coefficient, clip ratio, advantage normalization), and training is unstable.</p>
+<p>This produced simplifications such as <a class="term-ref" href="#g-dpo">DPO</a> (drop RL), <a class="term-ref" href="#g-grpo">GRPO</a> (drop the critic), and RLOO (use mean reward as the baseline).</p>
+</details>
+<details id="g-grpo">
+<summary>
+<strong>GRPO / Group Relative Policy Optimization</strong> <span class="term-tag">Alignment</span> — proposed by DeepSeek; drops the critic and uses the within-group mean reward as the baseline
+</summary>
+<p>Proposed in DeepSeek-Math 2024 and validated by R1. The core change: <strong>drop the critic (the value network)</strong>. Sample G responses for the same prompt (typically G=64), normalize advantage by the within-group mean and standard deviation of the reward: <code>A_i = (r_i - mean(r)) / std(r)</code>, then apply a PPO-like clipped objective plus KL regularization.</p>
+<p>Effects:</p>
+<ul>
+<li>Memory is cut in half (no critic), so RL at the 70B scale is feasible with reasonable resources</li>
+<li>Within-group normalization supplies a baseline for free, and variance is even lower than PPO’s GAE</li>
+<li>Together with <a class="term-ref" href="#g-rlvr">RLVR</a>, R1-Zero emerges long CoT from a base model by pure RL</li>
+</ul>
+</details>
+<details id="g-rlvr">
+<summary>
+<strong>RLVR / RL with Verifiable Rewards</strong> <span class="term-tag">Alignment</span> — RL with a programmatically judged 0/1 reward; no RM required
+</summary>
+<p>On tasks that can be checked automatically — math, code, formal logic — use a program as the reward: answer match, unit tests passing, a theorem prover verifying.</p>
+<p><strong>Advantages</strong>:</p>
+<ul>
+<li>No labeling cost</li>
+<li>The signal is clean, with no room for <a class="term-ref" href="#g-rm">RM hacking</a></li>
+<li>Rollouts can be parallelized at large scale</li>
+</ul>
+<p>DeepSeek-R1 and DAPO (ByteDance’s open-source SOTA) are both in this family. <strong>Limitation</strong>: it applies only to verifiable tasks; open-ended dialogue still needs <a class="term-ref" href="#g-rlhf">RLHF</a> / <a class="term-ref" href="#g-dpo">DPO</a>.</p>
+</details>
+<details id="g-catastrophic-forgetting">
+<summary>
+<strong>catastrophic forgetting / catastrophic forgetting</strong> <span class="term-tag">Fine-tuning</span> — after fine-tuning on a new task, general capability drops sharply
+</summary>
+<p>Mechanism: parameters are pulled by the new task’s loss, and directions that encoded general knowledge get overwritten.</p>
+<p>A mitigation mix (recommended in production):</p>
+<ul>
+<li>Mix 5–30% general data into the new data</li>
+<li><a class="term-ref" href="#g-lora">LoRA</a> rather than full parameters (a low-rank constraint)</li>
+<li>A small learning rate (starting at lr=1e-5) plus short training (1–2 epochs)</li>
+<li>Keep evaluating MMLU / MT-Bench as a monitor</li>
+</ul>
+<p>Advanced: EWC (Fisher-information-weighted L2 regularization), model souping (average the fine-tuned weights with the original model), and extending MoE routing.</p>
+</details>
+<h3 id="prompting-and-reasoning-patterns">Prompting and reasoning patterns</h3>
+<details id="g-cot">
+<summary>
+<strong>CoT / Chain of Thought</strong> <span class="term-tag">Prompting</span> — have the model write reasoning steps before the answer
+</summary>
+<p>Wei et al. 2022. The simplest form: “Let’s think step by step” (Kojima 2022 zero-shot CoT).</p>
+<p>Why it works: (1) more effective compute (more forward steps); (2) it turns “System 1” intuitive answers into “System 2” step-by-step reasoning; (3) it exposes faulty reasoning so self-consistency voting can correct it.</p>
+<p>It is an emergent ability and is almost useless on models under 10B. <strong>Long CoT</strong> (trained with RL in R1 / o1, including backtracking and self-verification, thousands of tokens long) is the new paradigm of 2025.</p>
+</details>
+<details id="g-tot">
+<summary>
+<strong>ToT / Tree of Thoughts</strong> <span class="term-tag">Prompting</span> — model reasoning as tree search: several candidates per step, plus self-evaluation and backtracking
+</summary>
+<p>Yao et al. 2023. <a class="term-ref" href="#g-cot">CoT</a> is a single linear chain and cannot go back once it is wrong. ToT generates several candidate thoughts at each step, the LLM self-evaluates state value (promising / sure / impossible), and BFS/DFS expansion can backtrack and prune.</p>
+<p>On Game of 24, GPT-4 CoT scores 4% vs ToT 74%. Cost: LLM calls rise from 1 to 50–200.</p>
+<p>Fits: solution spaces that need explicit search (puzzles, planning, theorem proving) where intermediate states can be scored. Does not fit: chitchat, summarization, translation.</p>
+</details>
+<details id="g-react">
+<summary>
+<strong>ReAct</strong> <span class="term-tag">Prompting</span> — Reasoning + Acting: a think–act–observe loop
+</summary>
+<p>Yao et al. 2022. The structure is a <code>Thought → Action → Observation</code> loop: the model first writes “Thought: I need to look up X”, then outputs “Action: search[X]”, the tool result is fed back into the prompt as “Observation: …”, and the next Thought follows.</p>
+<p>Three effects:</p>
+<ul>
+<li>Hand facts the model does not know off to tools, which reduces hallucination</li>
+<li>Reasoning is steered by observations, so a mistake can be corrected</li>
+<li>It leaves an interpretable trace that is easy to debug</li>
+</ul>
+<p>It is the conceptual prototype of modern agent frameworks (Claude tool use, OpenAI function calling, LangChain, AutoGPT).</p>
+</details>
+<details id="g-reflexion">
+<summary>
+<strong>Reflexion</strong> <span class="term-tag">Prompting</span> — “verbal reinforcement learning” across episodes: store the reason for failure as a lesson
+</summary>
+<p>Shinn et al. 2023. After a task fails (an external verifier gives a binary reward), the agent uses an LLM to summarize the cause as a natural-language lesson, stores it in episodic memory, and adds that lesson to the prompt on the next task to change behavior.</p>
+<p>vs <a class="term-ref" href="#g-self-refine">Self-Refine</a>:</p>
+<ul>
+<li>Self-Refine optimizes within a single episode and relies only on the model’s self-critique</li>
+<li>Reflexion learns across episodes and has an external ground-truth verifier</li>
+</ul>
+<p>On HumanEval, GPT-4 with Reflexion scores 91%, above the GPT-4 baseline of 80%.</p>
+</details>
+<details id="g-self-refine">
+<summary>
+<strong>Self-Refine</strong> <span class="term-tag">Prompting</span> — iteration inside a single task: a generate → self-feedback → refine loop
+</summary>
+<p>Madaan et al. 2023. Loop N rounds inside one trajectory, with no external reward and no cross-task memory. Average gain of 20% across 7 tasks.</p>
+<p>Trap: a weak model’s self-critique is inaccurate and revisions can get worse. Production often combines Self-Refine (within an episode) with <a class="term-ref" href="#g-reflexion">Reflexion</a> (across episodes).</p>
+</details>
+<details id="g-self-consistency">
+<summary>
+<strong>self-consistency</strong> <span class="term-tag">Prompting</span> — sample N CoT traces for the same question and majority-vote the final answer
+</summary>
+<p>Wang et al. 2022. With temperature&gt;0, sample N <a class="term-ref" href="#g-cot">CoT</a> paths and vote on the final answer. On GSM8K this is about 17 percentage points above greedy CoT (PaLM 55%→74%).</p>
+<p>Pays off when: (1) the answer space is discrete (numbers, multiple choice); (2) the model’s error rate is &lt;50%; (3) reasoning paths are diverse (temperature 0.7–1.0). Cost: N× (typically N=5–40). It does not apply to open-ended generation.</p>
+</details>
+<details id="g-few-shot">
+<summary>
+<strong>few-shot / zero-shot</strong> <span class="term-tag">Prompting</span> — whether the prompt includes examples
+</summary>
+<ul>
+<li><strong>Zero-shot</strong>: state the request directly, with no examples. “Translate into English: 你好”</li>
+<li><strong>Few-shot</strong> (in-context learning): put 1–N (input, output) examples in the prompt. The GPT-3 paper systematized this first.</li>
+</ul>
+<p>When to use few-shot: (1) the task format is novel or the output structure is complex (a JSON schema, a specific markdown layout); (2) a classification task has many labels.</p>
+<p>When to use zero-shot: modern models are already saturated on general tasks (summarization, translation, QA), and adding examples can introduce bias.</p>
+<p>Traps: example order matters a lot (recency bias); accidental regularities get learned; too many examples run into <a class="term-ref" href="#g-lost-in-middle">Lost in the Middle</a>. Keep it to ≤8.</p>
+</details>
+<h3 id="rag">RAG</h3>
+<details id="g-rag">
+<summary>
+<strong>RAG / Retrieval-Augmented Generation</strong> <span class="term-tag">RAG</span> — retrieval-augmented generation: retrieve relevant documents first, then have the LLM answer from that context
+</summary>
+<p>The standard pipeline = Ingestion + Retrieval + Generation:</p>
+<ol class="qa-points" type="1">
+<li><strong>Ingestion</strong>: document loader → <a class="term-ref" href="#g-chunking">chunking</a> → <a class="term-ref" href="#g-embedding">embedding</a> → write to the vector store</li>
+<li><strong>Retrieval</strong>: query rewriting → embedding → <a class="term-ref" href="#g-vector-db">vector search</a> → <a class="term-ref" href="#g-reranker">reranker</a> → top-k</li>
+<li><strong>Generation</strong>: build the prompt (including retrieved chunks) → LLM generation → post-processing + citation</li>
+</ol>
+<p>Every stage has a bottleneck: chunk size, embedding choice, insufficient recall, context order, and the model not staying faithful to the context. <strong>Production RAG ≠ “embedding + a vector store + an LLM”</strong> — it is an engineering system.</p>
+</details>
+<details id="g-chunking">
+<summary>
+<strong>chunking</strong> <span class="term-tag">RAG</span> — split a document into small pieces suitable for embedding / retrieval
+</summary>
+<p>Strategies:</p>
+<ul>
+<li><strong>Fixed</strong>: by token count plus overlap. Simple, but it easily cuts in the middle of a sentence</li>
+<li><strong>Recursive / Structural</strong>: split on markdown headers / code blocks / paragraphs. <strong>The production default</strong></li>
+<li><strong>Semantic</strong>: split by embedding similarity between sentences</li>
+<li><strong>Late Chunking</strong> (Jina 2024): run a long-context embedding over the whole document first, then cut at token level</li>
+<li><strong>Contextual Retrieval</strong> (Anthropic 2024): prepend an LLM-generated “context prefix” to each chunk before embedding; the retrieval failure rate drops 49%</li>
+</ul>
+</details>
+<details id="g-bm25">
+<summary>
+<strong>BM25</strong> <span class="term-tag">RAG</span> — the classic sparse retrieval algorithm based on term frequency plus IDF
+</summary>
+<p>Okapi BM25. Relevance of a document to a query is <code>Σ IDF(qi) · f(qi,d) · (k+1) / (f + k·(1-b+b·|d|/avgdl))</code>. Strengths: exact term hits, high weight on rare terms, proper nouns, numbers. Weakness: synonyms don’t match (“医生” vs “doctor”).</p>
+<p>It complements <a class="term-ref" href="#g-embedding">dense embeddings</a> — <a class="term-ref" href="#g-hybrid-search">hybrid search</a> fuses the two, and recall is 5–15 percentage points above dense alone.</p>
+</details>
+<details id="g-hybrid-search">
+<summary>
+<strong>hybrid search</strong> <span class="term-tag">RAG</span> — dual-path recall from dense embeddings plus BM25, then fusion
+</summary>
+<p><a class="term-ref" href="#g-embedding">Dense embeddings</a> are good at semantic similarity; <a class="term-ref" href="#g-bm25">BM25</a> is good at exact term match; the two complement each other.</p>
+<p>Fusion methods:</p>
+<ul>
+<li><strong>RRF (Reciprocal Rank Fusion)</strong>: <code>score(d) = Σ 1/(k + rank_i(d))</code>, k=60. <strong>The production default</strong>; the two score streams do not need to be normalized</li>
+<li><strong>Weighted sum</strong>: <code>α·dense + (1-α)·bm25</code>. You have to tune α and normalize the scores</li>
+<li><strong>Learned fusion</strong>: feed the top-N to a <a class="term-ref" href="#g-reranker">reranker</a>, which takes over the final ranking</li>
+</ul>
+<p>Anthropic’s Contextual Retrieval experiment: embedding alone → + contextual embedding → + BM25 → + rerank, with failure rates 5.7% → 4.0% → 3.7% → 1.9%.</p>
+</details>
+<details id="g-reranker">
+<summary>
+<strong>reranker / cross-encoder</strong> <span class="term-tag">RAG</span> — rescore the recalled top-N with a more accurate (and slower) model
+</summary>
+<p><strong>Bi-encoder (<a class="term-ref" href="#g-embedding">embedding</a>)</strong>: encode the query and the doc separately, then compare by cosine. Fast, but there is no interaction. <strong>Cross-encoder (reranker)</strong>: concatenate query + doc and feed them to a transformer; self-attention at every layer lets them interact. <strong>Relevance modeling is 20–40% stronger</strong> (NDCG@10), and it is 100× slower.</p>
+<p>The production standard: bi-encoder recalls top-100 → cross-encoder reranks to top-10 → feed the LLM.</p>
+<p>Mainstream: Cohere Rerank v3/v4, BGE-reranker-v2-m3 (open-source SOTA for Chinese and English), Jina Reranker v2, Mixedbread.</p>
+<p><strong>Trap</strong>: if the relevant document is not in the recalled top-100, reranking cannot save it — a reranker improves what was already recalled and cannot stand in for recall.</p>
+</details>
+<details id="g-embed-models">
+<summary>
+<strong>Choosing a mainstream embedding model</strong> <span class="term-tag">RAG</span> — how to choose among BGE-M3 / Cohere v4 / Voyage-3 / OpenAI text-3-large / Qwen3-Embedding
+</summary>
+<p>A 2026 comparison of mainstream embedding models:</p>
+<ul>
+<li><strong>OpenAI text-embedding-3-large</strong> (3072-d): the English baseline, API-friendly, $0.13/M tokens; Chinese is only average.</li>
+<li><strong>Cohere embed-v4</strong> (1024–1536-d, multimodal): top tier on MTEB v2, <strong>text and images in the same space</strong>, 100+ languages; the default choice for enterprise SaaS.</li>
+<li><strong>Voyage-3-large</strong> (1024-d): first overall on MTEB v2, strong in Chinese, slightly ahead of Cohere on retrieval.</li>
+<li><strong>BGE-M3</strong> (BAAI, 1024-d): <strong>open-source SOTA</strong>, <strong>supports dense + sparse + multi-vector (ColBERT-style) at once</strong>, Chinese–English bilingual; the default for self-hosting.</li>
+<li><strong>Qwen3-Embedding-8B</strong> (Alibaba, 2025): one of the open-source Chinese SOTAs; it and BGE-M3 each win on different tasks.</li>
+<li><strong>Conan-Embedding</strong> (Tencent) / <strong>Yi-Embedding</strong> (01.AI): Chinese-language options from domestic vendors.</li>
+</ul>
+<p><strong>Selection framework</strong>:</p>
+<ol class="qa-points" type="1">
+<li>Mostly Chinese → BGE-M3 / Voyage-3 / Qwen3-Embedding</li>
+<li>Multimodal → Cohere v4</li>
+<li>English-only + API → OpenAI text-3-large</li>
+<li>Self-hosted private deployment → BGE-M3</li>
+</ol>
+<p><strong>Key traps</strong>:</p>
+<ul>
+<li>MTEB has version differences (v1 / v2 / MMTEB), and models cite different versions, so a head-to-head comparison misleads — re-benchmark on your own scenario</li>
+<li>Dense vs sparse depends on the scenario: for exact term hits (proper nouns / IDs), mixing BM25 + dense (<a class="term-ref" href="#g-hybrid-search">hybrid search</a>) gains 5–15pp over dense alone</li>
+</ul>
+</details>
+<details id="g-vector-db">
+<summary>
+<strong>vector DB / vector database</strong> <span class="term-tag">RAG</span> — stores embeddings and supports approximate nearest-neighbor (ANN) search; Pinecone / Milvus / Qdrant and others
+</summary>
+<p>Mainstream:</p>
+<ul>
+<li><strong>Pinecone</strong>: SaaS, the enterprise default</li>
+<li><strong>Milvus</strong>: open source plus cloud</li>
+<li><strong>Qdrant</strong>: written in Rust, strong performance</li>
+<li><strong>Weaviate</strong>: includes knowledge-graph features</li>
+<li><strong>pgvector</strong>: a Postgres extension; if you already have Postgres, use it directly</li>
+<li><strong>Vespa / Elasticsearch</strong>: search engines extended with vectors</li>
+<li><strong>Chroma</strong>: friendly for local development</li>
+</ul>
+<p>ANN algorithms: HNSW (the most common), IVF, ScaNN (Google). Index time vs retrieval accuracy vs memory is a trade-off.</p>
+</details>
+<details id="g-rag-variants">
+<summary>
+<strong>GraphRAG / Self-RAG / CRAG / Agentic RAG</strong> <span class="term-tag">RAG</span> — four advanced variants of naive RAG, each addressing a different weakness
+</summary>
+<p>Naive <a class="term-ref" href="#g-rag">RAG</a> struggles with cross-document, cross-entity reasoning, unstable recall quality, and multi-hop queries. Four common advanced schemes:</p>
+<ol class="qa-points" type="1">
+<li><strong>GraphRAG</strong> (Microsoft 2024): use an LLM to extract entities and relations from documents, build a knowledge graph, and write hierarchical summaries by community. At query time you can both vector-search and walk the graph. <strong>It addresses incomplete recall when naive RAG reasons across many documents and entities.</strong> Cost: ingestion gets much more expensive (one LLM extraction per chunk).</li>
+<li><strong>Self-RAG</strong> (Asai 2023): train a single LM to emit reflection tokens that decide (a) whether to retrieve, (b) whether the retrieved text is relevant, (c) whether the answer is supported by the context, and (d) overall utility. <strong>It addresses the judgment of when to retrieve and how to use what was retrieved.</strong> Requires training.</li>
+<li><strong>CRAG (Corrective RAG, Yan 2024)</strong>: a lightweight evaluator scores retrieved chunks. High scores are used directly, middling scores trigger a fresh web search, and low scores fall back to ungrounded generation. <strong>It addresses blindly using retrieved text when recall quality is uneven.</strong></li>
+<li><strong>Agentic RAG</strong>: the agent decides query rewriting → multi-round retrieval → division of work among sub-agents. <strong>It addresses multi-hop questions that need iterative retrieval.</strong> DeepResearch-style products are on this path.</li>
+</ol>
+<p><strong>Practical choice</strong>:</p>
+<ul>
+<li>Ordinary QA → naive RAG + a <a class="term-ref" href="#g-reranker">reranker</a></li>
+<li>Complex cross-document, cross-entity reasoning → GraphRAG</li>
+<li>Unstable recall quality → CRAG</li>
+<li>Multi-hop reasoning / iterative search → Agentic RAG</li>
+</ul>
+</details>
+<details id="g-ragas">
+<summary>
+<strong>RAGAS</strong> <span class="term-tag">RAG</span> — the de facto standard for RAG evaluation; all four core metrics are implemented with an LLM-as-judge
+</summary>
+<p>Es et al. 2023. The four metrics:</p>
+<ol class="qa-points" type="1">
+<li><strong>Faithfulness</strong>: whether each claim in the answer follows from the retrieved context. &lt;0.7 = the model is making things up</li>
+<li><strong>Context Precision</strong>: the share of the top-K that is truly relevant. Low = the retriever recalled noise</li>
+<li><strong>Context Recall</strong>: whether the ground-truth information was all retrieved. Low = incomplete recall</li>
+<li><strong>Answer Relevancy</strong>: whether the answer actually addresses the original question</li>
+</ol>
+<p>Production thresholds: all four ≥0.7 counts as passing; if Faithfulness &lt; 0.7, fix that first; if Context Recall &lt; 0.7, tune the retriever.</p>
+</details>
+<h3 id="agent-engineering">Agent engineering</h3>
+<details id="g-harness">
+<summary>
+<strong>harness / harness engineering</strong> <span class="term-tag">Agent</span> — the code skeleton and engineering system wrapped around an LLM, so the agent physically cannot repeat a mistake
+</summary>
+<p>Named by Mitchell Hashimoto in 2026: <strong>“anytime you find an agent makes a mistake, take the time to engineer a solution such that the agent never makes that mistake again.”</strong></p>
+<p>This is not model fine-tuning. It is an <strong>engineered environment</strong> that makes it physically impossible for the model to fail in the same way again.</p>
+<p>Two laws:</p>
+<ol class="qa-points" type="1">
+<li><strong>Strong constraints</strong>: if a deterministic constraint can do it (a hard failure from <a class="term-ref" href="#g-lint">lint</a> / <a class="term-ref" href="#g-type-check">type check</a> / <a class="term-ref" href="#g-sandbox">sandbox</a> / <a class="term-ref" href="#g-cicd">CI</a>), don’t use a prompt</li>
+<li><strong>Self-healing loop</strong>: the agent can take ground truth from the environment, evaluate itself, and resume from a checkpoint after failure</li>
+</ol>
+<p>OpenAI’s formula: <strong>Agent = Model + Harness</strong>; “Humans steer. Agents execute.”</p>
+</details>
+<details id="g-langchain">
+<summary>
+<strong>LangChain / LangGraph / LlamaIndex / Haystack</strong> <span class="term-tag">Agent</span> — mainstream frameworks for building agents and LLM applications
+</summary>
+<p>A comparison of mainstream frameworks, 2024–2026:</p>
+<ul>
+<li><strong>LangChain</strong> (Harrison Chase / LangChain Inc.): the first LLM application framework to go mainstream. It positions itself as the “glue for LLM apps” — connecting LLMs, prompt templates, tools, vector stores, and document loaders. <strong>Strength</strong>: the fullest ecosystem. <strong>Weakness</strong>: many abstraction layers make over-wrapping easy, and Anthropic’s <em>Building Effective Agents</em> explicitly argues against “over-abstraction”.</li>
+<li><strong>LangGraph</strong> (LangChain Inc.): <strong>stateful graph orchestration</strong> built on LangChain — model an agent / workflow as nodes plus edges. Each node is an LLM call or a tool, and edges can branch on conditions. It fits complex multi-step / multi-agent coordination better than LangChain; it is one of the mainstream choices for multi-agent business systems such as Alibaba Fliggy.</li>
+<li><strong>LlamaIndex</strong> (Jerry Liu): focused on RAG, with a carefully designed document ingestion / indexing / retrieval / query pipeline. <strong>More specialized than LangChain when RAG is the heavy part of the system.</strong></li>
+<li><strong>Haystack</strong> (deepset): an open-source RAG framework, enterprise-grade (including Kubernetes deployment / an API server), led by the European community.</li>
+<li><strong>Calling the Anthropic SDK directly</strong>: Anthropic recommends this in <em>Building Effective Agents</em> — for simple cases, calling the API directly is easier to understand and has fewer bugs than wrapping a framework around it.</li>
+</ul>
+<p><strong>Practice</strong>: prototype by calling the SDK directly; consider LangGraph once workflow patterns (routing / parallelization / orchestrator-workers) have settled; consider LlamaIndex for pure RAG; don’t start with the LangChain “full suite”.</p>
+</details>
+<details id="g-mcp">
+<summary>
+<strong>MCP / Model Context Protocol</strong> <span class="term-tag">Agent</span> — an open protocol from Anthropic that lets an LLM client connect to external tools and data sources through one interface
+</summary>
+<p>Released in 2024-11, and moved to an independent Steering Committee in 2025-Q4 (Anthropic / Block / OpenAI / Microsoft). Three core primitives:</p>
+<ul>
+<li><strong>Resources</strong>: readable resources (files, DB rows)</li>
+<li><strong>Tools</strong>: callable functions (with a schema)</li>
+<li><strong>Prompts</strong>: reusable prompt templates</li>
+</ul>
+<p>It solves the N×M problem of “writing a new adapter for every new tool”. The single fastest-growing skill in 2026, 97M+ monthly downloads, and already an explicit requirement on the Anthropic Applied AI Engineer JD.</p>
+</details>
+<details id="g-tool-use">
+<summary>
+<strong>tool use / function calling</strong> <span class="term-tag">Agent</span> — the LLM calls external functions through a structured schema
+</summary>
+<p>The model outputs <code>{"name": "search", "arguments": {"query": "..."}}</code> JSON; the runtime parses it, actually runs the function, and feeds the result back to the model. Anthropic’s Tool Use API and OpenAI function calling are the same idea.</p>
+<p>Design principles (Anthropic’s measurements: “agent performance is proportional to how clear the tool descriptions are”):</p>
+<ul>
+<li>Write tool descriptions like docstrings: purpose / parameters / return value / error cases</li>
+<li>Small granularity, strong composition (Read / Edit / Bash / Grep rather than do_anything)</li>
+<li>Forced preconditions (Edit requires Read-before-Edit)</li>
+<li>Treat error messages as prompts (“command not found, did you mean X?”)</li>
+<li><a class="term-ref" href="#g-deny-first">Deny-first</a> permissions</li>
+</ul>
+</details>
+<details id="g-computer-use">
+<summary>
+<strong>Computer Use / Browser Agent</strong> <span class="term-tag">Agent</span> — let the model operate a desktop GUI or a browser
+</summary>
+<p>Anthropic released Computer Use in 2024-Q4. The loop: screenshot → the LLM looks at the image and reasons → it outputs mouse and keyboard actions (click X,Y / type text / scroll) → the system executes them → screenshot again.</p>
+<p>Browser Use (an open-source framework) is similar but limited to the browser, based on Playwright plus DOM augmentation (overlay numbered labels on clickable elements in the screenshot).</p>
+<p>Useful for: automating sites with no API, automating desktop software, end-to-end e2e tests. <strong>Limits</strong>: slow, expensive, weak on security, and poor support for canvas-rendered apps. Production advice: if an API exists, use the API.</p>
+</details>
+<details id="g-sub-agent">
+<summary>
+<strong>sub-agent</strong> <span class="term-tag">Agent</span> — a subtask agent dispatched by the main agent, with its own context
+</summary>
+<p>The main agent hands “read 30 files and research them” to a sub-agent. The sub-agent has its own context window and returns only the final summary to the main agent — <strong>the main context is not polluted by intermediate artifacts</strong>.</p>
+<p>Claude Code’s Task tool, OpenAI Swarm, CrewAI, and others support this. It is one of the key ways to prevent a <a class="term-ref" href="#g-loop-of-death">Loop of Death</a> and a context explosion.</p>
+</details>
+<details id="g-agents-md">
+<summary>
+<strong>AGENTS.md / CLAUDE.md</strong> <span class="term-tag">Agent</span> — a project manual written for the agent, stating protocols / constraints / the startup procedure
+</summary>
+<p>The agent reads it automatically when it enters the project. It usually contains:</p>
+<ul>
+<li>Project background / architecture overview</li>
+<li><strong>A 5-step session startup protocol</strong>: pwd → git log → the progress file → start the dev server → run the basic tests</li>
+<li>Coding standards / style constraints</li>
+<li>Forbidden actions (production, sensitive directories, unsafe commands)</li>
+<li>Known pitfalls / anti-patterns</li>
+<li>How to run tests</li>
+</ul>
+<p>Hashimoto’s view: each line of AGENTS.md ≈ one mistake sealed off. It is the implicit-prompt form of <a class="term-ref" href="#g-harness">harness engineering</a>.</p>
+</details>
+<details id="g-deny-first">
+<summary>
+<strong>deny-first</strong> <span class="term-tag">Agent</span> — deny every tool and command by default; only an explicit allowlist permits them
+</summary>
+<p>The permission model Claude Code uses. Bash commands are authorized at verb + path granularity:</p>
+<ul>
+<li><code>git status</code> allow</li>
+<li><code>git push --force</code> deny (destructive)</li>
+<li><code>rm -rf</code> pops a user confirmation</li>
+<li><code>cat ~/.ssh/*</code> deny (sensitive path)</li>
+</ul>
+<p>The matching security principle: <strong>if any one layer fails, the others still catch it</strong>. Combine it with a <a class="term-ref" href="#g-sandbox">sandbox</a>, a network-egress allowlist, and a read-only filesystem for defense in depth.</p>
+</details>
+<details id="g-progress-file">
+<summary>
+<strong>progress file / progress.md</strong> <span class="term-tag">Agent</span> — persist agent task progress to a file so a later session can resume
+</summary>
+<p>A core design from Anthropic’s <em>Effective Harnesses</em>: a long-running agent will inevitably blow the context window, and LLM context alone cannot remember “which step I am on”.</p>
+<p>The fix:</p>
+<ul>
+<li><strong>progress.md / PLAN.md</strong>: at each milestone the agent writes “finished X / currently on Y / next is Z / key decisions / risks”</li>
+<li><strong>git commit</strong>: every code change must be a git commit with a descriptive message. The git log is itself the work log, and you can roll back to any state</li>
+</ul>
+<p>The next session runs the 5-step startup protocol and resumes from the breakpoint. <strong>Core insight</strong>: the context window is “working memory”; the filesystem is “long-term memory”.</p>
+</details>
+<details id="g-loop-of-death">
+<summary>
+<strong>Loop of Death</strong> <span class="term-tag">Agent</span> — the agent enters an infinite loop and burns tokens until they run out
+</summary>
+<p>Common patterns:</p>
+<ul>
+<li><strong>Retry loop</strong>: a tool fails → retry the identical call → fail again…</li>
+<li><strong>Goal drift</strong>: each step makes a small local fix, but the whole task doesn’t move</li>
+<li><strong>Mutual negation</strong>: multi-agent systems keep overturning each other’s decisions</li>
+<li><strong>Format hallucination</strong>: stuck hammering a tool-call format that never works</li>
+</ul>
+<p><strong>Defense in depth</strong>:</p>
+<ol class="qa-points" type="1">
+<li>A hard max iteration (5–30 steps)</li>
+<li>An execution timeout (5–30 minutes)</li>
+<li>A token budget (a per-task hard cap)</li>
+<li>Progress detection (force-stop after N consecutive steps with no diff)</li>
+<li>Repeated-failure detection (break out after the same tool call fails 3 times)</li>
+<li>Cost alerts + HITL</li>
+</ol>
+</details>
+<details id="g-memory-corruption">
+<summary>
+<strong>Memory Corruption / memory pollution</strong> <span class="term-tag">Agent</span> — a false fact enters long-term memory and then contaminates every later decision
+</summary>
+<p>Example: a user jokes “I’m a billionaire”, it is stored in semantic memory, and the agent reasons from that assumption from then on.</p>
+<p>Defenses:</p>
+<ul>
+<li><strong>Write threshold</strong>: an LLM writes only when both “factual credibility” and “long-term value” are high</li>
+<li><strong>Provenance</strong>: every memory carries a source (user_said / tool_returned / inferred) plus confidence</li>
+<li><strong>TTL decay</strong>: low confidence gets a short <a class="term-ref" href="#g-ttl">TTL</a></li>
+<li><strong>Audit trail</strong>: every memory write has a trace_id</li>
+<li><strong>User-visible and user-editable</strong>: GDPR compliance plus a way to correct contamination</li>
+<li><strong>Prompt-injection defense</strong>: mark tool-returned data untrusted and do not write it directly</li>
+</ul>
+</details>
+<h3 id="evaluation-and-safety">Evaluation and safety</h3>
+<details id="g-tracing-tools">
+<summary>
+<strong>Trace + eval tool stack</strong> <span class="term-tag">Evaluation</span> — observability platforms such as Langfuse / LangSmith / Phoenix / Helicone / Patronus
+</summary>
+<p>“Full-trace plus evaluation” tools for LLM apps and agents. Mainstream in 2026:</p>
+<ul>
+<li><strong>Langfuse</strong> (open source + SaaS): open-source SOTA, self-hostable, one place for traces + prompt versioning + eval + cost tracking. The default for small and mid-size teams.</li>
+<li><strong>LangSmith</strong> (LangChain Inc., closed-source SaaS): the deepest native integration with the LangChain ecosystem, good trace visualization, and a mature eval framework.</li>
+<li><strong>Phoenix</strong> (open source from Arize AI): focused on traces and monitoring for LLM apps, with a solid OpenTelemetry integration.</li>
+<li><strong>Helicone</strong> (open source + SaaS): a proxy mode that is fast to wire up, with clear monitoring of cost / cache hit / latency.</li>
+<li><strong>Patronus</strong> (SaaS): focused on a “hallucination / safety detector”, production-grade real-time blocking, aimed at enterprises.</li>
+<li><strong>Datadog / Grafana / Prometheus</strong>: general APM / metrics platforms are also starting to support LLM traces (Datadog LLM Observability, Grafana Tempo).</li>
+</ul>
+<p><strong>Capabilities to line up</strong>:</p>
+<ol class="qa-points" type="1">
+<li><strong>Trace</strong>: prompt → tool_call → response → cost / latency strung into one complete trace</li>
+<li><strong>Prompt versioning</strong>: each prompt change gets a hash, and the dashboard can switch and compare them</li>
+<li><strong>Eval</strong>: run the gold set in CI and alert on regressions</li>
+<li><strong>Cost and cache hit rate</strong>: cost per trace, and the distribution of cache hits</li>
+<li><strong>User feedback / thumbs up-down</strong>: attach it directly to the trace and file bad cases</li>
+</ol>
+<p><strong>How to choose</strong>: prefer Langfuse if you self-host; LangSmith for heavy LangChain users; Phoenix for trace monitoring alone; Patronus for safety / real-time blocking.</p>
+</details>
+<details id="g-llm-benchmarks">
+<summary>
+<strong>Mainstream LLM eval benchmarks</strong> <span class="term-tag">Evaluation</span> — what MMLU / MT-Bench / Chatbot Arena / HumanEval / LiveBench / BFCL each measure
+</summary>
+<p>Grouped by the capability being measured:</p>
+<ul>
+<li><strong>MMLU (Massive Multitask Language Understanding)</strong>: multiple choice across 57 subjects, a <strong>general-knowledge</strong> benchmark; GPT-4 ~88%. Criticism: severe item leakage, and multiple choice makes fine differences hard to see.</li>
+<li><strong>HumanEval</strong> (OpenAI 2021): 164 Python programming problems plus unit-test checks, a <strong>code-generation</strong> benchmark. <strong>It has been saturated</strong> (most frontier models are 90%+), it no longer separates models, and SWE-bench Verified is the recommendation.</li>
+<li><strong>MT-Bench</strong> (LMSYS 2023): 80 multi-turn dialogue questions, scored 1–10 by GPT-4 as judge. A classic benchmark of <strong>conversational ability</strong>, but <a class="term-ref" href="#g-llm-judge">judge bias</a> is severe.</li>
+<li><strong>Chatbot Arena / LMArena</strong> (LMSYS / Berkeley): <strong>blind pairwise judgments by real people</strong>, scored by Elo. The most authoritative and the most expensive; since 2024 it has been suspected of score gaming (vendors specifically optimize Arena preferences such as “greetings / explanations / list formatting”).</li>
+<li><strong>LiveBench</strong> (Abacus AI and others): questions <strong>refreshed monthly</strong> to prevent data contamination, covering reasoning / math / code / language / data / instructions; the strongest ongoing refresh.</li>
+<li><strong>BFCL (Berkeley Function-Calling Leaderboard)</strong>: the standard benchmark for <strong>tool use / function calling</strong>, covering simple / multiple / parallel / multi-turn.</li>
+<li><strong>GSM8K / MATH / AIME</strong>: <strong>math-reasoning</strong> benchmarks. AIME is the current main battleground for R1 / o1.</li>
+</ul>
+<p><strong>In practice</strong>: from a 2026 point of view, <strong>no single benchmark is trustworthy anymore</strong> — you need three layers: cross-checking several benchmarks, your own gold set, and blind human votes on Arena. See <a href="#e11">E11</a> and <a href="#h3">H3</a>.</p>
+</details>
+<details id="g-eval">
+<summary>
+<strong>Eval / Evaluation</strong> <span class="term-tag">Evaluation</span> — the “scoring” stage of an LLM app or agent: three layers of evaluation, offline / online / CI
+</summary>
+<p>Eval for an LLM or agent application is not a single action; it is a system. Common layers:</p>
+<ul>
+<li><strong>Offline eval</strong>: run the model / prompt / pipeline on a fixed dataset / gold set and read the metrics. Run a regression on every prompt change, automated in CI.</li>
+<li><strong>Online eval</strong>: sample production traffic, and together with A/B tests watch business-metric movement, bad-case detection, and labels from user feedback.</li>
+<li><strong>Pre-prod eval</strong>: before launch, shadow-eval on pre-production traffic (dual-run, don’t return it to the user) and compare trajectory differences between the old and new versions.</li>
+<li><strong>Adversarial eval / Red team</strong>: humans plus automation build adversarial samples (jailbreak, prompt injection, edge cases) and evaluate the safety rails.</li>
+</ul>
+<p><strong>How the eval tool stack splits</strong>:</p>
+<ol class="qa-points" type="1">
+<li><strong>General frameworks</strong>: OpenAI Evals, DeepEval, Promptfoo, Inspect AI — run evals as a CLI or a library</li>
+<li><strong>Built into observability platforms</strong>: Langfuse / LangSmith / Phoenix all ship an eval framework tied to traces</li>
+<li><strong>RAG-specific</strong>: <a class="term-ref" href="#g-ragas">RAGAS</a> (four dimensions, including faithfulness / context relevancy)</li>
+<li><strong>Tool-use-specific</strong>: BFCL (Berkeley Function-Calling Leaderboard)</li>
+<li><strong>Domain-specific</strong>: each team’s own gold set plus an LLM-judge rubric</li>
+</ol>
+<p><strong>Eval types by how they score</strong>:</p>
+<ul>
+<li><strong>Reference-based</strong> (there is a gold answer): exact match, BLEU / ROUGE, unit tests passing, hitting an answer set — objective, but it needs labels</li>
+<li><strong>Reference-free</strong> (no gold answer): an <a class="term-ref" href="#g-llm-judge">LLM-as-judge</a> gives a 0–1 or 1–5 score; fits open-ended generation and dialogue; judge bias is a major pitfall</li>
+<li><strong>Pairwise</strong>: A vs B comparison, commonly used for model selection; agreement is higher than pointwise</li>
+<li><strong>User feedback</strong>: thumbs up/down, CSAT, retention — the business side’s final acceptance</li>
+</ul>
+<p><strong>Rules of thumb</strong>: (1) changing a prompt with no eval is changing it blind; (2) the eval model must be ≥ the model being evaluated (the judge principle); (3) the gold set must be versioned and private; (4) every bad case must be regressed into the gold set — the harness-engineering closed loop.</p>
+</details>
+<details id="g-llm-judge">
+<summary>
+<strong>LLM-as-judge</strong> <span class="term-tag">Evaluation</span> — use a strong LLM to score candidate outputs in place of human evaluation
+</summary>
+<p>Model “evaluation” as an LLM task: the judge model reads (prompt, response) and outputs a 0–1 score / pass/fail / which side wins pairwise. It parallelizes at large scale, is cheap, and can be automated in CI.</p>
+<p><strong>Three major biases</strong>:</p>
+<ul>
+<li><strong>Position bias</strong>: in pairwise judging, the judge favors A or B</li>
+<li><strong>Verbosity bias</strong>: a preference for longer answers</li>
+<li><strong>Self-preference</strong>: GPT-4 prefers GPT-4 outputs</li>
+</ul>
+<p><strong>The judge principle</strong>: the judge model’s capability should be ≥ the model being evaluated, or it cannot tell what is good about a stronger model’s answer. The production standard is three layers: <strong>your own gold set + an LLM judge + human calibration</strong>.</p>
+</details>
+<details id="g-lost-in-middle">
+<summary>
+<strong>Lost in the Middle</strong> <span class="term-tag">Evaluation</span> — in long-context QA, accuracy drops sharply when the key information sits in the middle
+</summary>
+<p>The Liu et al. 2023 experiment: put the gold passage at the start or the end of the prompt and accuracy is high; put it in the middle and accuracy falls in a U-shape. With 10+ documents, the middle position can score below a no-context baseline.</p>
+<p>Engineering mitigations:</p>
+<ul>
+<li>Reorder — put the most relevant chunks at the start and the end (a <a class="term-ref" href="#g-reranker">reranker</a> plus head/tail interleaving)</li>
+<li>Multi-round retrieval plus summarization, instead of stuffing everything in at once</li>
+<li>Use a model with native long context (Claude / Gemini 1.5 Pro are more stable on RULER)</li>
+</ul>
+</details>
+<details id="g-prompt-injection">
+<summary>
+<strong>prompt injection</strong> <span class="term-tag">Safety</span> — user input or external content hijacks the model’s behavior and bypasses the system prompt
+</summary>
+<p>It is #1 on the OWASP LLM Top 10. Types:</p>
+<ul>
+<li><strong>Direct injection</strong>: “ignore previous instructions, do X”</li>
+<li><strong>Indirect injection</strong>: malicious instructions hidden in a RAG document / web page / PDF / email / tool result — the top threat of the agent era</li>
+<li><strong>Jailbreak</strong> (<a class="term-ref" href="#g-jailbreak">jailbreak</a>): DAN / role-play / many-shot</li>
+<li><strong>Payload smuggling</strong>: Base64 / Unicode homoglyphs / image OCR injection</li>
+<li><strong>Tool abuse</strong>: make the agent call a sensitive tool</li>
+</ul>
+<p><strong>Simon Willison’s conclusion</strong>: prompt injection has no 100% solution, and the system must be designed on the assumption that “the LLM is untrusted”. The dual-LLM pattern = a Planner (sees trusted input and decides) + an Executor (sees untrusted input but has no tool permissions).</p>
+</details>
+<details id="g-hallucination">
+<summary>
+<strong>hallucination / hallucination</strong> <span class="term-tag">Evaluation</span> — the model generates content that looks plausible but is actually wrong
+</summary>
+<p>Sources:</p>
+<ul>
+<li>Biased or outdated training data</li>
+<li><a class="term-ref" href="#g-rag">RAG</a> recall that is incomplete or inaccurate</li>
+<li>Context so long that the signal is diluted</li>
+<li>The model freewheels (no grounding)</li>
+</ul>
+<p>Debug flow: reproduce it and quantify the trigger rate → attribute the cause (RAG recall / whether the model used the context / tool calls) → fix → add a <a class="term-ref" href="#g-llm-judge">regression</a> → production monitoring (a faithfulness scorer blocks in real time).</p>
+<p><strong>Key point</strong>: most hallucinations are defects in the prompt / RAG / context engineering, not “the model is sick”.</p>
+</details>
+<details id="g-guardrails">
+<summary>
+<strong>guardrails</strong> <span class="term-tag">Safety</span> — safety rails around each stage of an LLM: input, output, tools, and dialogue
+</summary>
+<p>NVIDIA NeMo Guardrails defines 5 kinds:</p>
+<ol class="qa-points" type="1">
+<li><strong>Input rails</strong>: PII redaction, <a class="term-ref" href="#g-prompt-injection">prompt injection</a> detection, topic limits</li>
+<li><strong>Dialog rails</strong>: control the dialogue flow with the Colang DSL and hard-code critical decision points</li>
+<li><strong>Retrieval rails</strong>: drop low-quality / sensitive / untrusted chunks</li>
+<li><strong>Execution rails</strong>: parameter allowlists and authorization checks before a tool call</li>
+<li><strong>Output rails</strong>: hallucination detection / filtering leaked sensitive data / toxicity filtering</li>
+</ol>
+<p><strong>Key point</strong>: more rails are not automatically better. Turn on 1–2 high-ROI rails per kind, or latency and cost explode.</p>
+</details>
+<details id="g-jailbreak">
+<summary>
+<strong>jailbreak / jailbreak</strong> <span class="term-tag">Safety</span> — bypass the model’s safety training so it outputs harmful content
+</summary>
+<p>Common techniques:</p>
+<ul>
+<li><strong>DAN</strong> (Do Anything Now): make the model play an unrestricted AI</li>
+<li><strong>Role-play</strong>: “we’re writing a novel, and character X explains how to do Y”</li>
+<li><strong>Many-shot</strong> (disclosed by Anthropic in 2024): stuff the long context with dozens of fake Q&amp;A examples so the model in-context-learns and answers in kind</li>
+<li><strong>Crescendo</strong>: multi-turn, gradually pulling the conversation onto a sensitive topic</li>
+<li><strong>Encoding</strong>: bypass via Base64 / leetspeak / a low-resource language</li>
+</ul>
+<p>Defense: the vendor’s RLHF safety training + application-layer input/output classifiers (Llama Guard) + a cap on max context (against many-shot) + regular red-team exercises.</p>
+</details>
+
+<script>
+/* ========================================================================
+   交互增强：TOC 折叠 + 术语弹窗
+   ======================================================================== */
+(function() {
+
+  // -------- 1. 通过 hash 跳转时自动展开 details（直链访问场景） --------
+  function openHashTarget() {
+    var hash = location.hash;
+    if (!hash || hash.length < 2) return;
+    var el = document.getElementById(decodeURIComponent(hash.slice(1)));
+    if (el && el.tagName === 'DETAILS') {
+      el.open = true;
+      setTimeout(function() { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 60);
+    }
+  }
+
+  // -------- 2. TOC 章内题目列表默认折叠，可点击展开 --------
+  function initToc() {
+    var chapters = document.querySelectorAll('nav#TOC > ul > li > ul > li');
+    chapters.forEach(function(li) {
+      var nestedUl = li.querySelector(':scope > ul');
+      if (!nestedUl) return;
+      li.classList.add('has-children');
+      var arrow = document.createElement('span');
+      arrow.className = 'toc-arrow';
+      arrow.textContent = '▶';
+      arrow.setAttribute('role', 'button');
+      arrow.setAttribute('aria-label', '展开/收起章节题目');
+      arrow.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        li.classList.toggle('toc-expanded');
+      });
+      // 章节链接被点击时也展开该章节（不收起）
+      var link = li.querySelector(':scope > a');
+      if (link) {
+        link.addEventListener('click', function() {
+          li.classList.add('toc-expanded');
+        });
+        link.parentNode.insertBefore(arrow, link);
+      }
+    });
+
+    // 如果当前 hash 指向某题，自动展开它所在的章节
+    expandTocForHash();
+  }
+
+  function expandTocForHash() {
+    var hash = location.hash;
+    if (!hash || hash.length < 2) return;
+    var tocLink = document.querySelector('nav#TOC a[href="' + hash + '"]');
+    if (!tocLink) return;
+    var li = tocLink.closest('nav#TOC > ul > li > ul > li');
+    if (li) li.classList.add('toc-expanded');
+  }
+
+  // -------- 3. 术语 popover：点击 a.term-ref 时浮窗显示，不跳转 --------
+  var currentPopover = null;
+
+  function closePopover() {
+    if (currentPopover) {
+      currentPopover.remove();
+      currentPopover = null;
+    }
+  }
+
+  function showPopover(termLink) {
+    closePopover();
+    var href = termLink.getAttribute('href') || '';
+    var id = href.startsWith('#') ? decodeURIComponent(href.slice(1)) : '';
+    var detail = id ? document.getElementById(id) : null;
+    if (!detail) return;
+
+    var summary = detail.querySelector('summary');
+    var summaryHTML = summary ? summary.innerHTML : id;
+
+    // 构造 popover
+    var pop = document.createElement('div');
+    pop.className = 'term-popover';
+    pop.setAttribute('role', 'dialog');
+    pop.style.top = '-9999px';
+    pop.style.left = '-9999px';
+
+    var closeBtn = document.createElement('button');
+    closeBtn.className = 'term-popover-close';
+    closeBtn.setAttribute('aria-label', '关闭');
+    closeBtn.textContent = '×';
+    pop.appendChild(closeBtn);
+
+    var head = document.createElement('div');
+    head.className = 'term-popover-head';
+    head.innerHTML = summaryHTML;
+    pop.appendChild(head);
+
+    var body = document.createElement('div');
+    body.className = 'term-popover-body';
+    detail.childNodes.forEach(function(node) {
+      if (node.nodeType !== 1) return;
+      if (node.tagName === 'SUMMARY') return;
+      body.appendChild(node.cloneNode(true));
+    });
+    pop.appendChild(body);
+
+    var footer = document.createElement('div');
+    footer.className = 'term-popover-footer';
+    footer.innerHTML = '<a href="#' + encodeURIComponent(id) + '" data-keep-popover="1">Open in the glossary →</a>';
+    pop.appendChild(footer);
+
+    document.body.appendChild(pop);
+
+    // 测量后定位
+    var linkRect = termLink.getBoundingClientRect();
+    var popRect = pop.getBoundingClientRect();
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
+    var scrollY = window.scrollY || window.pageYOffset;
+    var scrollX = window.scrollX || window.pageXOffset;
+    var margin = 12;
+
+    // 移动端：屏幕窄时居中固定
+    if (vw < 720) {
+      pop.classList.add('term-popover-mobile');
+      pop.style.position = 'fixed';
+      pop.style.top = '50%';
+      pop.style.left = '50%';
+      pop.style.transform = 'translate(-50%, -50%)';
+    } else {
+      var top, left;
+      // 优先放在 link 下方
+      if (linkRect.bottom + popRect.height + margin < vh) {
+        top = linkRect.bottom + scrollY + 8;
+      } else if (linkRect.top - popRect.height - margin > 0) {
+        top = linkRect.top + scrollY - popRect.height - 8;
+      } else {
+        // 上下都放不下：贴顶部
+        top = scrollY + margin;
+      }
+      // 水平：尽量左对齐 link，但不要溢出
+      left = Math.max(margin, Math.min(linkRect.left + scrollX, scrollX + vw - popRect.width - margin));
+      pop.style.top = top + 'px';
+      pop.style.left = left + 'px';
+    }
+
+    currentPopover = pop;
+    closeBtn.addEventListener('click', closePopover);
+  }
+
+  // -------- 4. 事件代理 --------
+  document.addEventListener('click', function(e) {
+    var term = e.target.closest('a.term-ref');
+    if (term) {
+      e.preventDefault();
+      showPopover(term);
+      return;
+    }
+    // 在 popover 内点击"在术语表中打开"链接：允许默认跳转，但先关闭 popover
+    if (e.target.closest('[data-keep-popover]')) {
+      setTimeout(closePopover, 100);
+      return;
+    }
+    // 点击外部关闭 popover
+    if (currentPopover && !e.target.closest('.term-popover')) {
+      closePopover();
+    }
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closePopover();
+  });
+
+  window.addEventListener('hashchange', function() {
+    openHashTarget();
+    expandTocForHash();
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    initToc();
+    openHashTarget();
+  });
+})();
+</script>
+
+<nav class="page-pager" id="page-pager" aria-label="Chapters"></nav>
+<footer class="site-foot">
+  <div class="site-foot-inner">
+    <span>Four layers of LLM application engineering</span>
+    <span class="site-foot-sep">·</span>
+    <span>Research date 2026-05-01</span>
+    <span class="site-foot-sep">·</span>
+    <a href="README.html">中文</a>
+  </div>
+</footer>
+<script>
+(function(){
+  var pages = [
+    { file: 'README.en.html', title: 'Overview' },
+    { file: 'prompt-engineering.en.html', title: '01 · Prompt engineering' },
+    { file: 'context-engineering.en.html', title: '02 · Context engineering' },
+    { file: 'agent-engineering.en.html', title: '03 · Agent engineering' },
+    { file: 'harness-engineering.en.html', title: '04 · Harness engineering' },
+    { file: 'overview.en.html', title: 'Survey' }
+  ];
+  var here = (location.pathname.split('/').pop() || 'README.en.html').toLowerCase();
+  var idx = -1;
+  for (var i = 0; i < pages.length; i++) {
+    if (pages[i].file.toLowerCase() === here) { idx = i; break; }
+  }
+  var pager = document.getElementById('page-pager');
+  if (!pager) return;
+  if (idx < 0) { pager.style.display = 'none'; }
+  else {
+    var prev = pages[idx - 1], next = pages[idx + 1], html = '';
+    if (prev) html += '<a class="pager-prev" href="' + prev.file + '"><span class="pager-label">← Previous</span><span class="pager-title">' + prev.title + '</span></a>';
+    else html += '<span class="pager-empty"></span>';
+    if (next) html += '<a class="pager-next" href="' + next.file + '"><span class="pager-label">Next →</span><span class="pager-title">' + next.title + '</span></a>';
+    else html += '<span class="pager-empty"></span>';
+    pager.innerHTML = html;
+  }
+  var toc = document.getElementById('TOC');
+  if (!toc || !('IntersectionObserver' in window)) return;
+  var links = toc.querySelectorAll('a[href^="#"]');
+  if (!links.length) return;
+  var byId = {}, orderedIds = [];
+  links.forEach(function(a){
+    var id = decodeURIComponent((a.getAttribute('href') || '').slice(1));
+    if (!id) return;
+    byId[id] = a; orderedIds.push(id);
+  });
+  var headings = orderedIds.map(function(id){ return document.getElementById(id); }).filter(Boolean);
+  if (!headings.length) return;
+  var visible = {};
+  var suppressTocScrollUntil = 0;
+  links.forEach(function(a){
+    a.addEventListener('click', function(){ suppressTocScrollUntil = Date.now() + 1000; });
+  });
+  function update() {
+    var firstId = null;
+    for (var i = 0; i < orderedIds.length; i++) { if (visible[orderedIds[i]]) { firstId = orderedIds[i]; break; } }
+    links.forEach(function(a){ a.classList.remove('toc-active'); });
+    if (firstId && byId[firstId]) {
+      var a = byId[firstId]; a.classList.add('toc-active');
+      if (Date.now() < suppressTocScrollUntil) return;
+      var rect = a.getBoundingClientRect(), box = toc.getBoundingClientRect();
+      if (rect.top < box.top + 40 || rect.bottom > box.bottom - 40) a.scrollIntoView({ block: 'nearest' });
+    }
+  }
+  var io = new IntersectionObserver(function(entries){ entries.forEach(function(e){ visible[e.target.id] = e.isIntersecting; }); update(); }, { rootMargin: '-12% 0px -70% 0px', threshold: 0 });
+  headings.forEach(function(h){ io.observe(h); });
+})();
+</script>
+
+</body>
+</html>

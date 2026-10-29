@@ -1,5 +1,7 @@
 # 驾驭工程（Harness Engineering）
 
+> **中文** · [English](./harness-engineering.en.md)
+
 **位置**：LLM 应用工程四层演进的第四层（最高层 / 最外层）
 **调研日期**：2026-05-01
 

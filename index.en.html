@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Agent Engineer Handbook</title>
+  <meta name="description" content="Field guide for production LLM agent systems: prompt, context, agent, and harness engineering, plus job descriptions and an interview bank. English edition. Chinese is the default." />
+  <link rel="canonical" href="https://harrisliangsu.github.io/ai-agent-engineer-handbook/index.en.html" />
+  <link rel="alternate" hreflang="zh-CN" href="https://harrisliangsu.github.io/ai-agent-engineer-handbook/" />
+  <link rel="alternate" hreflang="en" href="https://harrisliangsu.github.io/ai-agent-engineer-handbook/index.en.html" />
+  <meta property="og:title" content="AI Agent Engineer Handbook" />
+  <meta property="og:description" content="Four engineering layers (Prompt → Context → Agent → Harness), real job descriptions, and an interview bank." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://harrisliangsu.github.io/ai-agent-engineer-handbook/index.en.html" />
+  <meta property="og:image" content="https://harrisliangsu.github.io/ai-agent-engineer-handbook/assets/social-preview.png" />
+  <meta property="og:image:width" content="1280" />
+  <meta property="og:image:height" content="640" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="AI Agent Engineer Handbook" />
+  <meta name="twitter:description" content="Prompt, context, agent, and harness engineering, plus interviews. English edition." />
+  <meta name="twitter:image" content="https://harrisliangsu.github.io/ai-agent-engineer-handbook/assets/social-preview.png" />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <style>
+    :root {
+      --bg: #faf8f3;
+      --elev: #ffffff;
+      --text: #1d1d1f;
+      --strong: #0a0a0c;
+      --muted: #5a5d63;
+      --subtle: #8a8d93;
+      --border: #e6e1d6;
+      --accent: #b85c00;
+      --accent-deep: #8a4500;
+      --accent-soft: #fdecd9;
+      --link: #0d6cad;
+      --l1: #c44a3d;
+      --l2: #2d7d6f;
+      --l3: #6a4c93;
+      --l4: #b85c00;
+      --shadow: 0 1px 2px rgba(60, 50, 30, 0.04), 0 8px 24px rgba(60, 50, 30, 0.05);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+      line-height: 1.65;
+    }
+    a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    a:hover { color: var(--accent-deep); }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 40px 24px 80px; }
+    .kicker {
+      margin: 0 0 12px;
+      color: var(--accent-deep);
+      font-size: 13px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(32px, 5vw, 48px);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      color: var(--strong);
+      font-weight: 700;
+    }
+    .lead { margin: 0; font-size: 18px; max-width: 42em; }
+    .en {
+      margin: 14px 0 0;
+      color: var(--muted);
+      max-width: 46em;
+    }
+    .meta { margin: 18px 0 0; color: var(--subtle); font-size: 14px; }
+    .row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+    .btn {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--elev);
+      color: var(--strong);
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn:hover { border-color: var(--accent); color: var(--accent-deep); }
+    .btn.primary:hover { color: #fff; filter: brightness(1.05); }
+    h2 { margin: 48px 0 8px; font-size: 22px; color: var(--strong); }
+    .section-note { margin: 0 0 16px; color: var(--muted); }
+    .hero-note { margin: 16px 0 0; max-width: 46em; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .grid.two { grid-template-columns: 1fr 1fr; }
+    .grid.three { grid-template-columns: repeat(3, 1fr); }
+    .card {
+      display: block;
+      background: var(--elev);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 16px 14px;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: var(--shadow);
+      border-top: 4px solid var(--accent);
+      min-height: 148px;
+    }
+    .card:hover { border-color: #d8c9b0; color: inherit; }
+    .card .no { font-size: 12px; letter-spacing: 0.08em; color: var(--accent); }
+    .card h3 { margin: 8px 0 6px; font-size: 18px; color: var(--strong); }
+    .card p { margin: 0; color: var(--muted); font-size: 14px; }
+    .card.l1 { border-top-color: var(--l1); } .card.l1 .no { color: var(--l1); }
+    .card.l2 { border-top-color: var(--l2); } .card.l2 .no { color: var(--l2); }
+    .card.l3 { border-top-color: var(--l3); } .card.l3 .no { color: var(--l3); }
+    .card.l4 { border-top-color: var(--l4); } .card.l4 .no { color: var(--l4); }
+    .path {
+      display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+      margin: 8px 0 0; color: var(--muted); font-size: 14px;
+    }
+    .path span {
+      background: var(--accent-soft); color: var(--accent-deep);
+      border-radius: 999px; padding: 2px 10px;
+    }
+    footer {
+      margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--border);
+      color: var(--subtle); font-size: 14px;
+    }
+    footer nav { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 8px; }
+    @media (max-width: 860px) {
+      .grid, .grid.three { grid-template-columns: 1fr 1fr; }
+      .grid.two { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      .grid, .grid.three { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="kicker">Handbook · English</p>
+    <h1>AI Agent Engineer Handbook</h1>
+    <p class="lead">From prompt and context to agent and harness: four engineering layers, plus real job descriptions and an interview bank.</p>
+    <p class="en">Chinese is the default edition of this site. This page is the English portal. Long chapters, the job-description notes, and all 92 interview answers have English siblings beside the Chinese files.</p>
+    <p class="meta">Content updated 2026-05-31 · MIT · <a href="https://github.com/harrisliangsu/ai-agent-engineer-handbook">GitHub</a></p>
+    <div class="row">
+      <a class="btn primary" href="engineering-foundations/html/prompt-engineering.en.html">Start with prompt engineering</a>
+      <a class="btn" href="interview-prep/html/interview-questions.en.html">Interview questions A–K</a>
+      <a class="btn" href="knowledge-map.en.html">Knowledge map</a>
+      <a class="btn" href="index.html">中文</a>
+    </div>
+    <p class="path" aria-label="Four layers"><span>Prompt</span>→<span>Context</span>→<span>Agent</span>→<span>Harness</span></p>
+    <p class="section-note hero-note">This page is the site portal. Use it to enter the four chapters, the interview bank, and the translations. The <a href="knowledge-map.en.html">knowledge map</a> is a separate review picture of the same material. It does not replace this portal.</p>
+
+    <h2>Four engineering layers</h2>
+    <p class="section-note">One long essay per layer, with a table of contents and a chapter switcher. The historical merged draft is overview. The current text is the four chapters below.</p>
+    <div class="grid">
+      <a class="card l1" href="engineering-foundations/html/prompt-engineering.en.html">
+        <div class="no">01 · PROMPT</div>
+        <h3>Prompt engineering</h3>
+        <p>How to make one call reliable: training stack, decoding, CoT, ReAct, evaluation.</p>
+      </a>
+      <a class="card l2" href="engineering-foundations/html/context-engineering.en.html">
+        <div class="no">02 · CONTEXT</div>
+        <h3>Context engineering</h3>
+        <p>What the model should see this turn: RAG, long context, memory, MCP.</p>
+      </a>
+      <a class="card l3" href="engineering-foundations/html/agent-engineering.en.html">
+        <div class="no">03 · AGENT</div>
+        <h3>Agent engineering</h3>
+        <p>How a multi-step task actually finishes: patterns, frameworks, failures, permissions.</p>
+      </a>
+      <a class="card l4" href="engineering-foundations/html/harness-engineering.en.html">
+        <div class="no">04 · HARNESS</div>
+        <h3>Harness engineering</h3>
+        <p>Strong constraints and a self-healing loop, plus four pillars and a maturity model.</p>
+      </a>
+    </div>
+
+    <h2>Hiring and review</h2>
+    <div class="grid two">
+      <a class="card" href="interview-prep/html/jd-requirements.en.html">
+        <div class="no">JOB DESCRIPTIONS</div>
+        <h3>China, US, and EU roles</h3>
+        <p>Excerpts from real postings, the requirements that repeat, and the limits of the evidence. Chinese quotations stay in Chinese.</p>
+      </a>
+      <a class="card" href="interview-prep/html/interview-questions.en.html">
+        <div class="no">A–K · 92 QUESTIONS</div>
+        <h3>Questions and answers</h3>
+        <p>Each question has a difficulty and a source URL, from fundamentals and RAG through agents, evaluation, and safety.</p>
+      </a>
+      <a class="card" href="knowledge-map.en.html">
+        <div class="no">MAP</div>
+        <h3>Knowledge map</h3>
+        <p>The four layers, the question bank, the translations, and the glossary on one review map. It does not replace this portal.</p>
+      </a>
+      <a class="card" href="engineering-foundations/html/overview.en.html">
+        <div class="no">V1 ARCHIVE</div>
+        <h3>Survey (historical)</h3>
+        <p>The merged edition from before the four chapters were split. Kept for comparison. It is not the current text.</p>
+      </a>
+    </div>
+
+    <h2>Classic essays</h2>
+    <p class="section-note">The notes in this repo are unofficial Chinese translations. The English original is the authority. These cards open the Chinese study note, which links to the original.</p>
+    <div class="grid two">
+      <a class="card" href="translations/html/building-effective-agents.html">
+        <div class="no">ANTHROPIC · 中文译稿</div>
+        <h3>Building Effective Agents</h3>
+        <p>Chinese study note. Original: anthropic.com/engineering/building-effective-agents</p>
+      </a>
+      <a class="card" href="translations/html/multi-agent-research-system.html">
+        <div class="no">ANTHROPIC · 中文译稿</div>
+        <h3>Multi-agent research system</h3>
+        <p>How we built our multi-agent research system</p>
+      </a>
+      <a class="card" href="translations/html/effective-harnesses-for-long-running-agents.html">
+        <div class="no">ANTHROPIC · 中文译稿</div>
+        <h3>Harnesses for long-running agents</h3>
+        <p>Effective harnesses for long-running agents</p>
+      </a>
+      <a class="card" href="translations/html/openai-harness-engineering.html">
+        <div class="no">OPENAI · 中文译稿</div>
+        <h3>Harness engineering</h3>
+        <p>Harness engineering: leveraging Codex in an agent-first world</p>
+      </a>
+    </div>
+
+    <footer>
+      <nav>
+        <a href="https://github.com/harrisliangsu/ai-agent-engineer-handbook">Repository</a>
+        <a href="index.html">中文</a>
+        <a href="README.en.md">English README</a>
+        <a href="README.md">中文 README</a>
+        <a href="CONTRIBUTING.en.md">Contributing</a>
+        <a href="https://github.com/harrisliangsu/ai-agent-engineer-handbook/discussions">Discussions</a>
+        <a href="LICENSE">MIT</a>
+      </nav>
+      <div>AI Agent, LLM, RAG, prompt engineering, context engineering, harness engineering, interview, handbook. Chinese default, English parallel edition.</div>
+    </footer>
+  </div>
+</body>
+</html>
