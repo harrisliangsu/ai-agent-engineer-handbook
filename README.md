@@ -34,6 +34,7 @@ GitHub Topics（仓库已设置，此处只作索引）：`agent` · `ai-agent` 
 - [工作流声明](#工作流声明)
 - [社区](#社区)
 - [License](#license)
+- [Star History](#star-history)
 
 ---
 
@@ -227,3 +228,15 @@ cd interview-prep/html && python3 -m http.server 8000
 ## License
 
 [MIT](./LICENSE)。文章引用的论文与厂商官方文档归原作者所有，本仓库只做整理与中文转述。译文是非官方学习稿。
+
+---
+
+## Star History
+
+<a href="https://star-history.com/#harrisliangsu/ai-agent-engineer-handbook&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=harrisliangsu/ai-agent-engineer-handbook&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=harrisliangsu/ai-agent-engineer-handbook&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=harrisliangsu/ai-agent-engineer-handbook&type=Date" />
+ </picture>
+</a>
